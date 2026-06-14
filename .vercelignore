@@ -1,0 +1,8 @@
+# The public Vercel project is the Next.js learning experience only.
+api/
+Dockerfile
+docker-compose.yml
+.dockerignore
+work/
+outputs/
+*.tsbuildinfo

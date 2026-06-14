@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env
+.env*.local
+.vercel/
+*.pyc
+__pycache__/
+.pytest_cache/
+*.tsbuildinfo
+outputs/*
+!outputs/.gitkeep
+work/
+
+.vercel
