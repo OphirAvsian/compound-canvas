@@ -76,51 +76,93 @@ coordinate-backed residue inspection, and a curated active-site lesson based on
 actual experimental structure coordinates. Docking remains out of scope until
 protein and ligand preparation are scientifically explicit.
 
-## Run locally
+## Local development
 
 ```bash
 npm install
+docker compose up --build api
+```
+
+In another terminal:
+
+```bash
+$env:NEXT_PUBLIC_API_URL="http://127.0.0.1:8000"
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. Verify the API independently at:
 
-## Deploy the public prototype
-
-The Next.js learning experience is ready for Vercel Hobby with no environment
-variables. See [DEPLOYMENT.md](./DEPLOYMENT.md) for the exact CLI and GitHub
-deployment paths, verification checklist, and backend limitations.
-
-The API can be run separately:
-
-```bash
-cd api
-python -m venv .venv
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+```text
+http://127.0.0.1:8000/health
+http://127.0.0.1:8000/ready
 ```
 
-The molecule API requires RDKit. The supported path is the API container or a
-Python environment capable of installing the `api/requirements.txt` packages.
-The browser never generates replacement coordinates when that service is
-offline.
+The API container honors Railway's `PORT` environment variable and defaults to
+port `8000` locally.
 
-For the complete local stack:
+## Public deployment: Vercel + Railway
 
-```bash
-docker compose up --build
+The production architecture uses Vercel for Next.js and Railway for the
+FastAPI/RDKit Docker service.
+
+### Railway backend
+
+1. Create a Railway service from this GitHub repository.
+2. Set the service root directory to `/api`.
+3. Deploy with `api/Dockerfile`.
+4. Set the health-check path to `/health`.
+5. Keep Railway's generated `PORT`; the image reads it automatically.
+6. Optionally add `api.compoundcanvas.com` as a custom domain.
+
+Recommended Railway variables:
+
+```text
+CC_CORS_ORIGINS=["https://compound-canvas.vercel.app","https://compoundcanvas.com","https://www.compoundcanvas.com"]
+CC_MAX_REQUEST_BYTES=131072
+CC_RATE_LIMIT_REQUESTS=20
+CC_RATE_LIMIT_WINDOW_SECONDS=60
+CC_CONFORMER_TIMEOUT_SECONDS=20
+CC_CONFORMER_MAX_CONCURRENCY=2
+CC_TRUST_PROXY_HEADERS=true
 ```
+
+### Vercel frontend
+
+Set this Vercel production environment variable to the Railway HTTPS URL:
+
+```text
+NEXT_PUBLIC_API_URL=https://api.compoundcanvas.com
+```
+
+Redeploy the frontend after changing it because `NEXT_PUBLIC_API_URL` is
+embedded at build time.
+
+### Public API safeguards
+
+- Exact-origin CORS allowlist
+- 128 KiB conformer request limit
+- Per-IP fixed-window rate limit
+- Two concurrent RDKit calculations per process
+- 20-second server response deadline
+- Request IDs and JSON request logs
+- Railway-compatible liveness and readiness endpoints
+
+Rate and concurrency limits are process-local. They are appropriate for one
+Railway replica used for friend testing; a shared limiter and durable queue are
+required before horizontal scaling or docking.
 
 ## Product architecture
 
 - `app/`: Next.js guided learning experience
 - `api/app/main.py`: FastAPI molecule API and explicit unavailable-feature responses
-- `api/app/worker.py`: Reserved Celery boundary for future scientific workloads
+- `api/app/middleware.py`: request limits, rate limiting, request IDs, and logs
+- `api/app/services/execution.py`: bounded RDKit execution and timeout boundary
+- `api/app/worker.py`: reserved, unused boundary for future scientific workloads
 - `docker-compose.yml`: web, API, worker, PostgreSQL, and Redis
 
 Scientific tools should run in isolated worker images. Their raw outputs should
 be converted into interaction evidence and beginner-friendly explanations
 before reaching the web client.
 
-The FastAPI/RDKit service is not deployed on Vercel. Vercel hosts only the
-Next.js frontend; conformer generation requires the separate backend.
+Vercel hosts only the Next.js frontend. RDKit runs in the separate Railway
+container.

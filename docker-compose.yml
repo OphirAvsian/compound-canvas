@@ -16,12 +16,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      CC_DATABASE_URL: postgresql+psycopg://compound:compound@db:5432/compound
-      CC_REDIS_URL: redis://redis:6379/0
-      CC_CORS_ORIGINS: '["http://localhost:3000","http://127.0.0.1:3000"]'
-    depends_on:
-      - db
-      - redis
+      PORT: "8000"
+      CC_CORS_ORIGINS: '["http://localhost:3000","http://127.0.0.1:3000","http://localhost:3001","http://127.0.0.1:3001","https://compound-canvas.vercel.app","https://compoundcanvas.com","https://www.compoundcanvas.com"]'
 
   worker:
     build: ./api

@@ -1,21 +1,40 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from ..schemas import ConformerRequest, ConformerResponse
-from ..services.conformer import MoleculeError, generate_conformer
+from ..services.conformer import MoleculeError
+from ..services.execution import CalculationBusyError, CalculationTimeoutError, ConformerExecutor
 
 router = APIRouter(prefix="/api/molecules", tags=["molecules"])
 
 
 @router.post("/conformers", response_model=ConformerResponse)
-def create_conformer(request: ConformerRequest) -> ConformerResponse:
+def create_conformer(payload: ConformerRequest, request: Request) -> ConformerResponse:
+    executor: ConformerExecutor = request.app.state.conformer_executor
     try:
-        result = generate_conformer(
-            smiles=request.smiles,
-            molfile=request.molfile,
-            seed=request.seed,
+        result = executor.run(
+            smiles=payload.smiles,
+            molfile=payload.molfile,
+            seed=payload.seed,
         )
     except MoleculeError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+    except CalculationBusyError as error:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "The calculation service is handling its maximum number of molecules. "
+                "Please retry shortly."
+            ),
+            headers={"Retry-After": "2"},
+        ) from error
+    except CalculationTimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail=(
+                "The molecule calculation took too long and was stopped for this request. "
+                "Try a smaller molecule or retry."
+            ),
+        ) from error
 
     return ConformerResponse(
         **result.__dict__,

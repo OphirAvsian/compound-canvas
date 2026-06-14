@@ -64,7 +64,7 @@ export async function generateConformer(
       );
     }
     throw new Error(
-      "The local RDKit service is offline. Make sure Docker Desktop is running, then retry.",
+      "The molecule calculation service is unavailable. Please wait a moment and retry.",
     );
   } finally {
     globalThis.clearTimeout(timeout);

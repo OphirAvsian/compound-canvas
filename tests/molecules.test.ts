@@ -63,7 +63,7 @@ describe("generateConformer", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
 
     await expect(generateConformer({ smiles: "CCO" })).rejects.toThrow(
-      "The local RDKit service is offline",
+      "The molecule calculation service is unavailable",
     );
   });
 });

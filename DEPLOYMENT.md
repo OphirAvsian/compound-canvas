@@ -1,97 +1,53 @@
-# Deploy Compound Canvas to Vercel
+# Deploy Compound Canvas to Vercel and Railway
 
-## What this deployment includes
-
-The Vercel deployment publishes the interactive Next.js learning experience.
-Ketcher and Mol* run in the browser, but real RDKit conformer generation
-requires a separately hosted FastAPI service and a `NEXT_PUBLIC_API_URL`
-pointing to its public HTTPS URL.
-
-Vercel does not run the `api/` container, Celery worker, PostgreSQL, Redis, or
-Docker Compose stack as part of this frontend project. RDKit and future
-Vina/Gnina jobs belong on a separate compute host.
-
-## Pre-deployment checklist
-
-- [x] Next.js production build succeeds
-- [x] TypeScript checking succeeds
-- [x] Homepage is statically generated
-- [ ] Public FastAPI/RDKit service deployed
-- [ ] `NEXT_PUBLIC_API_URL` configured in Vercel
-- [x] Container backend excluded from the Vercel frontend upload
-- [x] Vercel-compatible `next build` command
-- [x] Node.js 24 declared
-- [x] `.vercel` and local environment files ignored
-- [ ] Create or sign in to a Vercel Hobby account
-- [ ] Deploy using the CLI or connect a Git repository
-- [ ] Open the generated `*.vercel.app` URL in a private browser window
-- [ ] Test analog selection, residue inspection, and docking completion
-- [ ] Share the production URL with testers
-
-## Fastest path: Vercel CLI
-
-Run these commands from the repository root:
-
-```powershell
-npx vercel@latest login
-npx vercel@latest --prod
-```
-
-For the setup questions:
-
-1. Set up and deploy: `Y`
-2. Scope: choose your personal account
-3. Link to existing project: `N`
-4. Project name: `compound-canvas`
-5. Code directory: `./`
-6. Override detected settings: `N`
-
-Vercel detects Next.js, runs `npm install` and `npm run build`, then prints a
-production URL similar to:
+## Architecture
 
 ```text
-https://compound-canvas.vercel.app
+Browser
+  -> Vercel: Next.js, Ketcher, Mol*
+  -> Railway: FastAPI and RDKit Docker container
 ```
 
-If that exact project name is taken, Vercel adds a suffix. The URL printed after
-`Production:` is the one to share.
+PostgreSQL, Redis, Celery, docking, and project persistence are not part of this
+deployment.
 
-## Recommended path: GitHub automatic deployments
+## 1. Deploy the Railway backend
 
-1. Create an empty GitHub repository named `compound-canvas`.
-2. Initialize and push this folder:
+1. Create a Railway project from `OphirAvsian/compound-canvas`.
+2. Create one service with root directory `/api`.
+3. Railway detects `api/Dockerfile`.
+4. Set health-check path `/health`.
+5. Generate a public Railway domain.
+6. Set the production variables shown in `README.md`.
+7. Confirm both `/health` and `/ready` return HTTP 200.
 
-```powershell
-git init
-git add .
-git commit -m "Initial Compound Canvas MVP"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/compound-canvas.git
-git push -u origin main
-```
+The container starts Uvicorn on Railway's provided `PORT`. Do not deploy the
+PostgreSQL, Redis, or worker services from `docker-compose.yml`.
 
-3. Open <https://vercel.com/new>.
-4. Import the `compound-canvas` GitHub repository.
-5. Keep Framework Preset as `Next.js`.
-6. Keep Root Directory as `./`.
-7. Set `NEXT_PUBLIC_API_URL` to the public HTTPS URL of the FastAPI service.
-8. Select the Hobby plan and click Deploy.
+## 2. Connect the Vercel frontend
 
-Every push to `main` then updates the production URL. Other branches and pull
-requests receive separate preview URLs.
+1. Open the existing Compound Canvas project in Vercel.
+2. Set `NEXT_PUBLIC_API_URL` to the Railway HTTPS domain.
+3. Redeploy production.
+4. If using a custom domain, add it to Vercel and add the matching exact origin
+   to `CC_CORS_ORIGINS` on Railway.
 
 ## Post-deployment smoke test
 
 1. Open the production URL in a private window.
 2. Confirm the page title says Compound Canvas.
 3. Confirm the header reports `RDKit online`.
-4. Generate a 3D conformer and confirm Mol* renders the returned molecule.
-5. Confirm protein and docking content is clearly labeled illustrative or
+4. Generate aspirin or caffeine and confirm Mol* renders the returned SDF.
+5. Confirm invalid chemistry produces a readable validation error.
+6. Confirm repeated rapid requests eventually receive HTTP 429.
+7. Confirm protein and docking content remains labeled illustrative or
    unavailable.
-6. Confirm the page remains usable at phone and desktop widths.
 
-## Free-tier note
+## Operational notes
 
-Vercel Hobby is appropriate for personal, non-commercial testing. It is not the
-right runtime for long scientific docking jobs: Hobby functions have limited
-execution duration, while Celery/Vina/Gnina jobs need durable worker compute.
+- Use one Railway replica for the current process-local rate and concurrency
+  controls.
+- Monitor `/health`; use `/ready` when checking application readiness.
+- Set Railway spending alerts.
+- Request IDs are returned in `X-Request-ID` and included in JSON logs.
+- Do not add docking to the synchronous conformer process.
