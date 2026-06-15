@@ -18,6 +18,50 @@ export type JourneyEvent =
         generatedAt: string;
       };
     }
+  | {
+      type: "ligand.prepared";
+      sampleId: string;
+      preparation: {
+        artifactId: string;
+        canonicalIsomericSmiles: string;
+        molecularFormula: string;
+        molecularWeight: number;
+        formalCharge: number;
+        fragmentReport: {
+          originalFragmentCount: number;
+          selectedFragmentIndex: number;
+          selectedHeavyAtoms: number;
+          removedFragments: Array<Record<string, number | string>>;
+        };
+        stereochemistryReport: {
+          assignedCenters: Array<Record<string, number | string>>;
+          possibleUnassignedCenters: Array<Record<string, number | string>>;
+        };
+        hydrogenReport: {
+          atomsBeforeHydrogens: number;
+          atomsAfterHydrogens: number;
+          explicitHydrogensAdded: number;
+        };
+        conformerReport: {
+          requestedConformers: number;
+          generatedConformers: number;
+          selectedConformerId: number;
+          forceField: "MMFF94" | "UFF";
+          energiesKcalMol: Array<Record<string, number>>;
+        };
+        preparedSdf: string;
+        pdbqt: string | null;
+        pdbqtAvailable: boolean;
+        provenance: {
+          rdkitVersion: string | null;
+          meekoVersion: string | null;
+          method: string;
+          generatedAt: string;
+          inputSha256: string;
+        };
+        warnings: string[];
+      };
+    }
   | { type: "molecule.viewer_rotated" }
   | { type: "protein.structure_loaded"; pdbId: string }
   | {

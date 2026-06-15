@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { CapabilitiesPanel } from "@/components/capabilities/CapabilitiesPanel";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
+import { LigandPreparationPanel } from "@/components/molecule/LigandPreparationPanel";
 import { WorkflowGuide } from "@/components/onboarding/WorkflowGuide";
 import { GuidedStart } from "@/components/onboarding/GuidedStart";
 import { ProteinWorkspace } from "@/components/protein/ProteinWorkspace";
@@ -28,7 +29,9 @@ import { sampleMolecules, type SampleMolecule } from "@/data/sample-molecules";
 import {
   checkMoleculeService,
   generateConformer,
+  prepareLigand,
   type ConformerResult,
+  type LigandPreparationResult,
 } from "@/lib/molecules";
 import type { MoleculeExport } from "@/components/molecule/KetcherEditor";
 import { useLearningJourney } from "@/hooks/useLearningJourney";
@@ -69,8 +72,11 @@ export default function Home() {
   const [conformer, setConformer] = useState<ConformerResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [preparingLigand, setPreparingLigand] = useState(false);
   const [stale, setStale] = useState(false);
   const [lastStructure, setLastStructure] = useState<MoleculeExport | null>(null);
+  const [preparedLigand, setPreparedLigand] = useState<LigandPreparationResult | null>(null);
+  const [preparationError, setPreparationError] = useState<string | null>(null);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "online" | "offline">("checking");
   const journey = useLearningJourney();
   const experiment = useExperiment();
@@ -101,6 +107,8 @@ export default function Home() {
         seed: 61453,
       });
       setConformer(result);
+      setPreparedLigand(null);
+      setPreparationError(null);
       setStale(false);
       setServiceStatus("online");
       emitJourneyEvent({
@@ -133,6 +141,8 @@ export default function Home() {
   const markStructureChanged = useCallback(() => {
     setStale(true);
     setApiError(null);
+    setPreparedLigand(null);
+    setPreparationError(null);
   }, []);
 
   const retryConformer = useCallback(() => {
@@ -143,11 +153,85 @@ export default function Home() {
     setSelectedSample(sample);
     setStale(true);
     setApiError(null);
+    setPreparedLigand(null);
+    setPreparationError(null);
     emitJourneyEvent({
       type: "molecule.sample_selected",
       sampleId: sample.id,
     });
   }, []);
+
+  const conformerCurrent = Boolean(conformer && !stale);
+
+  const prepareCurrentLigand = useCallback(async () => {
+    if (!lastStructure || !conformerCurrent) return;
+    setPreparingLigand(true);
+    setPreparationError(null);
+    try {
+      const result = await prepareLigand({
+        molfile: lastStructure.molfile,
+        options: {
+          fragment_policy: "largest",
+          conformer_count: 5,
+          seed: 61453,
+          force_field: "MMFF94_WITH_UFF_FALLBACK",
+        },
+      });
+      setPreparedLigand(result);
+      setServiceStatus("online");
+      emitJourneyEvent({
+        type: "ligand.prepared",
+        sampleId: selectedSample.id,
+        preparation: {
+          artifactId: result.artifact_id,
+          canonicalIsomericSmiles: result.canonical_isomeric_smiles,
+          molecularFormula: result.molecular_formula,
+          molecularWeight: result.molecular_weight,
+          formalCharge: result.formal_charge,
+          fragmentReport: {
+            originalFragmentCount: result.fragment_report.original_fragment_count,
+            selectedFragmentIndex: result.fragment_report.selected_fragment_index,
+            selectedHeavyAtoms: result.fragment_report.selected_heavy_atoms,
+            removedFragments: result.fragment_report.removed_fragments,
+          },
+          stereochemistryReport: {
+            assignedCenters: result.stereochemistry_report.assigned_centers,
+            possibleUnassignedCenters:
+              result.stereochemistry_report.possible_unassigned_centers,
+          },
+          hydrogenReport: {
+            atomsBeforeHydrogens: result.hydrogen_report.atoms_before_hydrogens,
+            atomsAfterHydrogens: result.hydrogen_report.atoms_after_hydrogens,
+            explicitHydrogensAdded: result.hydrogen_report.explicit_hydrogens_added,
+          },
+          conformerReport: {
+            requestedConformers: result.conformer_report.requested_conformers,
+            generatedConformers: result.conformer_report.generated_conformers,
+            selectedConformerId: result.conformer_report.selected_conformer_id,
+            forceField: result.conformer_report.force_field,
+            energiesKcalMol: result.conformer_report.energies_kcal_mol,
+          },
+          preparedSdf: result.prepared_sdf,
+          pdbqt: result.pdbqt,
+          pdbqtAvailable: result.pdbqt_available,
+          provenance: {
+            rdkitVersion: result.provenance.rdkit_version,
+            meekoVersion: result.provenance.meeko_version,
+            method: result.provenance.method,
+            generatedAt: result.provenance.generated_at,
+            inputSha256: result.provenance.input_sha256,
+          },
+          warnings: result.warnings,
+        },
+      });
+    } catch (cause) {
+      setPreparationError(
+        cause instanceof Error ? cause.message : "The ligand could not be prepared.",
+      );
+    } finally {
+      setPreparingLigand(false);
+    }
+  }, [conformerCurrent, lastStructure, selectedSample.id]);
 
   const markConformerRotated = useCallback(() => {
     emitJourneyEvent({ type: "molecule.viewer_rotated" });
@@ -179,7 +263,6 @@ export default function Home() {
     });
   }, []);
 
-  const conformerCurrent = Boolean(conformer && !stale);
   const workflowStage = generating
     ? "calculating"
     : conformerCurrent
@@ -329,6 +412,14 @@ export default function Home() {
           <div className="border-t border-[#d8d7d1] xl:hidden">
             <LearningPanel conformer={conformer} />
           </div>
+
+          <LigandPreparationPanel
+            canPrepare={conformerCurrent && Boolean(lastStructure)}
+            busy={preparingLigand}
+            result={preparedLigand}
+            error={preparationError}
+            onPrepare={prepareCurrentLigand}
+          />
 
           {journey.hydrated && (
             <MissionCheckpointPanel missionId="mission-1" journeyState={journey.state} />

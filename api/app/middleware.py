@@ -71,7 +71,10 @@ class PublicApiMiddleware(BaseHTTPMiddleware):
 
         response: Response
         try:
-            if request.url.path == "/api/molecules/conformers" and request.method == "POST":
+            if request.url.path in {
+                "/api/molecules/conformers",
+                "/api/molecules/prepare-ligand",
+            } and request.method == "POST":
                 content_length = request.headers.get("content-length")
                 if content_length:
                     try:

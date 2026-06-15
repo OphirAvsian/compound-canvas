@@ -63,6 +63,70 @@ describe("experiment state", () => {
     expect(unchanged).toBe(experiment);
   });
 
+  it("records ligand preparation as a future-docking input without docking evidence", () => {
+    let experiment = createInitialExperiment({ id: "exp-1", now });
+    experiment = applyExperimentEvent(
+      experiment,
+      { type: "molecule.sample_selected", sampleId: "caffeine" },
+      now,
+    );
+    experiment = applyExperimentEvent(
+      experiment,
+      {
+        type: "ligand.prepared",
+        sampleId: "caffeine",
+        preparation: {
+          artifactId: "ligprep_abc",
+          canonicalIsomericSmiles: "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+          molecularFormula: "C8H10N4O2",
+          molecularWeight: 194.19,
+          formalCharge: 0,
+          fragmentReport: {
+            originalFragmentCount: 1,
+            selectedFragmentIndex: 0,
+            selectedHeavyAtoms: 14,
+            removedFragments: [],
+          },
+          stereochemistryReport: {
+            assignedCenters: [],
+            possibleUnassignedCenters: [],
+          },
+          hydrogenReport: {
+            atomsBeforeHydrogens: 14,
+            atomsAfterHydrogens: 24,
+            explicitHydrogensAdded: 10,
+          },
+          conformerReport: {
+            requestedConformers: 5,
+            generatedConformers: 5,
+            selectedConformerId: 0,
+            forceField: "MMFF94",
+            energiesKcalMol: [],
+          },
+          preparedSdf: "sdf",
+          pdbqt: "pdbqt",
+          pdbqtAvailable: true,
+          provenance: {
+            rdkitVersion: "2025.09.6",
+            meekoVersion: "0.7.1",
+            method: "RDKit + Meeko",
+            generatedAt: now,
+            inputSha256: "hash",
+          },
+          warnings: ["This prepared ligand is a future docking input. Compound Canvas has not docked it."],
+        },
+      },
+      now,
+    );
+
+    expect(experiment.workflow.ligandPrepared.status).toBe("complete");
+    expect(experiment.ligand?.preparation?.pdbqtAvailable).toBe(true);
+    expect(experiment.provenance.map((item) => item.id)).toContain(
+      "prepared-ligand-pdbqt",
+    );
+    expect(JSON.stringify(experiment)).not.toContain("dockingScore");
+  });
+
   it("records coordinate, experimental, and curated provenance separately", () => {
     let experiment = createInitialExperiment({ id: "exp-1", now });
     experiment = applyExperimentEvent(

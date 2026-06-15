@@ -15,6 +15,7 @@ const groups = [
       "Formula, molecular weight, cLogP, H-bond counts, and rotatable bonds",
       "Pinned 2ITY EGFR coordinates rendered in Mol*",
       "Coordinate-backed residue identity, chain, atom count, and position",
+      "Ligand preparation with explicit hydrogens, charge/stereo reports, largest-fragment handling, prepared SDF, and Meeko PDBQT when available",
     ],
   },
   {
@@ -35,7 +36,7 @@ const groups = [
     badge: "Future phase",
     items: [
       "Arbitrary PDB import and automated pocket detection",
-      "Protein or ligand preparation",
+      "Protein preparation",
       "Docking poses, scores, and interaction detection",
       "Project saving, comparison, sharing, and reports",
     ],

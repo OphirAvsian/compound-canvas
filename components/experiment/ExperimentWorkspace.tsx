@@ -38,6 +38,16 @@ function downloadSummary(experiment: Experiment) {
   URL.revokeObjectURL(url);
 }
 
+function downloadArtifact(filename: string, content: string, type = "text/plain") {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 export function ExperimentWorkspace({
   experiment,
 }: {
@@ -55,6 +65,13 @@ export function ExperimentWorkspace({
       detail: experiment.ligand?.conformer
         ? `${experiment.ligand.conformer.conformerMethod} + ${experiment.ligand.conformer.forceField}`
         : "Run Generate 3D",
+    },
+    {
+      label: "Ligand prepared for future docking input",
+      complete: experiment.workflow.ligandPrepared.status === "complete",
+      detail: experiment.ligand?.preparation
+        ? `${experiment.ligand.preparation.conformerReport.forceField} minimized SDF${experiment.ligand.preparation.pdbqtAvailable ? " + Meeko PDBQT" : ""}`
+        : "Prepare ligand after Generate 3D",
     },
     {
       label: "2ITY coordinates loaded",
@@ -205,6 +222,105 @@ export function ExperimentWorkspace({
                 ))}
               </div>
             </div>
+
+            {experiment.ligand?.preparation && (
+              <div className="rounded-2xl border border-[#cde2d6] bg-[#f7fbf8] p-4 sm:p-5">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                      Ligand preparation artifact
+                    </p>
+                    <h3 className="mt-1 text-[15px] font-semibold">
+                      Prepared for future docking input
+                    </h3>
+                    <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+                      This artifact contains explicit hydrogens, charge/stereo
+                      reports, a minimized prepared SDF, and a Meeko PDBQT when
+                      available. It is not docked and is not a binding prediction.
+                    </p>
+                  </div>
+                  <StatusBadge status="real">Real ligand prep</StatusBadge>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-4">
+                  {[
+                    {
+                      label: "Formula",
+                      value: experiment.ligand.preparation.molecularFormula,
+                    },
+                    {
+                      label: "Charge",
+                      value: `${experiment.ligand.preparation.formalCharge > 0 ? "+" : ""}${experiment.ligand.preparation.formalCharge}`,
+                    },
+                    {
+                      label: "Hydrogens added",
+                      value:
+                        experiment.ligand.preparation.hydrogenReport
+                          .explicitHydrogensAdded,
+                    },
+                    {
+                      label: "PDBQT",
+                      value: experiment.ligand.preparation.pdbqtAvailable
+                        ? "Available"
+                        : "Unavailable",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="rounded-xl border border-[#d9e8df] bg-white px-3 py-2"
+                    >
+                      <p className="text-[8px] uppercase tracking-wide text-[#7e8983]">
+                        {item.label}
+                      </p>
+                      <p className="mt-0.5 truncate text-[10px] font-semibold">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      downloadArtifact(
+                        `${experiment.ligand?.preparation?.artifactId}.json`,
+                        JSON.stringify(experiment.ligand?.preparation, null, 2),
+                        "application/json",
+                      )
+                    }
+                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4]"
+                  >
+                    Download prep JSON
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      experiment.ligand?.preparation &&
+                      downloadArtifact(
+                        `${experiment.ligand.preparation.artifactId}.sdf`,
+                        experiment.ligand.preparation.preparedSdf,
+                      )
+                    }
+                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4]"
+                  >
+                    Download SDF
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!experiment.ligand.preparation.pdbqt}
+                    onClick={() =>
+                      experiment.ligand?.preparation?.pdbqt &&
+                      downloadArtifact(
+                        `${experiment.ligand.preparation.artifactId}.pdbqt`,
+                        experiment.ligand.preparation.pdbqt,
+                      )
+                    }
+                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Download PDBQT
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -231,12 +347,11 @@ export function ExperimentWorkspace({
               <div className="flex items-center gap-2">
                 <LockKeyhole className="h-4 w-4 text-[#7c8580]" />
                 <h3 className="text-[12px] font-semibold">
-                  Future artifact slots
+                  Artifact slots
                 </h3>
               </div>
               <p className="mt-1 text-[9px] leading-4 text-[#707a75]">
-                These are data-contract placeholders, not completed scientific
-                operations.
+                These show what has been prepared and what remains unavailable.
               </p>
               <div className="mt-3 grid gap-2">
                 {[
@@ -244,15 +359,22 @@ export function ExperimentWorkspace({
                     label: "Protein preparation",
                     explanation:
                       experiment.futurePreparation.protein.explanation,
+                    status: "NOT IMPLEMENTED",
                   },
                   {
                     label: "Ligand preparation",
                     explanation:
-                      experiment.futurePreparation.ligand.explanation,
+                      experiment.ligand?.preparation
+                        ? "Completed as a real ligand-preparation artifact for future docking input. No docking has been run."
+                        : experiment.futurePreparation.ligand.explanation,
+                    status: experiment.ligand?.preparation
+                      ? "AVAILABLE"
+                      : "NOT IMPLEMENTED",
                   },
                   {
                     label: "Docking",
                     explanation: experiment.futureDocking.explanation,
+                    status: "NOT IMPLEMENTED",
                   },
                 ].map((item) => (
                   <div
@@ -261,8 +383,8 @@ export function ExperimentWorkspace({
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-[10px] font-semibold">{item.label}</p>
-                      <span className="text-[8px] font-bold uppercase tracking-wide text-[#8a928d]">
-                        Not implemented
+                      <span className={`text-[8px] font-bold uppercase tracking-wide ${item.status === "AVAILABLE" ? "text-[#39765b]" : "text-[#8a928d]"}`}>
+                        {item.status}
                       </span>
                     </div>
                     <p className="mt-1 text-[9px] leading-4 text-[#747d78]">
@@ -280,9 +402,9 @@ export function ExperimentWorkspace({
                   Portable, inspectable summary
                 </p>
                 <p className="mt-1 text-[9px] leading-4 text-[#65716b]">
-                  The JSON contains artifact metadata and provenance, not the large
-                  SDF coordinate file. It stays on this browser unless you download
-                  it.
+                  The JSON contains artifact metadata and, after ligand preparation,
+                  the prepared ligand files. It stays on this browser unless you
+                  download it.
                 </p>
               </div>
               <FlaskConical className="h-4 w-4 shrink-0 text-[#8a978f]" />

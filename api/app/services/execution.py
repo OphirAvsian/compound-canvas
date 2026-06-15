@@ -13,23 +13,25 @@ class CalculationTimeoutError(RuntimeError):
     """Raised when a calculation exceeds the public request deadline."""
 
 
+CalculationFunction = Callable[..., object]
 ConformerFunction = Callable[..., ConformerResult]
 
 
-class ConformerExecutor:
+class CalculationExecutor:
     def __init__(
         self,
-        function: ConformerFunction,
+        function: CalculationFunction,
         *,
         max_concurrency: int,
         timeout_seconds: float,
+        thread_name_prefix: str = "rdkit-calculation",
     ) -> None:
         self.function = function
         self.timeout_seconds = timeout_seconds
         self._slots = BoundedSemaphore(max_concurrency)
         self._executor = ThreadPoolExecutor(
             max_workers=max_concurrency,
-            thread_name_prefix="rdkit-conformer",
+            thread_name_prefix=thread_name_prefix,
         )
         self._shutdown = False
 
@@ -39,19 +41,14 @@ class ConformerExecutor:
 
     def run(
         self,
-        *,
-        smiles: str | None,
-        molfile: str | None,
-        seed: int,
-    ) -> ConformerResult:
+        **kwargs: object,
+    ) -> object:
         if self._shutdown or not self._slots.acquire(blocking=False):
             raise CalculationBusyError
 
-        future: Future[ConformerResult] = self._executor.submit(
+        future: Future[object] = self._executor.submit(
             self.function,
-            smiles=smiles,
-            molfile=molfile,
-            seed=seed,
+            **kwargs,
         )
         future.add_done_callback(lambda _: self._slots.release())
 
@@ -63,3 +60,28 @@ class ConformerExecutor:
     def shutdown(self) -> None:
         self._shutdown = True
         self._executor.shutdown(wait=False, cancel_futures=True)
+
+
+class ConformerExecutor(CalculationExecutor):
+    def __init__(
+        self,
+        function: ConformerFunction,
+        *,
+        max_concurrency: int,
+        timeout_seconds: float,
+    ) -> None:
+        super().__init__(
+            function,
+            max_concurrency=max_concurrency,
+            timeout_seconds=timeout_seconds,
+            thread_name_prefix="rdkit-conformer",
+        )
+
+    def run(
+        self,
+        *,
+        smiles: str | None,
+        molfile: str | None,
+        seed: int,
+    ) -> ConformerResult:
+        return super().run(smiles=smiles, molfile=molfile, seed=seed)  # type: ignore[return-value]

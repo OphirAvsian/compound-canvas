@@ -43,6 +43,7 @@ export type ExperimentStepStatus = {
 export type ExperimentWorkflow = {
   moleculeSelected: ExperimentStepStatus;
   conformerGenerated: ExperimentStepStatus;
+  ligandPrepared: ExperimentStepStatus;
   proteinCoordinatesLoaded: ExperimentStepStatus;
   residuesInspected: Array<{
     chain: string;
@@ -101,6 +102,47 @@ export type Experiment = {
       seed: number;
       explicitHydrogens: boolean;
       generatedAt: string;
+      warnings: string[];
+    };
+    preparation?: {
+      artifactId: string;
+      status: "available";
+      canonicalIsomericSmiles: string;
+      molecularFormula: string;
+      molecularWeight: number;
+      formalCharge: number;
+      fragmentReport: {
+        originalFragmentCount: number;
+        selectedFragmentIndex: number;
+        selectedHeavyAtoms: number;
+        removedFragments: Array<Record<string, number | string>>;
+      };
+      stereochemistryReport: {
+        assignedCenters: Array<Record<string, number | string>>;
+        possibleUnassignedCenters: Array<Record<string, number | string>>;
+      };
+      hydrogenReport: {
+        atomsBeforeHydrogens: number;
+        atomsAfterHydrogens: number;
+        explicitHydrogensAdded: number;
+      };
+      conformerReport: {
+        requestedConformers: number;
+        generatedConformers: number;
+        selectedConformerId: number;
+        forceField: "MMFF94" | "UFF";
+        energiesKcalMol: Array<Record<string, number>>;
+      };
+      preparedSdf: string;
+      pdbqt: string | null;
+      pdbqtAvailable: boolean;
+      provenance: {
+        rdkitVersion: string | null;
+        meekoVersion: string | null;
+        method: string;
+        generatedAt: string;
+        inputSha256: string;
+      };
       warnings: string[];
     };
   } | null;
@@ -175,7 +217,7 @@ export function createInitialExperiment({
         id: "no-predictions",
         severity: "information",
         message:
-          "This experiment contains no preparation, docking, binding, interaction, or activity prediction.",
+          "This experiment contains no docking, binding, interaction, affinity, activity, or pose prediction.",
       },
     ],
     scientificAssumptions: [
@@ -201,12 +243,13 @@ export function createInitialExperiment({
         id: "chemistry-unprepared",
         evidenceKind: "curated",
         statement:
-          "Protonation, tautomer choice, charges, missing protein atoms, and other preparation choices have not been assessed.",
+          "Ligand preparation adds explicit hydrogens and records charge/stereochemistry assumptions, but it does not solve pH-dependent protonation or tautomer choice.",
       },
     ],
     workflow: {
       moleculeSelected: { status: "pending" },
       conformerGenerated: { status: "pending" },
+      ligandPrepared: { status: "pending" },
       proteinCoordinatesLoaded: { status: "pending" },
       residuesInspected: [],
       depositedLigandLocated: { status: "pending" },
@@ -221,7 +264,7 @@ export function createInitialExperiment({
       ligand: {
         status: "not_implemented",
         explanation:
-          "Ligand preparation will later create a versioned chemical-state artifact before docking.",
+          "Generate a conformer, then use Prepare Ligand to create a real ligand-preparation artifact for future docking input.",
       },
     },
     futureDocking: {

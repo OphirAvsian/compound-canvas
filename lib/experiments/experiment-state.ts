@@ -34,9 +34,13 @@ export function applyExperimentEvent(
           ...experiment.workflow,
           moleculeSelected: { status: "complete", completedAt: now },
           conformerGenerated: { status: "pending" },
+          ligandPrepared: { status: "pending" },
         },
         provenance: experiment.provenance.filter(
-          (entry) => entry.id !== "rdkit-conformer",
+          (entry) =>
+            !["rdkit-conformer", "prepared-ligand-sdf", "prepared-ligand-pdbqt"].includes(
+              entry.id,
+            ),
         ),
         updatedAt: now,
       };
@@ -58,6 +62,7 @@ export function applyExperimentEvent(
             status: "available",
             ...event.conformer,
           },
+          preparation: undefined,
         },
         workflow: {
           ...experiment.workflow,
@@ -65,6 +70,7 @@ export function applyExperimentEvent(
             status: "complete",
             completedAt: event.conformer.generatedAt,
           },
+          ligandPrepared: { status: "pending" },
         },
         provenance: addProvenance(experiment.provenance, {
           id: "rdkit-conformer",
@@ -79,6 +85,81 @@ export function applyExperimentEvent(
           },
           recordedAt: event.conformer.generatedAt,
         }),
+        updatedAt: now,
+      };
+    }
+    case "ligand.prepared": {
+      if (!experiment.ligand || experiment.ligand.sampleId !== event.sampleId) {
+        return experiment;
+      }
+      const preparation = {
+        artifactId: event.preparation.artifactId,
+        status: "available" as const,
+        canonicalIsomericSmiles: event.preparation.canonicalIsomericSmiles,
+        molecularFormula: event.preparation.molecularFormula,
+        molecularWeight: event.preparation.molecularWeight,
+        formalCharge: event.preparation.formalCharge,
+        fragmentReport: event.preparation.fragmentReport,
+        stereochemistryReport: event.preparation.stereochemistryReport,
+        hydrogenReport: event.preparation.hydrogenReport,
+        conformerReport: event.preparation.conformerReport,
+        preparedSdf: event.preparation.preparedSdf,
+        pdbqt: event.preparation.pdbqt,
+        pdbqtAvailable: event.preparation.pdbqtAvailable,
+        provenance: event.preparation.provenance,
+        warnings: event.preparation.warnings,
+      };
+      let provenance = addProvenance(experiment.provenance, {
+        id: "prepared-ligand-sdf",
+        evidenceKind: "calculated",
+        label: `${experiment.ligand.name} prepared ligand SDF`,
+        source: "Compound Canvas ligand preparation API",
+        method:
+          "RDKit explicit hydrogens, capped ETKDGv3 conformer ensemble, and force-field minimization; prepared for future docking input, not docked",
+        tool: {
+          name: "RDKit",
+          version: event.preparation.provenance.rdkitVersion,
+        },
+        recordedAt: event.preparation.provenance.generatedAt,
+      });
+      if (event.preparation.pdbqtAvailable) {
+        provenance = addProvenance(provenance, {
+          id: "prepared-ligand-pdbqt",
+          evidenceKind: "calculated",
+          label: `${experiment.ligand.name} docking-format PDBQT`,
+          source: "Meeko ligand preparation",
+          method: "Docking-format ligand file for future Vina/Gnina-style workflows; no docking run",
+          tool: {
+            name: "Meeko",
+            version: event.preparation.provenance.meekoVersion,
+          },
+          recordedAt: event.preparation.provenance.generatedAt,
+        });
+      }
+      return {
+        ...experiment,
+        ligand: {
+          ...experiment.ligand,
+          preparation,
+        },
+        workflow: {
+          ...experiment.workflow,
+          ligandPrepared: {
+            status: "complete",
+            completedAt: event.preparation.provenance.generatedAt,
+          },
+        },
+        warnings: [
+          ...experiment.warnings.filter(
+            (warning) => !warning.id.startsWith("ligprep-"),
+          ),
+          ...event.preparation.warnings.map((warning, index) => ({
+            id: `ligprep-${index}`,
+            severity: "caution" as const,
+            message: warning,
+          })),
+        ],
+        provenance,
         updatedAt: now,
       };
     }

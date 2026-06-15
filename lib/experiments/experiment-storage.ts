@@ -24,7 +24,26 @@ export function loadExperiment(
     ) {
       return createInitialExperiment({ id: createId() });
     }
-    return parsed;
+    const initial = createInitialExperiment({
+      id: parsed.id,
+      now: parsed.createdAt,
+    });
+    return {
+      ...initial,
+      ...parsed,
+      workflow: {
+        ...initial.workflow,
+        ...parsed.workflow,
+      },
+      futurePreparation: {
+        ...initial.futurePreparation,
+        ...parsed.futurePreparation,
+      },
+      futureDocking: {
+        ...initial.futureDocking,
+        ...parsed.futureDocking,
+      },
+    };
   } catch {
     return createInitialExperiment({ id: createId() });
   }

@@ -9,7 +9,8 @@ from .config import Settings, settings
 from .middleware import PublicApiMiddleware
 from .routers.molecules import router as molecules_router
 from .services.conformer import ConformerResult, generate_conformer
-from .services.execution import ConformerExecutor
+from .services.execution import CalculationExecutor, ConformerExecutor
+from .services.ligand_preparation import LigandPreparationResult, prepare_ligand
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
@@ -17,17 +18,25 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 def create_app(
     app_settings: Settings = settings,
     conformer_function: Callable[..., ConformerResult] = generate_conformer,
+    ligand_preparation_function: Callable[..., LigandPreparationResult] = prepare_ligand,
 ) -> FastAPI:
     executor = ConformerExecutor(
         conformer_function,
         max_concurrency=app_settings.conformer_max_concurrency,
         timeout_seconds=app_settings.conformer_timeout_seconds,
     )
+    ligand_preparation_executor = CalculationExecutor(
+        ligand_preparation_function,
+        max_concurrency=app_settings.conformer_max_concurrency,
+        timeout_seconds=app_settings.conformer_timeout_seconds,
+        thread_name_prefix="rdkit-ligprep",
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
         yield
         executor.shutdown()
+        ligand_preparation_executor.shutdown()
 
     application = FastAPI(
         title=app_settings.app_name,
@@ -36,6 +45,7 @@ def create_app(
         lifespan=lifespan,
     )
     application.state.conformer_executor = executor
+    application.state.ligand_preparation_executor = ligand_preparation_executor
 
     application.add_middleware(PublicApiMiddleware, settings=app_settings)
     application.add_middleware(
@@ -55,7 +65,8 @@ def create_app(
     @application.get("/ready")
     def ready() -> dict[str, str]:
         executor: ConformerExecutor = application.state.conformer_executor
-        if not executor.ready:
+        ligand_executor: CalculationExecutor = application.state.ligand_preparation_executor
+        if not executor.ready or not ligand_executor.ready:
             raise HTTPException(status_code=503, detail="Calculation service is not ready.")
         return {"status": "ready"}
 

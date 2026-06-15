@@ -41,6 +41,27 @@ def test_aspirin_and_caffeine_conformers() -> None:
             assert response.headers["x-request-id"] == f"test-{name}"
 
 
+def test_caffeine_ligand_preparation_endpoint() -> None:
+    with TestClient(create_app()) as client:
+        response = client.post(
+            "/api/molecules/prepare-ligand",
+            json={
+                "smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+                "options": {"conformer_count": 3, "seed": 1234},
+            },
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "prepared"
+    assert body["molecular_formula"] == "C8H10N4O2"
+    assert body["conformer_report"]["requested_conformers"] == 3
+    assert body["hydrogen_report"]["explicit_hydrogens_added"] > 0
+    assert "$$$$" in body["prepared_sdf"]
+    assert body["provenance"]["rdkit_version"]
+    assert any("not docked" in warning for warning in body["warnings"])
+
+
 def test_invalid_molecule_reports_beginner_friendly_error() -> None:
     with TestClient(create_app()) as client:
         response = client.post("/api/molecules/conformers", json={"smiles": "C(C"})
@@ -55,6 +76,20 @@ def test_oversized_request_is_rejected_before_validation() -> None:
     with TestClient(app) as client:
         response = client.post(
             "/api/molecules/conformers",
+            content=b'{"smiles":"' + (b"C" * 200) + b'"}',
+            headers={"Content-Type": "application/json"},
+        )
+
+    assert response.status_code == 413
+    assert "too large" in response.json()["detail"]
+
+
+def test_oversized_ligand_preparation_request_is_rejected_before_validation() -> None:
+    app = create_app(Settings(max_request_bytes=128))
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/molecules/prepare-ligand",
             content=b'{"smiles":"' + (b"C" * 200) + b'"}',
             headers={"Content-Type": "application/json"},
         )
@@ -87,6 +122,26 @@ def test_rate_limit_is_applied_per_forwarded_ip() -> None:
     assert limited.status_code == 429
     assert int(limited.headers["retry-after"]) >= 1
     assert other_ip.status_code == 422
+
+
+def test_rate_limit_applies_to_ligand_preparation() -> None:
+    app = create_app(Settings(rate_limit_requests=1, rate_limit_window_seconds=60))
+
+    with TestClient(app) as client:
+        headers = {"X-Forwarded-For": "203.0.113.45"}
+        first = client.post(
+            "/api/molecules/prepare-ligand",
+            json={"smiles": "C(C"},
+            headers=headers,
+        )
+        limited = client.post(
+            "/api/molecules/prepare-ligand",
+            json={"smiles": "C(C"},
+            headers=headers,
+        )
+
+    assert first.status_code == 422
+    assert limited.status_code == 429
 
 
 def test_slow_calculation_returns_gateway_timeout() -> None:

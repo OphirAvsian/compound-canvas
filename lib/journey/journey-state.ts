@@ -84,6 +84,8 @@ export function applyJourneyEvent(
             evidence("user_action", "Calculated conformer rotated in Mol*", now),
           )
         : state;
+    case "ligand.prepared":
+      return state;
     case "protein.structure_loaded":
       return event.pdbId.toUpperCase() === "2ITY"
         ? completeStep(
