@@ -7,27 +7,50 @@ import { egfr2ity } from "@/data/protein-targets";
 import type { StructureSelection } from "@/lib/proteins/residue-selection";
 import { formatResolution } from "@/lib/proteins/structure-loader";
 import { MolstarProteinViewer } from "./MolstarProteinViewer";
+import type { ProteinFocusRequest } from "./MolstarProteinViewer";
 import { ProteinLesson } from "./ProteinLesson";
 import { ResidueInspector } from "./ResidueInspector";
 
-export function ProteinWorkspace() {
+export function ProteinWorkspace({
+  onStructureLoaded,
+  onResidueSelected,
+  onLigandSelected,
+}: {
+  onStructureLoaded: (pdbId: string) => void;
+  onResidueSelected: (chain: string, residueNumber: number) => void;
+  onLigandSelected: (componentId: string) => void;
+}) {
   const [selection, setSelection] = useState<StructureSelection | null>(null);
-  const [focusRequest, setFocusRequest] = useState<{
-    chain: string;
-    residueNumber: number;
-    requestId: number;
-  } | null>(null);
+  const [focusRequest, setFocusRequest] = useState<ProteinFocusRequest>(null);
   const [ready, setReady] = useState(false);
 
-  const handleReady = useCallback(() => setReady(true), []);
+  const handleReady = useCallback(() => {
+    setReady(true);
+    onStructureLoaded(egfr2ity.id);
+  }, [onStructureLoaded]);
   const handleSelection = useCallback(
-    (nextSelection: StructureSelection | null) => setSelection(nextSelection),
-    [],
+    (nextSelection: StructureSelection | null) => {
+      setSelection(nextSelection);
+      if (nextSelection?.kind === "protein-residue") {
+        onResidueSelected(nextSelection.chain, nextSelection.residueNumber);
+      } else if (nextSelection?.kind === "deposited-ligand") {
+        onLigandSelected(nextSelection.componentId);
+      }
+    },
+    [onLigandSelected, onResidueSelected],
   );
   const focusResidue = useCallback((chain: string, residueNumber: number) => {
     setFocusRequest({
+      kind: "residue",
       chain,
       residueNumber,
+      requestId: Date.now(),
+    });
+  }, []);
+  const focusLigand = useCallback((componentId: string) => {
+    setFocusRequest({
+      kind: "ligand",
+      componentId,
       requestId: Date.now(),
     });
   }, []);
@@ -108,6 +131,7 @@ export function ProteinWorkspace() {
         target={egfr2ity}
         selectedResidue={selectedResidue}
         onSelectResidue={focusResidue}
+        onSelectLigand={focusLigand}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#d8d7d1] bg-[#eef7f2] px-4 py-3 text-[9px] text-[#436554] md:px-6">

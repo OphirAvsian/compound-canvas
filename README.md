@@ -6,6 +6,10 @@ real molecule-to-3D workflow while clearly separating calculated results from
 curated lessons and capabilities that have not been implemented. The first
 Phase 2 vertical slice adds a real, curated EGFR protein workspace.
 
+Phase 3 adds a persistent, browser-local Learning Journey that connects these
+real capabilities through three guided missions without adding docking,
+preparation, scoring, or simulated scientific results.
+
 ## Phase 1 milestone
 
 Phase 1 turns a student's editable 2D chemical structure into real,
@@ -90,6 +94,21 @@ explicit.
 The coordinate file is stored at `public/structures/2ity.bcif`; provenance and
 its SHA-256 checksum are stored beside it in
 `public/structures/2ity.provenance.json`.
+
+## Phase 3 guided Learning Journey
+
+- Mission 1 guides caffeine selection, real RDKit conformer generation, Mol*
+  rotation, and a conformer reflection.
+- Mission 2 guides real 2ITY loading, Lys745 and Met793 inspection, deposited
+  gefitinib selection, and an active-site reflection.
+- Mission 3 compares caffeine and gefitinib conceptually and explains why
+  preparation and docking would be required before making a binding claim.
+- Progress is stored locally under
+  `compound-canvas.learning-journey.v1`; no account or backend persistence is
+  introduced.
+- Scientific actions complete only from semantic evidence events. Skipping is
+  limited to curated educational checkpoints and never completes a real
+  calculation or coordinate-inspection action.
 
 ## Local development
 

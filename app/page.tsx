@@ -2,20 +2,12 @@
 
 import dynamic from "next/dynamic";
 import {
-  Atom,
-  BadgeCheck,
-  BookOpen,
-  Box,
-  ChevronLeft,
-  FlaskConical,
   Hexagon,
   Menu,
   Save,
   Server,
   Share2,
   Sparkles,
-  X,
-  Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { CapabilitiesPanel } from "@/components/capabilities/CapabilitiesPanel";
@@ -24,6 +16,11 @@ import { WorkflowGuide } from "@/components/onboarding/WorkflowGuide";
 import { GuidedStart } from "@/components/onboarding/GuidedStart";
 import { ProteinWorkspace } from "@/components/protein/ProteinWorkspace";
 import { LearningPanel } from "@/components/learning/LearningPanel";
+import { JourneyMobileBar } from "@/components/journey/JourneyMobileBar";
+import { JourneySidebar } from "@/components/journey/JourneySidebar";
+import { MissionBanner } from "@/components/journey/MissionBanner";
+import { MissionCheckpointPanel } from "@/components/journey/MissionCheckpointPanel";
+import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspace";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { startingSmiles } from "@/data/guided-project";
 import { sampleMolecules, type SampleMolecule } from "@/data/sample-molecules";
@@ -33,6 +30,8 @@ import {
   type ConformerResult,
 } from "@/lib/molecules";
 import type { MoleculeExport } from "@/components/molecule/KetcherEditor";
+import { useLearningJourney } from "@/hooks/useLearningJourney";
+import { emitJourneyEvent } from "@/lib/journey/journey-events";
 
 const KetcherEditor = dynamic(
   () => import("@/components/molecule/KetcherEditor").then((module) => module.KetcherEditor),
@@ -62,14 +61,6 @@ function Logo() {
   );
 }
 
-const steps = [
-  { icon: BookOpen, label: "Meet the target", state: "real" },
-  { icon: Box, label: "Explore curated residues", state: "lesson" },
-  { icon: FlaskConical, label: "Create a molecule", state: "real" },
-  { icon: Atom, label: "Generate 3D", state: "real" },
-  { icon: Zap, label: "Dock and analyze", state: "future" },
-];
-
 export default function Home() {
   const [mobileNav, setMobileNav] = useState(false);
   const [selectedSample, setSelectedSample] = useState<SampleMolecule>(sampleMolecules[0]);
@@ -79,6 +70,7 @@ export default function Home() {
   const [stale, setStale] = useState(false);
   const [lastStructure, setLastStructure] = useState<MoleculeExport | null>(null);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "online" | "offline">("checking");
+  const journey = useLearningJourney();
 
   const checkService = useCallback(async () => {
     setServiceStatus("checking");
@@ -88,6 +80,13 @@ export default function Home() {
   useEffect(() => {
     void checkService();
   }, [checkService]);
+
+  useEffect(() => {
+    emitJourneyEvent({
+      type: "molecule.sample_selected",
+      sampleId: selectedSample.id,
+    });
+  }, [selectedSample.id]);
 
   const createConformer = useCallback(async (structure: MoleculeExport) => {
     setLastStructure(structure);
@@ -101,6 +100,10 @@ export default function Home() {
       setConformer(result);
       setStale(false);
       setServiceStatus("online");
+      emitJourneyEvent({
+        type: "molecule.conformer_generated",
+        sampleId: selectedSample.id,
+      });
     } catch (cause) {
       setStale(true);
       setServiceStatus("offline");
@@ -108,7 +111,7 @@ export default function Home() {
     } finally {
       setGenerating(false);
     }
-  }, []);
+  }, [selectedSample.id]);
 
   const markStructureChanged = useCallback(() => {
     setStale(true);
@@ -123,6 +126,33 @@ export default function Home() {
     setSelectedSample(sample);
     setStale(true);
     setApiError(null);
+    emitJourneyEvent({
+      type: "molecule.sample_selected",
+      sampleId: sample.id,
+    });
+  }, []);
+
+  const markConformerRotated = useCallback(() => {
+    emitJourneyEvent({ type: "molecule.viewer_rotated" });
+  }, []);
+
+  const markProteinLoaded = useCallback((pdbId: string) => {
+    emitJourneyEvent({ type: "protein.structure_loaded", pdbId });
+  }, []);
+
+  const markResidueSelected = useCallback((chain: string, residueNumber: number) => {
+    emitJourneyEvent({
+      type: "protein.residue_selected",
+      chain,
+      residueNumber,
+    });
+  }, []);
+
+  const markLigandSelected = useCallback((componentId: string) => {
+    emitJourneyEvent({
+      type: "protein.ligand_selected",
+      componentId,
+    });
   }, []);
 
   const startExperiment = useCallback(() => {
@@ -142,7 +172,7 @@ export default function Home() {
         : "ready";
 
   return (
-    <main className="flex min-h-screen flex-col overflow-x-hidden">
+    <main className="flex min-h-screen flex-col overflow-x-clip">
       <header className="sticky top-0 z-40 flex min-h-[58px] shrink-0 items-center justify-between border-b border-[#d8d7d1] bg-[#f8f7f2]/95 px-3 py-2 backdrop-blur-xl sm:px-4 md:px-5">
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <button
@@ -155,7 +185,7 @@ export default function Home() {
           <Logo />
           <span className="hidden h-5 w-px bg-[#d9d8d2] md:block" />
           <span className="hidden text-[12px] font-medium md:block">EGFR molecule lab</span>
-          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 2 slice</StatusBadge></span>
+          <span className="hidden sm:inline-flex"><StatusBadge status="real">Guided Phase 3</StatusBadge></span>
           <button onClick={() => void checkService()} title="Check the molecule calculation service">
             <StatusBadge
               status={serviceStatus === "online" ? "real" : serviceStatus === "offline" ? "future" : "neutral"}
@@ -195,79 +225,37 @@ export default function Home() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        {mobileNav && (
-          <button
-            className="fixed inset-0 top-[58px] z-40 bg-ink/25 backdrop-blur-[2px] md:hidden"
-            onClick={() => setMobileNav(false)}
-            aria-label="Close navigation"
-          />
-        )}
         <nav
-          className={`${
-            mobileNav ? "fixed bottom-0 left-0 top-[58px] z-50 flex shadow-2xl" : "hidden"
-          } w-[255px] shrink-0 flex-col border-r border-[#d8d7d1] bg-[#f8f7f2] p-3 md:flex md:w-[205px]`}
+          className="sticky top-[58px] hidden h-[calc(100vh-58px)] w-[235px] shrink-0 self-start flex-col border-r border-[#d8d7d1] bg-[#f8f7f2] p-3 md:flex"
         >
-          <div className="mb-4 flex items-center justify-between">
-            <button
-              disabled
-              title="More guided projects are not available yet"
-              className="flex cursor-not-allowed items-center gap-2 rounded-lg px-2 py-2 text-[11px] font-medium text-[#9aa1a7]"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-              Guided projects
-            </button>
-            <button onClick={() => setMobileNav(false)} className="rounded-lg p-2 hover:bg-white md:hidden" aria-label="Close navigation">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <p className="px-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[#959ca2]">
-            Scientific workflow
-          </p>
-          <div className="mt-2 space-y-1">
-            {steps.map((step, index) => {
-              const isReal = step.state === "real";
-              const isFuture = step.state === "future";
-              return (
-                <div
-                  key={step.label}
-                  className={`flex items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-[11px] font-medium ${
-                    isReal ? "bg-white text-ink shadow-sm" : isFuture ? "text-[#adb2b6]" : "text-[#68747e]"
-                  }`}
-                >
-                  <span
-                    className={`flex h-6 w-6 items-center justify-center rounded-lg ${
-                      isReal ? "bg-[#dff4e9] text-[#2d7c5c]" : "bg-[#ebeae5]"
-                    }`}
-                  >
-                    {isReal && (index === 2 || (index === 3 && conformer)) ? (
-                      <BadgeCheck className="h-3.5 w-3.5" />
-                    ) : (
-                      <step.icon className="h-3.5 w-3.5" />
-                    )}
-                  </span>
-                  <span>{step.label}</span>
-                  <span className="ml-auto text-[8px] uppercase tracking-wide text-[#9ba2a8]">
-                    {isReal ? "real" : isFuture ? "future" : "lesson"}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-auto rounded-2xl border border-[#deddd7] bg-white p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold">Workflow status</span>
-              <span className="text-[10px] font-bold text-[#34775b]">
-                {conformerCurrent ? "3D generated" : "Ready to begin"}
-              </span>
+          {journey.hydrated ? (
+            <JourneySidebar
+              state={journey.state}
+              onSelectMission={journey.setActiveMission}
+              onReset={journey.resetJourney}
+            />
+          ) : (
+            <div className="animate-pulse rounded-2xl bg-white p-4 text-[10px] text-[#7a8580]">
+              Loading learning progress...
             </div>
-            <p className="mt-2 text-[9px] leading-4 text-[#899198]">
-              Molecule conformers and the 2ITY protein view use real coordinates. Docking is not enabled.
-            </p>
-          </div>
+          )}
         </nav>
 
         <section className="min-w-0 flex-1">
+          {journey.hydrated ? (
+            <>
+              <JourneyMobileBar
+                state={journey.state}
+                open={mobileNav}
+                onOpenChange={setMobileNav}
+                onSelectMission={journey.setActiveMission}
+                onReset={journey.resetJourney}
+              />
+              <MissionBanner state={journey.state} />
+            </>
+          ) : (
+            <div className="h-[72px] animate-pulse border-b border-[#d8d7d1] bg-[#edf7f1]" />
+          )}
           <GuidedStart
             selectedSample={selectedSample}
             onChooseSample={chooseSample}
@@ -314,6 +302,7 @@ export default function Home() {
               busy={generating}
               stale={stale}
               onRetry={retryConformer}
+              onRotate={markConformerRotated}
             />
             <div className="hidden overflow-hidden rounded-2xl xl:block">
               <LearningPanel conformer={conformer} />
@@ -324,7 +313,20 @@ export default function Home() {
             <LearningPanel conformer={conformer} />
           </div>
 
-          <ProteinWorkspace />
+          {journey.hydrated && (
+            <MissionCheckpointPanel missionId="mission-1" journeyState={journey.state} />
+          )}
+          <ProteinWorkspace
+            onStructureLoaded={markProteinLoaded}
+            onResidueSelected={markResidueSelected}
+            onLigandSelected={markLigandSelected}
+          />
+          {journey.hydrated && (
+            <>
+              <MissionCheckpointPanel missionId="mission-2" journeyState={journey.state} />
+              <MissionThreeWorkspace journeyState={journey.state} />
+            </>
+          )}
           <CapabilitiesPanel />
         </section>
       </div>

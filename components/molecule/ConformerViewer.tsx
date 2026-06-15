@@ -7,8 +7,19 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 
 type MolstarViewer = {
   loadStructureFromData(data: string, format: "sdf"): Promise<void>;
+  subscribe<T>(
+    observable: { subscribe: (action: (value: T) => void) => { unsubscribe(): void } },
+    action: (value: T) => void,
+  ): { unsubscribe(): void };
   plugin: {
     clear(): Promise<void>;
+    behaviors: {
+      interaction: {
+        drag: {
+          subscribe(action: (value: unknown) => void): { unsubscribe(): void };
+        };
+      };
+    };
   };
   dispose(): void;
 };
@@ -19,17 +30,28 @@ export function ConformerViewer({
   busy,
   stale,
   onRetry,
+  onRotate,
 }: {
   conformer: ConformerResult | null;
   error: string | null;
   busy: boolean;
   stale: boolean;
   onRetry: () => void;
+  onRotate: () => void;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<MolstarViewer | null>(null);
   const [viewerError, setViewerError] = useState<string | null>(null);
   const [viewerReady, setViewerReady] = useState(false);
+  const currentConformerRef = useRef<ConformerResult | null>(conformer);
+  const staleRef = useRef(stale);
+  const rotationReportedRef = useRef(false);
+
+  useEffect(() => {
+    currentConformerRef.current = conformer;
+    staleRef.current = stale;
+    rotationReportedRef.current = false;
+  }, [conformer, stale]);
 
   useEffect(() => {
     let cancelled = false;
@@ -52,6 +74,19 @@ export function ConformerViewer({
           viewportShowTrajectoryControls: false,
           viewportBackgroundColor: "#eef1ee",
         })) as MolstarViewer;
+        viewerRef.current.subscribe(
+          viewerRef.current.plugin.behaviors.interaction.drag,
+          () => {
+            if (
+              currentConformerRef.current &&
+              !staleRef.current &&
+              !rotationReportedRef.current
+            ) {
+              rotationReportedRef.current = true;
+              onRotate();
+            }
+          },
+        );
         setViewerReady(true);
       } catch {
         setViewerError("Mol* could not initialize WebGL on this device.");
@@ -63,7 +98,7 @@ export function ConformerViewer({
       viewerRef.current?.dispose();
       viewerRef.current = null;
     };
-  }, []);
+  }, [onRotate]);
 
   useEffect(() => {
     const viewer = viewerRef.current;
@@ -97,7 +132,7 @@ export function ConformerViewer({
       </div>
 
       <div className="relative min-h-[340px] flex-1 sm:min-h-[360px]">
-        <div ref={hostRef} className="absolute inset-0" />
+        <div ref={hostRef} className="absolute inset-0" data-testid="conformer-viewer" />
         {!conformer && !busy && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[#eef1ee]/90 p-8 text-center">
             <div className="max-w-[310px]">

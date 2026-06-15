@@ -5,10 +5,12 @@ export function ProteinLesson({
   target,
   selectedResidue,
   onSelectResidue,
+  onSelectLigand,
 }: {
   target: ProteinTarget;
   selectedResidue: number | null;
   onSelectResidue: (chain: string, residueNumber: number) => void;
+  onSelectLigand: (componentId: string) => void;
 }) {
   return (
     <section className="border-t border-[#d8d7d1] bg-[#f8f7f2] p-4 md:p-5">
@@ -25,7 +27,7 @@ export function ProteinLesson({
           </p>
         </div>
       </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-3">
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {target.lessons.map((lesson) => {
           const active = selectedResidue === lesson.residueNumber;
           return (
@@ -47,6 +49,15 @@ export function ProteinLesson({
             </button>
           );
         })}
+        <button
+          onClick={() => onSelectLigand(target.depositedLigand.code)}
+          className="rounded-xl border border-[#bbb4e4] bg-[#f4f1ff] p-3 text-left transition hover:border-[#8f83cb]"
+        >
+          <span className="text-[11px] font-semibold">Deposited gefitinib</span>
+          <span className="mt-1 block text-[9px] text-[#746b9d]">
+            Component {target.depositedLigand.code} · experimental coordinates
+          </span>
+        </button>
       </div>
     </section>
   );

@@ -9,11 +9,19 @@ import {
 } from "@/lib/proteins/residue-selection";
 import { getStructureLoadSpec } from "@/lib/proteins/structure-loader";
 
-type FocusRequest = {
-  chain: string;
-  residueNumber: number;
-  requestId: number;
-} | null;
+export type ProteinFocusRequest =
+  | {
+      kind: "residue";
+      chain: string;
+      residueNumber: number;
+      requestId: number;
+    }
+  | {
+      kind: "ligand";
+      componentId: string;
+      requestId: number;
+    }
+  | null;
 
 type ProteinViewer = Awaited<
   ReturnType<(typeof import("molstar/lib/apps/viewer/app"))["Viewer"]["create"]>
@@ -26,7 +34,7 @@ export function MolstarProteinViewer({
   onReady,
 }: {
   target: ProteinTarget;
-  focusRequest: FocusRequest;
+  focusRequest: ProteinFocusRequest;
   onSelection: (selection: StructureSelection | null) => void;
   onReady: () => void;
 }) {
@@ -104,8 +112,12 @@ export function MolstarProteinViewer({
 
     void import("molstar/lib/mol-model/structure").then(({ StructureElement }) => {
       const loci = StructureElement.Loci.fromSchema(structure, {
-        auth_asym_id: focusRequest.chain,
-        auth_seq_id: focusRequest.residueNumber,
+        ...(focusRequest.kind === "residue"
+          ? {
+              auth_asym_id: focusRequest.chain,
+              auth_seq_id: focusRequest.residueNumber,
+            }
+          : { auth_comp_id: focusRequest.componentId }),
       });
       onSelection(extractStructureSelection(loci));
       viewer.plugin.managers.interactivity.lociSelects.deselectAll();
