@@ -93,7 +93,7 @@ export function KetcherEditor({
       // Ketcher export commands share editor state and can race when run concurrently.
       const smiles = await ketcher.getSmiles();
       const molfile = await ketcher.getMolfile("v2000");
-      if (!molfile.includes("M  END") || molfile.trim().length < 80) {
+      if (!smiles.trim() || !molfile.includes("M  END") || molfile.trim().length < 80) {
         throw new Error("Draw at least one connected molecule first.");
       }
       await onGenerate({ smiles, molfile });

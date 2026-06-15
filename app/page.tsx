@@ -210,7 +210,11 @@ export default function Home() {
           } w-[255px] shrink-0 flex-col border-r border-[#d8d7d1] bg-[#f8f7f2] p-3 md:flex md:w-[205px]`}
         >
           <div className="mb-4 flex items-center justify-between">
-            <button className="flex items-center gap-2 rounded-lg px-2 py-2 text-[11px] font-medium text-[#7b858e]">
+            <button
+              disabled
+              title="More guided projects are not available yet"
+              className="flex cursor-not-allowed items-center gap-2 rounded-lg px-2 py-2 text-[11px] font-medium text-[#9aa1a7]"
+            >
               <ChevronLeft className="h-3.5 w-3.5" />
               Guided projects
             </button>
