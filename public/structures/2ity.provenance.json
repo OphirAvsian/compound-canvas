@@ -1,0 +1,10 @@
+{
+  "pdb_id": "2ITY",
+  "description": "Human EGFR kinase domain with experimentally deposited gefitinib",
+  "source_page": "https://www.rcsb.org/structure/2ITY",
+  "source_file": "https://models.rcsb.org/2ity.bcif",
+  "downloaded_on": "2026-06-15",
+  "format": "BinaryCIF",
+  "sha256": "0a90ffe8ffefb53c08d3fbc6ab35408c2777ec7b0ce0fa7219cad69af21b9c63",
+  "license_note": "Coordinate data sourced from the RCSB Protein Data Bank."
+}

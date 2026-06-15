@@ -22,10 +22,10 @@ import { CapabilitiesPanel } from "@/components/capabilities/CapabilitiesPanel";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
 import { WorkflowGuide } from "@/components/onboarding/WorkflowGuide";
 import { GuidedStart } from "@/components/onboarding/GuidedStart";
-import { IllustrativeProtein } from "@/components/protein/IllustrativeProtein";
+import { ProteinWorkspace } from "@/components/protein/ProteinWorkspace";
 import { LearningPanel } from "@/components/learning/LearningPanel";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { guidedResidues, startingSmiles } from "@/data/guided-project";
+import { startingSmiles } from "@/data/guided-project";
 import { sampleMolecules, type SampleMolecule } from "@/data/sample-molecules";
 import {
   checkMoleculeService,
@@ -63,8 +63,8 @@ function Logo() {
 }
 
 const steps = [
-  { icon: BookOpen, label: "Meet the target", state: "lesson" },
-  { icon: Box, label: "Explore the pocket", state: "simulated" },
+  { icon: BookOpen, label: "Meet the target", state: "real" },
+  { icon: Box, label: "Explore curated residues", state: "lesson" },
   { icon: FlaskConical, label: "Create a molecule", state: "real" },
   { icon: Atom, label: "Generate 3D", state: "real" },
   { icon: Zap, label: "Dock and analyze", state: "future" },
@@ -73,7 +73,6 @@ const steps = [
 export default function Home() {
   const [mobileNav, setMobileNav] = useState(false);
   const [selectedSample, setSelectedSample] = useState<SampleMolecule>(sampleMolecules[0]);
-  const [selectedResidue, setSelectedResidue] = useState<string | null>("MET793");
   const [conformer, setConformer] = useState<ConformerResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -133,7 +132,6 @@ export default function Home() {
     });
   }, []);
 
-  const residue = guidedResidues.find((item) => item.id === selectedResidue);
   const conformerCurrent = Boolean(conformer && !stale);
   const workflowStage = generating
     ? "calculating"
@@ -157,7 +155,7 @@ export default function Home() {
           <Logo />
           <span className="hidden h-5 w-px bg-[#d9d8d2] md:block" />
           <span className="hidden text-[12px] font-medium md:block">EGFR molecule lab</span>
-          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 1</StatusBadge></span>
+          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 2 slice</StatusBadge></span>
           <button onClick={() => void checkService()} title="Check the molecule calculation service">
             <StatusBadge
               status={serviceStatus === "online" ? "real" : serviceStatus === "offline" ? "future" : "neutral"}
@@ -264,7 +262,7 @@ export default function Home() {
               </span>
             </div>
             <p className="mt-2 text-[9px] leading-4 text-[#899198]">
-              The molecule graph and conformer calculation are real. Protein work and docking are not enabled.
+              Molecule conformers and the 2ITY protein view use real coordinates. Docking is not enabled.
             </p>
           </div>
         </nav>
@@ -318,36 +316,15 @@ export default function Home() {
               onRetry={retryConformer}
             />
             <div className="hidden overflow-hidden rounded-2xl xl:block">
-              <LearningPanel residue={residue} conformer={conformer} />
+              <LearningPanel conformer={conformer} />
             </div>
           </div>
 
           <div className="border-t border-[#d8d7d1] xl:hidden">
-            <LearningPanel residue={residue} conformer={conformer} />
+            <LearningPanel conformer={conformer} />
           </div>
 
-          <div className="grid border-t border-[#d8d7d1] lg:grid-cols-[1fr_320px]">
-            <IllustrativeProtein selected={selectedResidue} onSelect={setSelectedResidue} />
-            <aside className="border-l border-[#deddd7] bg-[#fffefa] p-5">
-              <StatusBadge status="simulated">Not a docking result</StatusBadge>
-              <h2 className="mt-3 text-[17px] font-semibold tracking-[-0.025em]">
-                Protein and docking remain illustrative
-              </h2>
-              <p className="mt-3 text-[11px] leading-5 text-[#697680]">
-                The current EGFR picture does not load atomic coordinates, detect a pocket, position your conformer, calculate interactions, or produce a score.
-              </p>
-              <div className="mt-4 rounded-xl border border-[#ead4aa] bg-[#fff7e5] p-4 text-[10px] leading-4 text-[#76591f]">
-                Real protein preparation and docking arrive in Phases 2 and 3. No simulated score is shown as calculated evidence.
-              </div>
-              <button
-                disabled
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#d9d8d2] px-4 py-3 text-[11px] font-semibold text-[#7e858a]"
-              >
-                <Zap className="h-4 w-4" />
-                Real docking coming in Phase 3
-              </button>
-            </aside>
-          </div>
+          <ProteinWorkspace />
           <CapabilitiesPanel />
         </section>
       </div>

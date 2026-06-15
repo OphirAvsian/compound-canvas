@@ -3,7 +3,8 @@
 Compound Canvas is a browser-first educational drug-discovery workspace for
 students with no prior computational chemistry experience. Phase 1 provides a
 real molecule-to-3D workflow while clearly separating calculated results from
-curated lessons and capabilities that have not been implemented.
+curated lessons and capabilities that have not been implemented. The first
+Phase 2 vertical slice adds a real, curated EGFR protein workspace.
 
 ## Phase 1 milestone
 
@@ -35,12 +36,12 @@ make the visible 3D result outdated.
 
 **Educational only**
 
-- The current EGFR protein graphic
-- Curated residue and active-site explanations
+- The choice of Lys745, Leu788, and Met793 for the guided lesson
+- Plain-language residue roles and viewing prompts
 
 **Not implemented**
 
-- Coordinate-backed protein loading or preparation
+- Arbitrary PDB import or protein preparation
 - Automated active-site detection
 - Ligand protonation and tautomer enumeration
 - Docking poses, scores, or protein-ligand interactions
@@ -71,10 +72,24 @@ energy is not a docking score. Unimplemented API routes return
 
 ### Next milestone
 
-Phase 2 begins with a real protein workspace: PDB/mmCIF loading in Mol*,
-coordinate-backed residue inspection, and a curated active-site lesson based on
-actual experimental structure coordinates. Docking remains out of scope until
-protein and ligand preparation are scientifically explicit.
+The next Phase 2 slice should add explicit protein and ligand preparation.
+Docking remains out of scope until those preparation choices are scientifically
+explicit.
+
+## Phase 2 protein vertical slice
+
+- Loads a pinned RCSB BinaryCIF file for human EGFR structure `2ITY`
+- Renders the deposited protein coordinates and gefitinib ligand in Mol*
+- Reads residue identity, author residue number, chain, observed atom count,
+  and coordinates from the loaded structure
+- Supports residue picking and programmatic focus for Lys745, Leu788, and Met793
+- Separates coordinate-derived facts from curated educational explanations
+- Displays the 3.42 Å resolution limitation
+- Labels gefitinib as experimentally deposited, not docked by Compound Canvas
+
+The coordinate file is stored at `public/structures/2ity.bcif`; provenance and
+its SHA-256 checksum are stored beside it in
+`public/structures/2ity.provenance.json`.
 
 ## Local development
 

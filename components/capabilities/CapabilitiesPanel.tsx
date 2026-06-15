@@ -13,6 +13,8 @@ const groups = [
       "One RDKit ETKDGv3 conformer",
       "Explicit hydrogens and force-field minimization",
       "Formula, molecular weight, cLogP, H-bond counts, and rotatable bonds",
+      "Pinned 2ITY EGFR coordinates rendered in Mol*",
+      "Coordinate-backed residue identity, chain, atom count, and position",
     ],
   },
   {
@@ -21,9 +23,9 @@ const groups = [
     status: "simulated" as const,
     badge: "Illustrative lesson",
     items: [
-      "EGFR ribbon graphic",
-      "Active-site glow and residue markers",
-      "Beginner explanations of binding concepts",
+      "Curated EGFR lesson for Lys745, Leu788, and Met793",
+      "Beginner explanations separated from coordinate-derived facts",
+      "Guided viewing prompts for the deposited 2ITY structure",
     ],
   },
   {
@@ -32,7 +34,7 @@ const groups = [
     status: "future" as const,
     badge: "Future phase",
     items: [
-      "Atomic protein structure and pocket detection",
+      "Arbitrary PDB import and automated pocket detection",
       "Protein or ligand preparation",
       "Docking poses, scores, and interaction detection",
       "Project saving, comparison, sharing, and reports",
