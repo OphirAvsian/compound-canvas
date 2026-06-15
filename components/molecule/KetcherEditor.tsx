@@ -4,8 +4,9 @@ import type { Ketcher } from "ketcher-core";
 import { Editor } from "ketcher-react";
 import { StandaloneStructServiceProvider } from "ketcher-standalone";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Atom, Box, CircleHelp, LoaderCircle, RotateCcw } from "lucide-react";
+import { Atom, Box, CircleHelp, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import type { SampleMolecule } from "@/data/sample-molecules";
 
 export type MoleculeExport = {
   smiles: string;
@@ -14,11 +15,13 @@ export type MoleculeExport = {
 
 export function KetcherEditor({
   initialSmiles,
+  selectedSample,
   busy,
   onGenerate,
   onStructureChange,
 }: {
   initialSmiles: string;
+  selectedSample: SampleMolecule;
   busy: boolean;
   onGenerate: (structure: MoleculeExport) => Promise<void>;
   onStructureChange: () => void;
@@ -26,6 +29,7 @@ export function KetcherEditor({
   const ketcherRef = useRef<Ketcher | null>(null);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadedSampleId, setLoadedSampleId] = useState(selectedSample.id);
   const initializedRef = useRef(false);
   const changeHandlerRef = useRef<(() => void) | null>(null);
   const serviceProvider = useMemo(() => new StandaloneStructServiceProvider(), []);
@@ -67,6 +71,20 @@ export function KetcherEditor({
     [],
   );
 
+  useEffect(() => {
+    const ketcher = ketcherRef.current;
+    if (!ketcher || !ready || selectedSample.id === loadedSampleId) return;
+
+    setError(null);
+    void ketcher
+      .setMolecule(selectedSample.smiles)
+      .then(() => {
+        setLoadedSampleId(selectedSample.id);
+        onStructureChange();
+      })
+      .catch(() => setError(`${selectedSample.name} could not be loaded into the editor.`));
+  }, [loadedSampleId, onStructureChange, ready, selectedSample]);
+
   const generate = async () => {
     const ketcher = ketcherRef.current;
     if (!ketcher) return;
@@ -85,8 +103,8 @@ export function KetcherEditor({
   };
 
   return (
-    <section className="flex min-h-[520px] flex-col overflow-hidden bg-[#fbfaf6]">
-      <div className="flex items-center justify-between border-b border-[#dfded8] px-4 py-3">
+    <section id="molecule-workspace" className="workspace-card flex min-h-[520px] flex-col overflow-hidden bg-[#fbfaf6]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dfded8] px-4 py-3">
         <div>
           <div className="flex items-center gap-2">
             <Atom className="h-4 w-4 text-[#2f7c5e]" />
@@ -94,12 +112,16 @@ export function KetcherEditor({
             <StatusBadge status="real">Real structure</StatusBadge>
           </div>
           <p className="mt-1 text-[10px] text-[#7a858e]">
-            A starting molecule is loaded for you. Keep it, or click atoms and bonds to make it your own.
+            {selectedSample.name} is loaded for you. Keep it, or click atoms and bonds to make it your own.
           </p>
+        </div>
+        <div className="flex items-center gap-1.5 rounded-lg bg-[#eef5f1] px-2.5 py-1.5 text-[9px] font-medium text-[#4f695d]">
+          <Sparkles className="h-3 w-3" />
+          Sample: {selectedSample.name}
         </div>
       </div>
 
-      <div className="relative min-h-[410px] flex-1">
+      <div className="relative min-h-[390px] flex-1 sm:min-h-[410px]">
         <Editor
           staticResourcesUrl="/"
           structServiceProvider={serviceProvider}
@@ -108,8 +130,12 @@ export function KetcherEditor({
           disableMacromoleculesEditor
         />
         {!ready && !error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#fbfaf6]">
-            <LoaderCircle className="h-5 w-5 animate-spin text-[#4f8f75]" />
+          <div className="absolute inset-0 flex items-center justify-center bg-[#fbfaf6] p-8 text-center">
+            <div>
+              <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[#4f8f75]" />
+              <p className="mt-3 text-[11px] font-semibold">Preparing your molecule canvas</p>
+              <p className="mt-1 text-[9px] text-[#7b8781]">Loading atoms, bonds, and drawing tools...</p>
+            </div>
           </div>
         )}
       </div>
@@ -117,7 +143,7 @@ export function KetcherEditor({
       <div className="border-t border-[#dfded8] p-3">
         <div className="mb-2 flex items-start gap-2 rounded-lg bg-[#f1f4f2] px-3 py-2 text-[9px] leading-4 text-[#64716a]">
           <CircleHelp className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Start simple: change one atom or bond, then generate 3D. RDKit will check whether the structure is chemically readable.
+          First try: leave {selectedSample.name} unchanged and generate its 3D shape. Then edit one atom or bond and compare.
         </div>
         {error && (
           <p className="mb-2 rounded-lg border border-[#efc4ba] bg-[#fff1ed] px-3 py-2 text-[10px] text-[#944c3c]">
@@ -127,7 +153,7 @@ export function KetcherEditor({
         <button
           onClick={generate}
           disabled={!ready || busy}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[11px] font-semibold text-white shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-[0_8px_22px_rgba(23,40,59,.16)] transition hover:bg-[#21364e] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Box className="h-4 w-4" />}
           {busy ? "Checking chemistry and calculating 3D..." : "Generate calculated 3D shape"}

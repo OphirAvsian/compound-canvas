@@ -13,7 +13,7 @@ export function IllustrativeProtein({
 }) {
   return (
     <section className="relative min-h-[390px] overflow-hidden bg-[#e9ebe7]">
-      <div className="absolute left-4 top-4 z-20 flex gap-2">
+      <div className="absolute left-4 top-4 z-20 flex flex-wrap gap-2">
         <StatusBadge status="simulated">Illustrative protein</StatusBadge>
         <StatusBadge>
           <Layers3 className="h-3 w-3" />
@@ -55,7 +55,7 @@ export function IllustrativeProtein({
           />
         </button>
       ))}
-      <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-xl bg-white/75 px-3 py-2 text-[10px] text-[#61707b] backdrop-blur">
+      <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2 rounded-xl bg-white/80 px-3 py-2 text-[10px] text-[#61707b] backdrop-blur sm:right-auto">
         <Sparkles className="h-3.5 w-3.5 text-[#3a8a69]" />
         Curated active-site lesson; coordinate-based protein view arrives in Phase 2.
       </div>

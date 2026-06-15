@@ -14,16 +14,19 @@ import {
   Server,
   Share2,
   Sparkles,
+  X,
   Zap,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { CapabilitiesPanel } from "@/components/capabilities/CapabilitiesPanel";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
 import { WorkflowGuide } from "@/components/onboarding/WorkflowGuide";
+import { GuidedStart } from "@/components/onboarding/GuidedStart";
 import { IllustrativeProtein } from "@/components/protein/IllustrativeProtein";
 import { LearningPanel } from "@/components/learning/LearningPanel";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { guidedResidues, startingSmiles } from "@/data/guided-project";
+import { sampleMolecules, type SampleMolecule } from "@/data/sample-molecules";
 import {
   checkMoleculeService,
   generateConformer,
@@ -36,8 +39,12 @@ const KetcherEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex min-h-[520px] items-center justify-center bg-[#fbfaf6] text-[11px] text-[#718079]">
-        Loading the molecular editor...
+      <div className="flex min-h-[520px] items-center justify-center bg-[#fbfaf6] p-8 text-center text-[11px] text-[#718079]">
+        <div>
+          <div className="mx-auto h-8 w-8 animate-pulse rounded-xl bg-[#dcebe3]" />
+          <p className="mt-3 font-semibold text-ink">Opening the molecule studio</p>
+          <p className="mt-1 text-[9px]">Preparing Ketcher drawing tools...</p>
+        </div>
       </div>
     ),
   },
@@ -65,6 +72,7 @@ const steps = [
 
 export default function Home() {
   const [mobileNav, setMobileNav] = useState(false);
+  const [selectedSample, setSelectedSample] = useState<SampleMolecule>(sampleMolecules[0]);
   const [selectedResidue, setSelectedResidue] = useState<string | null>("MET793");
   const [conformer, setConformer] = useState<ConformerResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -112,13 +120,33 @@ export default function Home() {
     if (lastStructure) void createConformer(lastStructure);
   }, [createConformer, lastStructure]);
 
+  const chooseSample = useCallback((sample: SampleMolecule) => {
+    setSelectedSample(sample);
+    setStale(true);
+    setApiError(null);
+  }, []);
+
+  const startExperiment = useCallback(() => {
+    document.getElementById("molecule-workspace")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, []);
+
   const residue = guidedResidues.find((item) => item.id === selectedResidue);
   const conformerCurrent = Boolean(conformer && !stale);
+  const workflowStage = generating
+    ? "calculating"
+    : conformerCurrent
+      ? "complete"
+      : conformer && stale
+        ? "outdated"
+        : "ready";
 
   return (
-    <main className="flex min-h-screen flex-col overflow-hidden">
-      <header className="flex h-[58px] shrink-0 items-center justify-between border-b border-[#d8d7d1] bg-[#f8f7f2]/95 px-4 backdrop-blur-xl md:px-5">
-        <div className="flex items-center gap-4">
+    <main className="flex min-h-screen flex-col overflow-x-hidden">
+      <header className="sticky top-0 z-40 flex min-h-[58px] shrink-0 items-center justify-between border-b border-[#d8d7d1] bg-[#f8f7f2]/95 px-3 py-2 backdrop-blur-xl sm:px-4 md:px-5">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-4">
           <button
             onClick={() => setMobileNav((open) => !open)}
             className="rounded-lg p-1.5 hover:bg-white md:hidden"
@@ -129,17 +157,22 @@ export default function Home() {
           <Logo />
           <span className="hidden h-5 w-px bg-[#d9d8d2] md:block" />
           <span className="hidden text-[12px] font-medium md:block">EGFR molecule lab</span>
-          <StatusBadge status="real">Phase 1</StatusBadge>
-          <button onClick={() => void checkService()} title="Check the local molecule calculation service">
+          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 1</StatusBadge></span>
+          <button onClick={() => void checkService()} title="Check the molecule calculation service">
             <StatusBadge
               status={serviceStatus === "online" ? "real" : serviceStatus === "offline" ? "future" : "neutral"}
             >
               <Server className="h-3 w-3" />
-              {serviceStatus === "online"
-                ? "RDKit online"
-                : serviceStatus === "offline"
-                  ? "RDKit offline"
-                  : "Checking RDKit"}
+              <span className="hidden sm:inline">
+                {serviceStatus === "online"
+                  ? "RDKit online"
+                  : serviceStatus === "offline"
+                    ? "RDKit offline"
+                    : "Checking RDKit"}
+              </span>
+              <span className="sm:hidden">
+                {serviceStatus === "online" ? "Online" : serviceStatus === "offline" ? "Offline" : "Checking"}
+              </span>
             </StatusBadge>
           </button>
         </div>
@@ -155,7 +188,7 @@ export default function Home() {
           <button
             disabled
             title="Shareable projects arrive in Phase 4"
-            className="rounded-lg border border-[#deddd7] bg-white px-3 py-2 text-[11px] font-semibold text-[#a0a6aa]"
+            className="hidden rounded-lg border border-[#deddd7] bg-white px-3 py-2 text-[11px] font-semibold text-[#a0a6aa] sm:block"
           >
             <Share2 className="h-4 w-4 sm:hidden" />
             <span className="hidden sm:inline">Share later</span>
@@ -164,15 +197,27 @@ export default function Home() {
       </header>
 
       <div className="flex min-h-0 flex-1">
+        {mobileNav && (
+          <button
+            className="fixed inset-0 top-[58px] z-40 bg-ink/25 backdrop-blur-[2px] md:hidden"
+            onClick={() => setMobileNav(false)}
+            aria-label="Close navigation"
+          />
+        )}
         <nav
           className={`${
-            mobileNav ? "absolute inset-y-[58px] left-0 z-50 flex shadow-2xl" : "hidden"
-          } w-[205px] shrink-0 flex-col border-r border-[#d8d7d1] bg-[#f8f7f2] p-3 md:flex`}
+            mobileNav ? "fixed bottom-0 left-0 top-[58px] z-50 flex shadow-2xl" : "hidden"
+          } w-[255px] shrink-0 flex-col border-r border-[#d8d7d1] bg-[#f8f7f2] p-3 md:flex md:w-[205px]`}
         >
-          <button className="mb-4 flex items-center gap-2 rounded-lg px-2 py-2 text-[11px] font-medium text-[#7b858e]">
-            <ChevronLeft className="h-3.5 w-3.5" />
-            Guided projects
-          </button>
+          <div className="mb-4 flex items-center justify-between">
+            <button className="flex items-center gap-2 rounded-lg px-2 py-2 text-[11px] font-medium text-[#7b858e]">
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Guided projects
+            </button>
+            <button onClick={() => setMobileNav(false)} className="rounded-lg p-2 hover:bg-white md:hidden" aria-label="Close navigation">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
           <p className="px-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[#959ca2]">
             Scientific workflow
           </p>
@@ -221,6 +266,12 @@ export default function Home() {
         </nav>
 
         <section className="min-w-0 flex-1">
+          <GuidedStart
+            selectedSample={selectedSample}
+            onChooseSample={chooseSample}
+            onStart={startExperiment}
+          />
+
           <div className="border-b border-[#d8d7d1] bg-[#fbfaf6] px-4 py-4 md:px-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -231,9 +282,9 @@ export default function Home() {
                   <span className="h-1 w-1 rounded-full bg-[#aeb4b8]" />
                   <span className="text-[10px] text-[#7e8891]">Create and convert a molecule</span>
                 </div>
-                <h1 className="mt-1 text-[20px] font-semibold tracking-[-0.03em]">
-                  Turn your 2D design into a real 3D conformer
-                </h1>
+                <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.03em]">
+                  Your molecule-to-3D workspace
+                </h2>
               </div>
               <div className="flex gap-2">
                 <StatusBadge status="real">
@@ -245,11 +296,12 @@ export default function Home() {
             </div>
           </div>
 
-          <WorkflowGuide complete={conformerCurrent} />
+          <WorkflowGuide stage={workflowStage} />
 
-          <div className="grid xl:grid-cols-[minmax(380px,1fr)_minmax(380px,1fr)_280px]">
+          <div className="workspace-grid grid gap-3 bg-[#e5e4de] p-0 sm:p-3 xl:grid-cols-[minmax(380px,1fr)_minmax(380px,1fr)_280px]">
             <KetcherEditor
               initialSmiles={startingSmiles}
+              selectedSample={selectedSample}
               busy={generating}
               onGenerate={createConformer}
               onStructureChange={markStructureChanged}
@@ -261,9 +313,13 @@ export default function Home() {
               stale={stale}
               onRetry={retryConformer}
             />
-            <div className="hidden xl:block">
+            <div className="hidden overflow-hidden rounded-2xl xl:block">
               <LearningPanel residue={residue} conformer={conformer} />
             </div>
+          </div>
+
+          <div className="border-t border-[#d8d7d1] xl:hidden">
+            <LearningPanel residue={residue} conformer={conformer} />
           </div>
 
           <div className="grid border-t border-[#d8d7d1] lg:grid-cols-[1fr_320px]">

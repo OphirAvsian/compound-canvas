@@ -17,6 +17,7 @@ html,
 body {
   min-height: 100%;
   margin: 0;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -34,6 +35,13 @@ input {
 
 button {
   cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(47, 91, 234, 0.3);
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -55,6 +63,17 @@ button {
   to { stroke-dashoffset: -24; }
 }
 
+@keyframes calculation-slide {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(180%); }
+  100% { transform: translateX(420%); }
+}
+
+@keyframes soft-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
+}
+
 .protein-ribbon {
   filter: drop-shadow(0 14px 20px rgba(11, 32, 54, 0.15));
 }
@@ -65,6 +84,103 @@ button {
 
 .interaction-line {
   animation: dash 1.5s linear infinite;
+}
+
+.calculation-progress {
+  width: 28%;
+  animation: calculation-slide 1.5s ease-in-out infinite;
+}
+
+.onboarding-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.onboarding-orb-one {
+  width: 290px;
+  height: 290px;
+  right: 33%;
+  top: -190px;
+  background: rgba(185, 241, 214, 0.42);
+}
+
+.onboarding-orb-two {
+  width: 220px;
+  height: 220px;
+  left: -120px;
+  bottom: -160px;
+  background: rgba(118, 148, 192, 0.12);
+}
+
+.molecule-glyph {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.molecule-glyph::before,
+.molecule-glyph::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.molecule-glyph::before {
+  left: -6px;
+  top: 8px;
+}
+
+.molecule-glyph::after {
+  right: -6px;
+  top: -4px;
+}
+
+.workspace-card {
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .workspace-card {
+    border: 1px solid rgba(214, 214, 207, 0.9);
+    border-radius: 1rem;
+    box-shadow: 0 12px 35px rgba(28, 45, 39, 0.06);
+  }
+}
+
+@media (max-width: 639px) {
+  .Ketcher-root {
+    min-height: 390px;
+  }
+
+  .Ketcher-root button {
+    touch-action: manipulation;
+  }
+
+  .msp-plugin .msp-viewport-controls {
+    transform: scale(0.88);
+    transform-origin: top right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto;
+  }
+
+  .float-slow,
+  .interaction-line,
+  .calculation-progress {
+    animation: none;
+  }
 }
 
 .scrollbar-none::-webkit-scrollbar {

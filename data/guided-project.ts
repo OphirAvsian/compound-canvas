@@ -41,4 +41,4 @@ export const guidedResidues: Residue[] = [
   },
 ];
 
-export const startingSmiles = "CCOc1ccc2nc(NC3CC3)ncc2c1";
+export const startingSmiles = "Cn1c(=O)c2c(ncn2C)n(C)c1=O";

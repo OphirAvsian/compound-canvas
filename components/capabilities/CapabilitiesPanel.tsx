@@ -55,7 +55,7 @@ export function CapabilitiesPanel() {
         </p>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
           {groups.map((group) => (
-            <article key={group.title} className="rounded-2xl border border-[#deddd7] bg-white p-4">
+            <article key={group.title} className="rounded-2xl border border-[#deddd7] bg-white p-5 shadow-[0_10px_30px_rgba(28,45,39,.04)]">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <group.icon className="h-4 w-4 text-[#53675e]" />

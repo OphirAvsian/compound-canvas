@@ -76,8 +76,8 @@ export function ConformerViewer({
   }, [conformer, viewerReady]);
 
   return (
-    <section className="flex min-h-[520px] flex-col overflow-hidden bg-[#eef1ee]">
-      <div className="flex items-center justify-between border-b border-[#d8ddd9] bg-white/70 px-4 py-3">
+    <section className="workspace-card flex min-h-[520px] flex-col overflow-hidden bg-[#eef1ee]">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#d8ddd9] bg-white/70 px-4 py-3">
         <div>
           <div className="flex items-center gap-2">
             <Rotate3D className="h-4 w-4 text-[#2f7c5e]" />
@@ -96,7 +96,7 @@ export function ConformerViewer({
         </div>
       </div>
 
-      <div className="relative min-h-[360px] flex-1">
+      <div className="relative min-h-[340px] flex-1 sm:min-h-[360px]">
         <div ref={hostRef} className="absolute inset-0" />
         {!conformer && !busy && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[#eef1ee]/90 p-8 text-center">
@@ -104,8 +104,12 @@ export function ConformerViewer({
               <Rotate3D className="mx-auto h-8 w-8 text-[#8ba196]" />
               <p className="mt-3 text-[13px] font-semibold">Your calculated 3D molecule will appear here</p>
               <p className="mt-1 text-[11px] leading-5 text-[#718079]">
-                Generate a conformer after editing the 2D structure. No example coordinates are substituted.
+                Use the button under the 2D editor. The coordinates shown here will come from your real RDKit result.
               </p>
+              <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[9px] font-semibold text-[#607168]">
+                <span className="h-2 w-2 rounded-full bg-[#79b999]" />
+                Drag to rotate after calculation
+              </div>
             </div>
           </div>
         )}
@@ -117,6 +121,9 @@ export function ConformerViewer({
               <p className="mt-1 text-[10px] leading-5 text-[#6e7c75]">
                 Checking atoms and bonds, adding hydrogens, generating coordinates, and minimizing the structure.
               </p>
+              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#d7e3dc]">
+                <span className="calculation-progress block h-full rounded-full bg-[#4e8b6f]" />
+              </div>
             </div>
           </div>
         )}
