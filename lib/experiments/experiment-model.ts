@@ -1,0 +1,235 @@
+import { egfr2ity } from "../../data/protein-targets";
+
+export const EXPERIMENT_SCHEMA_VERSION = 1;
+
+export type EvidenceKind =
+  | "calculated"
+  | "coordinate_derived"
+  | "experimental"
+  | "curated";
+
+export type ScientificProvenance = {
+  id: string;
+  evidenceKind: EvidenceKind;
+  label: string;
+  source: string;
+  sourceUrl?: string;
+  method?: string;
+  tool?: {
+    name: string;
+    version: string | null;
+    versionNote?: string;
+  };
+  recordedAt: string;
+};
+
+export type ScientificWarning = {
+  id: string;
+  severity: "information" | "caution";
+  message: string;
+};
+
+export type ScientificAssumption = {
+  id: string;
+  statement: string;
+  evidenceKind: "curated";
+};
+
+export type ExperimentStepStatus = {
+  status: "pending" | "complete";
+  completedAt?: string;
+};
+
+export type ExperimentWorkflow = {
+  moleculeSelected: ExperimentStepStatus;
+  conformerGenerated: ExperimentStepStatus;
+  proteinCoordinatesLoaded: ExperimentStepStatus;
+  residuesInspected: Array<{
+    chain: string;
+    residueNumber: number;
+    inspectedAt: string;
+  }>;
+  depositedLigandLocated: ExperimentStepStatus;
+  educationalCheckpointsReviewed: Array<{
+    stepId: string;
+    reviewedAt: string;
+  }>;
+};
+
+export type Experiment = {
+  schemaVersion: typeof EXPERIMENT_SCHEMA_VERSION;
+  id: string;
+  title: string;
+  target: {
+    artifactId: "protein-2ity";
+    pdbId: "2ITY";
+    name: string;
+    organism: string;
+    chain: "A";
+    coordinateFormat: "BinaryCIF";
+    coordinateSource: string;
+    sourceUrl: string;
+    fileSha256: string;
+    method: string;
+    resolutionAngstrom: number;
+    selectedAt: string;
+    loadedAt?: string;
+    depositedLigand: {
+      componentId: "IRE";
+      name: string;
+      classification: "experimentally_deposited";
+      selectedAt?: string;
+    };
+  };
+  ligand: {
+    artifactId: string;
+    sampleId: string;
+    name: string;
+    inputSmiles: string;
+    selectedAt: string;
+    conformer?: {
+      artifactId: string;
+      status: "available";
+      canonicalSmiles: string;
+      molecularFormula: string;
+      molecularWeight: number;
+      atomCount: number;
+      heavyAtomCount: number;
+      conformerMethod: "ETKDGv3";
+      forceField: "MMFF94" | "UFF";
+      energyKcalMol: number | null;
+      seed: number;
+      explicitHydrogens: boolean;
+      generatedAt: string;
+      warnings: string[];
+    };
+  } | null;
+  provenance: ScientificProvenance[];
+  warnings: ScientificWarning[];
+  scientificAssumptions: ScientificAssumption[];
+  workflow: ExperimentWorkflow;
+  futurePreparation: {
+    protein: {
+      status: "not_implemented";
+      explanation: string;
+    };
+    ligand: {
+      status: "not_implemented";
+      explanation: string;
+    };
+  };
+  futureDocking: {
+    status: "not_implemented";
+    explanation: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function createInitialExperiment({
+  id,
+  now = new Date().toISOString(),
+}: {
+  id: string;
+  now?: string;
+}): Experiment {
+  return {
+    schemaVersion: EXPERIMENT_SCHEMA_VERSION,
+    id,
+    title: "EGFR molecule exploration",
+    target: {
+      artifactId: "protein-2ity",
+      pdbId: "2ITY",
+      name: egfr2ity.name,
+      organism: egfr2ity.organism,
+      chain: "A",
+      coordinateFormat: "BinaryCIF",
+      coordinateSource: egfr2ity.structureUrl,
+      sourceUrl: egfr2ity.sourceUrl,
+      fileSha256: egfr2ity.fileSha256,
+      method: egfr2ity.method,
+      resolutionAngstrom: egfr2ity.resolutionAngstrom,
+      selectedAt: now,
+      depositedLigand: {
+        componentId: "IRE",
+        name: egfr2ity.depositedLigand.name,
+        classification: "experimentally_deposited",
+      },
+    },
+    ligand: null,
+    provenance: [],
+    warnings: [
+      {
+        id: "resolution-limit",
+        severity: "caution",
+        message:
+          "2ITY has 3.42 Å resolution. Coordinates are experimental model positions with limited atomic detail.",
+      },
+      {
+        id: "rdkit-version",
+        severity: "information",
+        message:
+          "The current calculation API identifies RDKit methods but does not report its exact runtime RDKit version.",
+      },
+      {
+        id: "no-predictions",
+        severity: "information",
+        message:
+          "This experiment contains no preparation, docking, binding, interaction, or activity prediction.",
+      },
+    ],
+    scientificAssumptions: [
+      {
+        id: "coordinate-snapshot",
+        evidenceKind: "curated",
+        statement:
+          "2ITY is treated as a deposited experimental structure snapshot, not as a prepared docking receptor.",
+      },
+      {
+        id: "conformer-not-pose",
+        evidenceKind: "curated",
+        statement:
+          "An RDKit conformer is one plausible molecular geometry, not a protein-bound pose.",
+      },
+      {
+        id: "curated-site",
+        evidenceKind: "curated",
+        statement:
+          "Lys745, Leu788, and Met793 are curated teaching residues, not an automatically detected pocket.",
+      },
+      {
+        id: "chemistry-unprepared",
+        evidenceKind: "curated",
+        statement:
+          "Protonation, tautomer choice, charges, missing protein atoms, and other preparation choices have not been assessed.",
+      },
+    ],
+    workflow: {
+      moleculeSelected: { status: "pending" },
+      conformerGenerated: { status: "pending" },
+      proteinCoordinatesLoaded: { status: "pending" },
+      residuesInspected: [],
+      depositedLigandLocated: { status: "pending" },
+      educationalCheckpointsReviewed: [],
+    },
+    futurePreparation: {
+      protein: {
+        status: "not_implemented",
+        explanation:
+          "Protein preparation will later create a new, versioned artifact from the deposited coordinates.",
+      },
+      ligand: {
+        status: "not_implemented",
+        explanation:
+          "Ligand preparation will later create a versioned chemical-state artifact before docking.",
+      },
+    },
+    futureDocking: {
+      status: "not_implemented",
+      explanation:
+        "Future docking will reference prepared protein and ligand artifact IDs and append poses and method provenance.",
+    },
+    createdAt: now,
+    updatedAt: now,
+  };
+}

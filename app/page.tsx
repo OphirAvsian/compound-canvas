@@ -21,6 +21,7 @@ import { JourneySidebar } from "@/components/journey/JourneySidebar";
 import { MissionBanner } from "@/components/journey/MissionBanner";
 import { MissionCheckpointPanel } from "@/components/journey/MissionCheckpointPanel";
 import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspace";
+import { ExperimentWorkspace } from "@/components/experiment/ExperimentWorkspace";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { startingSmiles } from "@/data/guided-project";
 import { sampleMolecules, type SampleMolecule } from "@/data/sample-molecules";
@@ -31,6 +32,7 @@ import {
 } from "@/lib/molecules";
 import type { MoleculeExport } from "@/components/molecule/KetcherEditor";
 import { useLearningJourney } from "@/hooks/useLearningJourney";
+import { useExperiment } from "@/hooks/useExperiment";
 import { emitJourneyEvent } from "@/lib/journey/journey-events";
 
 const KetcherEditor = dynamic(
@@ -71,6 +73,7 @@ export default function Home() {
   const [lastStructure, setLastStructure] = useState<MoleculeExport | null>(null);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "online" | "offline">("checking");
   const journey = useLearningJourney();
+  const experiment = useExperiment();
 
   const checkService = useCallback(async () => {
     setServiceStatus("checking");
@@ -103,6 +106,20 @@ export default function Home() {
       emitJourneyEvent({
         type: "molecule.conformer_generated",
         sampleId: selectedSample.id,
+        conformer: {
+          canonicalSmiles: result.canonical_smiles,
+          molecularFormula: result.molecular_formula,
+          molecularWeight: result.molecular_weight,
+          atomCount: result.atom_count,
+          heavyAtomCount: result.heavy_atom_count,
+          conformerMethod: result.conformer_method,
+          forceField: result.force_field,
+          energyKcalMol: result.energy_kcal_mol,
+          seed: result.seed,
+          explicitHydrogens: result.explicit_hydrogens,
+          warnings: result.warnings,
+          generatedAt: new Date().toISOString(),
+        },
       });
     } catch (cause) {
       setStale(true);
@@ -326,6 +343,13 @@ export default function Home() {
               <MissionCheckpointPanel missionId="mission-2" journeyState={journey.state} />
               <MissionThreeWorkspace journeyState={journey.state} />
             </>
+          )}
+          {experiment.hydrated ? (
+            <ExperimentWorkspace experiment={experiment.experiment} />
+          ) : (
+            <div className="border-t border-[#d8d7d1] bg-[#eef2ef] px-4 py-10 text-center text-[10px] text-[#718079]">
+              Preparing your browser-local experiment record...
+            </div>
           )}
           <CapabilitiesPanel />
         </section>

@@ -1,6 +1,23 @@
 export type JourneyEvent =
   | { type: "molecule.sample_selected"; sampleId: string }
-  | { type: "molecule.conformer_generated"; sampleId: string }
+  | {
+      type: "molecule.conformer_generated";
+      sampleId: string;
+      conformer?: {
+        canonicalSmiles: string;
+        molecularFormula: string;
+        molecularWeight: number;
+        atomCount: number;
+        heavyAtomCount: number;
+        conformerMethod: "ETKDGv3";
+        forceField: "MMFF94" | "UFF";
+        energyKcalMol: number | null;
+        seed: number;
+        explicitHydrogens: boolean;
+        warnings: string[];
+        generatedAt: string;
+      };
+    }
   | { type: "molecule.viewer_rotated" }
   | { type: "protein.structure_loaded"; pdbId: string }
   | {
