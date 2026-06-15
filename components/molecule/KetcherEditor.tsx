@@ -125,6 +125,7 @@ export function KetcherEditor({
         <Editor
           staticResourcesUrl="/"
           structServiceProvider={serviceProvider}
+          buttons={{ help: { hidden: true } }}
           onInit={initialize}
           errorHandler={(message) => setError(message)}
           disableMacromoleculesEditor
