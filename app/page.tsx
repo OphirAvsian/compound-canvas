@@ -24,6 +24,7 @@ import { MissionCheckpointPanel } from "@/components/journey/MissionCheckpointPa
 import { MissionFourWorkspace } from "@/components/journey/MissionFourWorkspace";
 import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspace";
 import { WorkflowCompletionSummary } from "@/components/journey/WorkflowCompletionSummary";
+import { BeginnerResultsReport } from "@/components/experiment/BeginnerResultsReport";
 import { ExperimentWorkspace } from "@/components/experiment/ExperimentWorkspace";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { startingSmiles } from "@/data/guided-project";
@@ -464,7 +465,10 @@ export default function Home() {
             </>
           )}
           {experiment.hydrated ? (
-            <ExperimentWorkspace experiment={experiment.experiment} />
+            <>
+              <BeginnerResultsReport experiment={experiment.experiment} />
+              <ExperimentWorkspace experiment={experiment.experiment} />
+            </>
           ) : (
             <div className="border-t border-[#d8d7d1] bg-[#eef2ef] px-4 py-10 text-center text-[10px] text-[#718079]">
               Preparing your browser-local experiment record...
