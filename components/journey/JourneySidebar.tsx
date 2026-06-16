@@ -144,6 +144,11 @@ export function JourneySidebar({
         )}
       </div>
 
+      <p className="mt-4 rounded-xl bg-white/65 px-3 py-2 text-[9px] leading-4 text-[#707b75]">
+        Progress and the experiment summary are stored locally in this browser.
+        Reset before handing the demo to someone else.
+      </p>
+
       <button
         onClick={onReset}
         className={`mt-auto flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[9px] font-semibold text-[#7b8580] hover:bg-white ${
@@ -151,7 +156,7 @@ export function JourneySidebar({
         }`}
       >
         <RotateCcw className="h-3 w-3" />
-        Reset learning progress
+        Reset demo
       </button>
     </div>
   );

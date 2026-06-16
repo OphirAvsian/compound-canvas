@@ -21,7 +21,9 @@ import { JourneyMobileBar } from "@/components/journey/JourneyMobileBar";
 import { JourneySidebar } from "@/components/journey/JourneySidebar";
 import { MissionBanner } from "@/components/journey/MissionBanner";
 import { MissionCheckpointPanel } from "@/components/journey/MissionCheckpointPanel";
+import { MissionFourWorkspace } from "@/components/journey/MissionFourWorkspace";
 import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspace";
+import { WorkflowCompletionSummary } from "@/components/journey/WorkflowCompletionSummary";
 import { ExperimentWorkspace } from "@/components/experiment/ExperimentWorkspace";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { startingSmiles } from "@/data/guided-project";
@@ -78,6 +80,7 @@ export default function Home() {
   const [preparedLigand, setPreparedLigand] = useState<LigandPreparationResult | null>(null);
   const [preparationError, setPreparationError] = useState<string | null>(null);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "online" | "offline">("checking");
+  const [editorResetKey, setEditorResetKey] = useState(0);
   const journey = useLearningJourney();
   const experiment = useExperiment();
 
@@ -263,6 +266,25 @@ export default function Home() {
     });
   }, []);
 
+  const resetDemo = useCallback(() => {
+    journey.resetJourney();
+    experiment.resetExperiment();
+    setSelectedSample(sampleMolecules[0]);
+    setConformer(null);
+    setApiError(null);
+    setGenerating(false);
+    setPreparingLigand(false);
+    setStale(false);
+    setLastStructure(null);
+    setPreparedLigand(null);
+    setPreparationError(null);
+    setEditorResetKey((key) => key + 1);
+    document.getElementById("guided-start")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [experiment, journey]);
+
   const workflowStage = generating
     ? "calculating"
     : conformerCurrent
@@ -332,7 +354,7 @@ export default function Home() {
             <JourneySidebar
               state={journey.state}
               onSelectMission={journey.setActiveMission}
-              onReset={journey.resetJourney}
+              onReset={resetDemo}
             />
           ) : (
             <div className="animate-pulse rounded-2xl bg-white p-4 text-[10px] text-[#7a8580]">
@@ -349,7 +371,7 @@ export default function Home() {
                 open={mobileNav}
                 onOpenChange={setMobileNav}
                 onSelectMission={journey.setActiveMission}
-                onReset={journey.resetJourney}
+                onReset={resetDemo}
               />
               <MissionBanner state={journey.state} />
             </>
@@ -390,6 +412,7 @@ export default function Home() {
 
           <div className="workspace-grid grid gap-3 bg-[#e5e4de] p-0 sm:p-3 xl:grid-cols-[minmax(380px,1fr)_minmax(380px,1fr)_280px]">
             <KetcherEditor
+              key={editorResetKey}
               initialSmiles={startingSmiles}
               selectedSample={selectedSample}
               busy={generating}
@@ -433,6 +456,11 @@ export default function Home() {
             <>
               <MissionCheckpointPanel missionId="mission-2" journeyState={journey.state} />
               <MissionThreeWorkspace journeyState={journey.state} />
+              <MissionFourWorkspace journeyState={journey.state} />
+              <WorkflowCompletionSummary
+                journeyState={journey.state}
+                onResetDemo={resetDemo}
+              />
             </>
           )}
           {experiment.hydrated ? (

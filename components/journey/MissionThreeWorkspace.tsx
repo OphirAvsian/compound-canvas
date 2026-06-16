@@ -30,10 +30,10 @@ const reflection = {
     },
     {
       id: "not-tested",
-      label: "Because no preparation, docking, or experiment has tested that claim here",
+      label: "Because no docking or experiment has tested that claim here",
       correct: true,
       feedback:
-        "Correct. Compound Canvas has generated caffeine coordinates and loaded EGFR coordinates, but has not tested binding.",
+        "Correct. Compound Canvas can prepare a ligand artifact, but it has not docked the molecule or tested binding.",
     },
     {
       id: "gefitinib-only",
@@ -79,7 +79,7 @@ const lessons = [
     points: [
       "Preparation creates scientifically defined inputs.",
       "Docking samples possible poses and produces model-dependent scores.",
-      "Neither preparation nor docking is implemented in this release.",
+      "Ligand preparation is available next; docking is still not implemented.",
     ],
   },
 ];
@@ -171,8 +171,8 @@ export function MissionThreeWorkspace({ journeyState }: { journeyState: JourneyS
 
             <div className="mt-4 rounded-2xl border border-[#e1c98f] bg-[#fff8e8] p-4 text-[10px] leading-5 text-[#725a2d]">
               <strong>Scientific boundary:</strong> Gefitinib is experimentally deposited
-              in 2ITY. Caffeine has not been prepared, docked, scored, or predicted to
-              bind EGFR by Compound Canvas.
+              in 2ITY. Caffeine has not been docked, scored, placed into EGFR, or
+              predicted to bind EGFR by Compound Canvas.
             </div>
 
             <div className="mt-4 max-w-[900px]">

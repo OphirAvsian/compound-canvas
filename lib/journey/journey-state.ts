@@ -85,7 +85,15 @@ export function applyJourneyEvent(
           )
         : state;
     case "ligand.prepared":
-      return state;
+      return completeStep(
+        state,
+        "m4-prepare",
+        evidence(
+          "real_result",
+          `Ligand-preparation artifact ${event.preparation.artifactId} created without docking`,
+          now,
+        ),
+      );
     case "protein.structure_loaded":
       return event.pdbId.toUpperCase() === "2ITY"
         ? completeStep(

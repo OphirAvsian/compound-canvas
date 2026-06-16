@@ -9,7 +9,7 @@ const reflections: Record<string, ReflectionDefinition> = {
     options: [
       {
         id: "score",
-        label: "A docking score",
+        label: "A binding score from docking, which this app has not created",
         correct: false,
         feedback:
           "A conformer does not contain a docking score. It adds one plausible set of 3D coordinates.",

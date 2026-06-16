@@ -15,7 +15,7 @@ export type MissionStepDefinition = {
 };
 
 export type MissionDefinition = {
-  id: "mission-1" | "mission-2" | "mission-3";
+  id: "mission-1" | "mission-2" | "mission-3" | "mission-4";
   number: number;
   title: string;
   subtitle: string;
@@ -162,6 +162,42 @@ export const learningMissions: MissionDefinition[] = [
         id: "m3-reflection",
         title: "Scientific honesty checkpoint",
         instruction: "Explain why Compound Canvas cannot claim caffeine binds EGFR.",
+        kind: "reflection",
+        evidenceKind: "curated",
+        skippable: true,
+      },
+    ],
+  },
+  {
+    id: "mission-4",
+    number: 4,
+    title: "Prepare a Ligand for Future Docking",
+    subtitle: "Create a real ligand-preparation artifact without docking",
+    learningGoal:
+      "Understand how ligand preparation turns a drawn molecule into a better-defined input for future docking, while staying honest that no binding test has been run.",
+    steps: [
+      {
+        id: "m4-prepare",
+        title: "Prepare the ligand",
+        instruction: "Run the real ligand-preparation service after generating a current 3D conformer.",
+        kind: "action",
+        evidenceKind: "calculated",
+        skippable: false,
+        targetId: "ligand-preparation-workspace",
+      },
+      {
+        id: "m4-why-prep",
+        title: "Why preparation comes first",
+        instruction: "Review why hydrogens, charge, fragments, stereochemistry, and docking-format files must be explicit before docking.",
+        kind: "explanation",
+        evidenceKind: "curated",
+        skippable: true,
+        targetId: "mission-4-workspace",
+      },
+      {
+        id: "m4-reflection",
+        title: "Prepared, not docked",
+        instruction: "Confirm what Compound Canvas has and has not claimed.",
         kind: "reflection",
         evidenceKind: "curated",
         skippable: true,
