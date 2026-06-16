@@ -58,6 +58,8 @@ def test_caffeine_ligand_preparation_endpoint() -> None:
     assert body["conformer_report"]["requested_conformers"] == 3
     assert body["hydrogen_report"]["explicit_hydrogens_added"] > 0
     assert "$$$$" in body["prepared_sdf"]
+    assert body["pdbqt_available"] is True
+    assert "ROOT" in body["pdbqt"]
     assert body["provenance"]["rdkit_version"]
     assert any("not docked" in warning for warning in body["warnings"])
 

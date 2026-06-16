@@ -231,15 +231,19 @@ def _write_pdbqt(mol: Chem.Mol) -> tuple[str | None, list[str]]:
         from meeko import MoleculePreparation, PDBQTWriterLegacy
 
         preparator = MoleculePreparation()
-        setups = preparator.prepare(mol)
-        pdbqt_string, ok, message = PDBQTWriterLegacy.write_string(setups[0])
-        if not ok:
-            warnings.append(
-                "Meeko could not create a PDBQT docking-format file for this molecule. The prepared SDF is still available."
-            )
-            if message:
-                warnings.append(f"Meeko message: {message}")
-            return None, warnings
+        setups = preparator(mol)
+        output = PDBQTWriterLegacy.write_string(setups[0])
+        if isinstance(output, tuple):
+            pdbqt_string, ok, message = output
+            if not ok:
+                warnings.append(
+                    "Meeko could not create a PDBQT docking-format file for this molecule. The prepared SDF is still available."
+                )
+                if message:
+                    warnings.append(f"Meeko message: {message}")
+                return None, warnings
+        else:
+            pdbqt_string = output
         return pdbqt_string, warnings
     except Exception:
         warnings.append(

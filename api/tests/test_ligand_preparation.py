@@ -16,6 +16,9 @@ def test_prepares_caffeine_as_traceable_ligand_artifact() -> None:
     assert result.conformer_report.requested_conformers == MAX_CONFORMERS
     assert result.conformer_report.force_field in {"MMFF94", "UFF"}
     assert "$$$$" in result.prepared_sdf
+    assert result.pdbqt_available is True
+    assert result.pdbqt is not None
+    assert "ROOT" in result.pdbqt
     assert result.provenance["rdkit_version"]
     assert "input_sha256" in result.provenance
     assert any("not docked" in warning for warning in result.warnings)
