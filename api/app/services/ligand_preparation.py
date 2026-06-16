@@ -250,7 +250,7 @@ def _write_pdbqt(mol: Chem.Mol) -> tuple[str | None, list[str]]:
     except Exception as error:
         logger.exception("meeko_pdbqt_generation_failed")
         warnings.append(
-            "Meeko PDBQT generation is unavailable for this molecule. The prepared SDF is still available."
+            f"Meeko PDBQT generation is unavailable for this molecule ({type(error).__name__}: {error}). The prepared SDF is still available."
         )
         return None, warnings
 
