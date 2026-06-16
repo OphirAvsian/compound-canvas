@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
@@ -13,6 +14,7 @@ from .conformer import MoleculeError
 
 MAX_HEAVY_ATOMS = 60
 MAX_CONFORMERS = 5
+logger = logging.getLogger("compound_canvas.api")
 
 
 @dataclass(frozen=True)
@@ -245,9 +247,10 @@ def _write_pdbqt(mol: Chem.Mol) -> tuple[str | None, list[str]]:
         else:
             pdbqt_string = output
         return pdbqt_string, warnings
-    except Exception:
+    except Exception as error:
+        logger.exception("meeko_pdbqt_generation_failed")
         warnings.append(
-            "Meeko PDBQT generation is unavailable for this molecule. The prepared SDF is still available."
+            f"Meeko PDBQT generation is unavailable for this molecule ({type(error).__name__}: {error}). The prepared SDF is still available."
         )
         return None, warnings
 
