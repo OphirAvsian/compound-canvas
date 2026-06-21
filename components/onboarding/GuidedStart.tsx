@@ -23,7 +23,7 @@ export function GuidedStart({
   onStart: () => void;
 }) {
   return (
-    <section className="relative overflow-hidden border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-7 md:px-6 md:py-9">
+    <section id="guided-start" className="relative overflow-hidden border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-7 md:px-6 md:py-9">
       <div className="onboarding-orb onboarding-orb-one" />
       <div className="onboarding-orb onboarding-orb-two" />
       <div className="relative mx-auto max-w-[1180px]">
@@ -42,12 +42,16 @@ export function GuidedStart({
               Draw a molecule. Watch it become three-dimensional.
             </h1>
             <p className="mt-4 max-w-[620px] text-[13px] leading-6 text-[#64716b] md:text-[14px]">
-              Start with a familiar molecule, generate real coordinates with RDKit, then rotate
-              the result and learn what its properties mean.
+              Compound Canvas is a guided computational drug-discovery learning
+              workspace. Start with a familiar molecule, generate real coordinates
+              with RDKit, connect the molecule story to EGFR, and learn what each
+              scientific step can and cannot tell you.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
+                type="button"
                 onClick={onStart}
+                aria-label={`Start the beginner workflow with ${selectedSample.name}`}
                 className="group inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-[0_10px_28px_rgba(23,40,59,.18)] transition hover:-translate-y-0.5 hover:bg-[#21364e]"
               >
                 <Play className="h-3.5 w-3.5 fill-current" />
@@ -81,8 +85,10 @@ export function GuidedStart({
                 return (
                   <button
                     key={sample.id}
+                    type="button"
                     onClick={() => onChooseSample(sample)}
                     aria-pressed={selected}
+                    aria-label={`Select ${sample.name}. ${sample.commonUse}. ${selected ? "Currently selected." : ""}`}
                     className={`sample-card min-h-[132px] rounded-2xl border p-3 text-left transition ${
                       selected
                         ? "border-[#79b999] bg-white shadow-[0_12px_35px_rgba(43,85,66,.12)] ring-2 ring-[#c9ead9]"

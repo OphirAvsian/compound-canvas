@@ -30,7 +30,7 @@ export const learningMissions: MissionDefinition[] = [
     title: "Your First Molecule",
     subtitle: "Turn caffeine into a real 3D conformer",
     learningGoal:
-      "Learn how a chemical graph becomes one plausible three-dimensional shape.",
+      "Learn how a chemical graph becomes one plausible three-dimensional shape before any molecule could be compared with a protein such as EGFR.",
     steps: [
       {
         id: "m1-caffeine",
@@ -44,7 +44,7 @@ export const learningMissions: MissionDefinition[] = [
       {
         id: "m1-conformer",
         title: "Calculate its 3D shape",
-        instruction: "Generate caffeine's conformer with the real RDKit service.",
+        instruction: "Generate caffeine's conformer with the real RDKit service. This creates ligand geometry, not an EGFR binding pose.",
         kind: "action",
         evidenceKind: "calculated",
         skippable: false,
@@ -75,7 +75,7 @@ export const learningMissions: MissionDefinition[] = [
     title: "Explore EGFR",
     subtitle: "Inspect a real experimental structure",
     learningGoal:
-      "Connect protein coordinates to residues, ligands, and a curated active-site lesson.",
+      "Understand how EGFR supplies protein context through real coordinates, residues, and an experimentally deposited ligand.",
     steps: [
       {
         id: "m2-open",
@@ -129,7 +129,7 @@ export const learningMissions: MissionDefinition[] = [
     title: "Molecule Meets Target",
     subtitle: "Connect molecules, targets, and the next scientific steps",
     learningGoal:
-      "Understand why raw molecule and protein coordinates are not yet a binding prediction.",
+      "Connect caffeine's calculated geometry with EGFR's deposited coordinates while understanding why separate structures are not a binding prediction.",
     steps: [
       {
         id: "m3-compare",

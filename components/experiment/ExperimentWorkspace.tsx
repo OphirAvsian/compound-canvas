@@ -127,6 +127,7 @@ export function ExperimentWorkspace({
           <button
             type="button"
             onClick={() => downloadSummary(experiment)}
+            aria-label="Download technical experiment summary JSON"
             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#263b50]"
           >
             <Download className="h-4 w-4" />
@@ -142,11 +143,11 @@ export function ExperimentWorkspace({
                   Target
                 </p>
                 <p className="mt-2 text-[14px] font-semibold">
-                  {experiment.target.pdbId} · EGFR
+                  {experiment.target.pdbId} - EGFR
                 </p>
                 <p className="mt-1 text-[9px] leading-4 text-[#6d7872]">
-                  Chain {experiment.target.chain} · {experiment.target.method} ·{" "}
-                  {experiment.target.resolutionAngstrom} Å
+                  Chain {experiment.target.chain} - {experiment.target.method} -{" "}
+                  {experiment.target.resolutionAngstrom} angstroms
                 </p>
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
@@ -158,7 +159,7 @@ export function ExperimentWorkspace({
                 </p>
                 <p className="mt-1 truncate text-[9px] leading-4 text-[#6d7872]">
                   {experiment.ligand?.conformer
-                    ? `${experiment.ligand.conformer.molecularFormula} · ${experiment.ligand.conformer.molecularWeight.toFixed(2)} g/mol`
+                    ? `${experiment.ligand.conformer.molecularFormula} - ${experiment.ligand.conformer.molecularWeight.toFixed(2)} g/mol`
                     : "No current conformer artifact"}
                 </p>
               </article>
@@ -287,6 +288,7 @@ export function ExperimentWorkspace({
                         "application/json",
                       )
                     }
+                    aria-label="Download ligand preparation JSON artifact"
                     className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4]"
                   >
                     Download prep JSON
@@ -300,6 +302,7 @@ export function ExperimentWorkspace({
                         experiment.ligand.preparation.preparedSdf,
                       )
                     }
+                    aria-label="Download prepared ligand SDF artifact"
                     className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4]"
                   >
                     Download SDF
@@ -307,6 +310,11 @@ export function ExperimentWorkspace({
                   <button
                     type="button"
                     disabled={!experiment.ligand.preparation.pdbqt}
+                    aria-label={
+                      experiment.ligand.preparation.pdbqt
+                        ? "Download prepared ligand PDBQT artifact"
+                        : "PDBQT download unavailable because no PDBQT artifact is available"
+                    }
                     onClick={() =>
                       experiment.ligand?.preparation?.pdbqt &&
                       downloadArtifact(
@@ -417,7 +425,7 @@ export function ExperimentWorkspace({
         </div>
 
         <p className="mt-3 break-all text-[8px] text-[#89918d]">
-          Experiment ID: {experiment.id} · Updated {formatTime(experiment.updatedAt)}
+          Experiment ID: {experiment.id} - Updated {formatTime(experiment.updatedAt)}
         </p>
       </div>
     </section>

@@ -37,6 +37,18 @@ export function JourneySidebar({
 }) {
   const journey = getJourneyProgress(state);
   const activeStep = getActiveStep(state);
+  const activeMission =
+    learningMissions.find((mission) => mission.id === state.activeMissionId) ??
+    learningMissions[0];
+  const completionMeaning =
+    activeStep.kind === "action"
+      ? activeStep.evidenceKind === "calculated"
+        ? "A real calculation result must be recorded. Skipping cannot complete it."
+        : activeStep.evidenceKind === "coordinate_derived" ||
+            activeStep.evidenceKind === "experimental"
+          ? "A real structure action must be recorded from the 2ITY coordinate model."
+          : "The requested action must be completed in the workspace."
+      : "You reviewed a teaching checkpoint. This does not create scientific evidence.";
 
   const selectMission = (missionId: string) => {
     if (!isMissionUnlocked(state, missionId)) return;
@@ -130,6 +142,26 @@ export function JourneySidebar({
             ? "All mission checkpoints have been reviewed."
             : activeStep.instruction}
         </p>
+        {journey.percent < 100 && (
+          <div className="mt-3 space-y-2">
+            <div className="rounded-lg bg-[#f4f8f5] p-2.5">
+              <p className="text-[8px] font-bold uppercase tracking-wide text-[#39765b]">
+                Why this matters
+              </p>
+              <p className="mt-1 text-[8px] leading-4 text-[#66736c]">
+                {activeMission.learningGoal}
+              </p>
+            </div>
+            <div className="rounded-lg bg-[#fbfaf6] p-2.5">
+              <p className="text-[8px] font-bold uppercase tracking-wide text-[#7a8580]">
+                Completion means
+              </p>
+              <p className="mt-1 text-[8px] leading-4 text-[#66736c]">
+                {completionMeaning}
+              </p>
+            </div>
+          </div>
+        )}
         {journey.percent < 100 && activeStep.targetId && (
           <button
             onClick={() => {

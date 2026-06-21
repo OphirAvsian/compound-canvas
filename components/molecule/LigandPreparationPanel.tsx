@@ -42,7 +42,10 @@ function StatusPill({
   help: string;
 }) {
   return (
-    <div className={`rounded-xl border p-3 ${statusClasses(tone)}`}>
+    <div
+      className={`rounded-xl border p-3 ${statusClasses(tone)}`}
+      aria-label={`${label}: ${value}. ${help}`}
+    >
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 rounded-full bg-current" />
         <p className="text-[9px] font-bold uppercase tracking-[0.12em]">{label}</p>
@@ -148,12 +151,14 @@ const definitions = [
 
 export function LigandPreparationPanel({
   canPrepare,
+  beginnerMode = false,
   busy,
   result,
   error,
   onPrepare,
 }: {
   canPrepare: boolean;
+  beginnerMode?: boolean;
   busy: boolean;
   result: LigandPreparationResult | null;
   error: string | null;
@@ -177,14 +182,27 @@ export function LigandPreparationPanel({
               <StatusBadge status="future">Not docked</StatusBadge>
             </div>
             <h2 className="mt-2 text-[18px] font-semibold tracking-[-0.03em]">
-              Prepare this ligand
+              {beginnerMode
+                ? "Prepare this molecule for later calculations"
+                : "Prepare this ligand"}
             </h2>
             <p className="mt-1 text-[11px] leading-5 text-[#65716b]">
-              Ligand preparation makes the molecule more explicit: hydrogens,
+              {beginnerMode && (
+                <strong className="font-semibold text-ink">
+                  Scientists call this ligand preparation. {" "}
+                </strong>
+              )}
+              It makes the molecule more explicit: hydrogens,
               formal charge, fragments, stereochemistry, and a docking-format
               file are recorded. It does not predict binding, pose, score,
               affinity, activity, or interactions.
             </p>
+            {beginnerMode && (
+              <p className="mt-2 rounded-xl border border-[#cfe2d8] bg-[#f4fbf7] px-3 py-2 text-[10px] leading-4 text-[#3f6655]">
+                Plain language: preparation is like filling in missing setup details
+                before a future calculation. It is not the future calculation itself.
+              </p>
+            )}
             <p className="mt-2 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-3 py-2 text-[10px] font-semibold leading-4 text-[#76591f]">
               Ligand-only step: this molecule has not been placed into EGFR.
             </p>
@@ -193,6 +211,12 @@ export function LigandPreparationPanel({
             type="button"
             disabled={!canPrepare || busy}
             onClick={onPrepare}
+            aria-label={
+              canPrepare
+                ? "Prepare the ligand for future docking input. This will not dock or score the molecule."
+                : "Prepare ligand is unavailable until a current 3D conformer has been generated."
+            }
+            aria-describedby="prepare-ligand-help"
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-sm hover:bg-[#263b50] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? (
@@ -202,6 +226,11 @@ export function LigandPreparationPanel({
             )}
             {busy ? "Preparing ligand..." : "Prepare ligand"}
           </button>
+          <p id="prepare-ligand-help" className="text-[9px] leading-4 text-[#737e78] lg:max-w-[220px]">
+            {canPrepare
+              ? "Creates ligand-preparation artifacts only. It does not dock the molecule."
+              : "Available after Generate 3D creates a current conformer."}
+          </p>
         </div>
 
         {!canPrepare && !result && (
@@ -212,7 +241,7 @@ export function LigandPreparationPanel({
         )}
 
         {busy && (
-          <div className="mt-4 rounded-xl bg-[#eef7f2] p-3 text-[10px] leading-4 text-[#426f59]">
+          <div className="mt-4 rounded-xl bg-[#eef7f2] p-3 text-[10px] leading-4 text-[#426f59]" role="status">
             Adding explicit hydrogens, checking formal charge and stereochemistry,
             generating a small capped conformer ensemble, minimizing geometry, and
             trying to write a Meeko PDBQT docking-format artifact.
@@ -220,7 +249,7 @@ export function LigandPreparationPanel({
         )}
 
         {error && (
-          <div className="mt-4 flex items-start gap-2 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-3 text-[10px] leading-4 text-[#944c3c]">
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-3 text-[10px] leading-4 text-[#944c3c]" role="alert">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {error}
           </div>
@@ -229,6 +258,48 @@ export function LigandPreparationPanel({
         {result && (
           <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_1fr]">
             <MoleculeStatusPanel result={result} />
+
+            <article className="lg:col-span-2 rounded-xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
+              <h3 className="text-[12px] font-semibold">What changed during preparation?</h3>
+              <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+                Preparation did not test the molecule against EGFR. It made the
+                ligand description more explicit and selected a minimized 3D input
+                for a future docking workflow.
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  {
+                    label: "Hydrogens made explicit",
+                    value: `${result.hydrogen_report.explicit_hydrogens_added} added`,
+                    body: "Hydrogens affect geometry and charge calculations even when they are hidden in a 2D drawing.",
+                  },
+                  {
+                    label: "Charge recorded",
+                    value: `${result.formal_charge > 0 ? "+" : ""}${result.formal_charge}`,
+                    body: "Formal charge records the electrical bookkeeping implied by the drawn atoms and bonds.",
+                  },
+                  {
+                    label: "Stereochemistry checked",
+                    value:
+                      result.stereochemistry_report.possible_unassigned_centers.length > 0
+                        ? `${result.stereochemistry_report.possible_unassigned_centers.length} unclear`
+                        : "No unresolved centers",
+                    body: "Different 3D arrangements can behave differently, so unclear centers are reported rather than guessed.",
+                  },
+                  {
+                    label: "Conformers compared",
+                    value: `${result.conformer_report.generated_conformers} generated`,
+                    body: `The lowest-energy minimized conformer was selected using ${result.conformer_report.force_field}.`,
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-xl border border-[#d9e8df] bg-white p-3">
+                    <p className="text-[9px] font-semibold text-[#39765b]">{item.label}</p>
+                    <p className="mt-1 text-[11px] font-semibold text-ink">{item.value}</p>
+                    <p className="mt-1 text-[8px] leading-4 text-[#6d7872]">{item.body}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
 
             <article className="rounded-xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
               <div className="flex items-center gap-2">

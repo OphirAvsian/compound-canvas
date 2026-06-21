@@ -16,12 +16,14 @@ export type MoleculeExport = {
 export function KetcherEditor({
   initialSmiles,
   selectedSample,
+  beginnerMode,
   busy,
   onGenerate,
   onStructureChange,
 }: {
   initialSmiles: string;
   selectedSample: SampleMolecule;
+  beginnerMode: boolean;
   busy: boolean;
   onGenerate: (structure: MoleculeExport) => Promise<void>;
   onStructureChange: () => void;
@@ -33,6 +35,40 @@ export function KetcherEditor({
   const initializedRef = useRef(false);
   const changeHandlerRef = useRef<(() => void) | null>(null);
   const serviceProvider = useMemo(() => new StandaloneStructServiceProvider(), []);
+  const buttons = useMemo(
+    () =>
+      beginnerMode
+        ? {
+            help: { hidden: true },
+            about: { hidden: true },
+            settings: { hidden: true },
+            fullscreen: { hidden: true },
+            analyse: { hidden: true },
+            check: { hidden: true },
+            recognize: { hidden: true },
+            miew: { hidden: true },
+            cip: { hidden: true },
+            arom: { hidden: true },
+            dearom: { hidden: true },
+            sgroup: { hidden: true },
+            rgroup: { hidden: true },
+            "rgroup-label": { hidden: true },
+            "rgroup-fragment": { hidden: true },
+            "rgroup-attpoints": { hidden: true },
+            "reaction-plus": { hidden: true },
+            arrows: { hidden: true },
+            "reaction-mapping-tools": { hidden: true },
+            "reaction-automap": { hidden: true },
+            "reaction-map": { hidden: true },
+            "reaction-unmap": { hidden: true },
+            shape: { hidden: true },
+            text: { hidden: true },
+            "enhanced-stereo": { hidden: true },
+            "create-monomer": { hidden: true },
+          }
+        : { help: { hidden: true } },
+    [beginnerMode],
+  );
 
   const initialize = useCallback(
     async (ketcher: Ketcher) => {
@@ -110,9 +146,12 @@ export function KetcherEditor({
             <Atom className="h-4 w-4 text-[#2f7c5e]" />
             <h2 className="text-[12px] font-semibold">Molecule editor</h2>
             <StatusBadge status="real">Real structure</StatusBadge>
+            {beginnerMode && <StatusBadge status="neutral">Simplified tools</StatusBadge>}
           </div>
           <p className="mt-1 text-[10px] text-[#7a858e]">
-            {selectedSample.name} is loaded for you. Keep it, or click atoms and bonds to make it your own.
+            {beginnerMode
+            ? `${selectedSample.name} is ready. For your first experiment, leave it unchanged and generate 3D. Drawing tools are optional.`
+              : `${selectedSample.name} is loaded for you. Keep it, or click atoms and bonds to make it your own.`}
           </p>
         </div>
         <div className="flex items-center gap-1.5 rounded-lg bg-[#eef5f1] px-2.5 py-1.5 text-[9px] font-medium text-[#4f695d]">
@@ -125,7 +164,7 @@ export function KetcherEditor({
         <Editor
           staticResourcesUrl="/"
           structServiceProvider={serviceProvider}
-          buttons={{ help: { hidden: true } }}
+          buttons={buttons}
           onInit={initialize}
           errorHandler={(message) => setError(message)}
           disableMacromoleculesEditor
@@ -144,22 +183,31 @@ export function KetcherEditor({
       <div className="border-t border-[#dfded8] p-3">
         <div className="mb-2 flex items-start gap-2 rounded-lg bg-[#f1f4f2] px-3 py-2 text-[9px] leading-4 text-[#64716a]">
           <CircleHelp className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          First try: leave {selectedSample.name} unchanged and generate its 3D shape. Then edit one atom or bond and compare.
+          {beginnerMode
+            ? `First try: leave ${selectedSample.name} unchanged. The editor shows atoms and bonds, but you do not need to use its drawing tools yet.`
+            : `Leave ${selectedSample.name} unchanged and generate its 3D shape, or edit an atom or bond and compare.`}
         </div>
         {error && (
-          <p className="mb-2 rounded-lg border border-[#efc4ba] bg-[#fff1ed] px-3 py-2 text-[10px] text-[#944c3c]">
+          <p className="mb-2 rounded-lg border border-[#efc4ba] bg-[#fff1ed] px-3 py-2 text-[10px] text-[#944c3c]" role="alert">
             {error}
           </p>
         )}
         <button
+          type="button"
           onClick={generate}
           disabled={!ready || busy}
+          aria-label={
+            busy
+              ? "RDKit is checking chemistry and calculating a 3D molecule shape"
+              : "Generate a calculated 3D molecule shape with RDKit"
+          }
+          aria-describedby="generate-3d-help"
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-[0_8px_22px_rgba(23,40,59,.16)] transition hover:bg-[#21364e] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Box className="h-4 w-4" />}
           {busy ? "Checking chemistry and calculating 3D..." : "Generate calculated 3D shape"}
         </button>
-        <p className="mt-2 flex items-center justify-center gap-1 text-[9px] text-[#818a85]">
+        <p id="generate-3d-help" className="mt-2 flex items-center justify-center gap-1 text-[9px] text-[#818a85]">
           <RotateCcw className="h-3 w-3" />
           Editing the 2D molecule makes the current 3D result outdated.
         </p>

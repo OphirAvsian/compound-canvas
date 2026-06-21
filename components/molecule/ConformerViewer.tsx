@@ -149,7 +149,7 @@ export function ConformerViewer({
           </div>
         )}
         {busy && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#eef1ee]/95 p-8 text-center">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#eef1ee]/95 p-8 text-center" role="status">
             <div className="max-w-[320px]">
               <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[#3f8265]" />
               <p className="mt-3 text-[13px] font-semibold">Calculating a 3D shape</p>
@@ -170,13 +170,13 @@ export function ConformerViewer({
       </div>
 
       {(error || viewerError) && (
-        <div className="border-t border-[#e7c4ba] bg-[#fff1ed] px-4 py-3 text-[10px] text-[#8d4637]">
+        <div className="border-t border-[#e7c4ba] bg-[#fff1ed] px-4 py-3 text-[10px] text-[#8d4637]" role="alert">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <div className="flex-1">
               <p>{error ?? viewerError}</p>
               {error && (
-                <button onClick={onRetry} className="mt-2 rounded-lg border border-[#d99f91] bg-white px-2.5 py-1 text-[9px] font-semibold">
+                <button type="button" onClick={onRetry} className="mt-2 rounded-lg border border-[#d99f91] bg-white px-2.5 py-1 text-[9px] font-semibold">
                   Retry calculation
                 </button>
               )}

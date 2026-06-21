@@ -2,8 +2,9 @@
 
 import dynamic from "next/dynamic";
 import {
+  BookOpen,
+  GraduationCap,
   Hexagon,
-  Menu,
   Save,
   Server,
   Share2,
@@ -12,12 +13,21 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { CapabilitiesPanel } from "@/components/capabilities/CapabilitiesPanel";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
+import { BeginnerSampleChooser } from "@/components/molecule/BeginnerSampleChooser";
+import { GeometryOptimizationExplainer } from "@/components/molecule/GeometryOptimizationExplainer";
 import { LigandPreparationPanel } from "@/components/molecule/LigandPreparationPanel";
 import { WorkflowGuide } from "@/components/onboarding/WorkflowGuide";
 import { GuidedStart } from "@/components/onboarding/GuidedStart";
+import { ProductIntroduction } from "@/components/onboarding/ProductIntroduction";
+import { BeginnerExperimentGuide } from "@/components/onboarding/BeginnerExperimentGuide";
 import { ProteinWorkspace } from "@/components/protein/ProteinWorkspace";
+import { ProteinImportRoadmap } from "@/components/protein/ProteinImportRoadmap";
 import { LearningPanel } from "@/components/learning/LearningPanel";
-import { JourneyMobileBar } from "@/components/journey/JourneyMobileBar";
+import {
+  BeginnerGlossaryDialog,
+  BeginnerGlossaryGrid,
+  beginnerTerms,
+} from "@/components/learning/BeginnerGlossary";
 import { JourneySidebar } from "@/components/journey/JourneySidebar";
 import { MissionBanner } from "@/components/journey/MissionBanner";
 import { MissionCheckpointPanel } from "@/components/journey/MissionCheckpointPanel";
@@ -26,6 +36,10 @@ import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspac
 import { WorkflowCompletionSummary } from "@/components/journey/WorkflowCompletionSummary";
 import { BeginnerResultsReport } from "@/components/experiment/BeginnerResultsReport";
 import { ExperimentWorkspace } from "@/components/experiment/ExperimentWorkspace";
+import {
+  AppNavigation,
+  type AppArea,
+} from "@/components/navigation/AppNavigation";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { startingSmiles } from "@/data/guided-project";
 import { sampleMolecules, type SampleMolecule } from "@/data/sample-molecules";
@@ -39,6 +53,7 @@ import {
 import type { MoleculeExport } from "@/components/molecule/KetcherEditor";
 import { useLearningJourney } from "@/hooks/useLearningJourney";
 import { useExperiment } from "@/hooks/useExperiment";
+import { useBeginnerMode } from "@/hooks/useBeginnerMode";
 import { emitJourneyEvent } from "@/lib/journey/journey-events";
 
 const KetcherEditor = dynamic(
@@ -70,7 +85,8 @@ function Logo() {
 }
 
 export default function Home() {
-  const [mobileNav, setMobileNav] = useState(false);
+  const [activeArea, setActiveArea] = useState<AppArea>("home");
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [selectedSample, setSelectedSample] = useState<SampleMolecule>(sampleMolecules[0]);
   const [conformer, setConformer] = useState<ConformerResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -84,6 +100,7 @@ export default function Home() {
   const [editorResetKey, setEditorResetKey] = useState(0);
   const journey = useLearningJourney();
   const experiment = useExperiment();
+  const beginnerMode = useBeginnerMode();
 
   const checkService = useCallback(async () => {
     setServiceStatus("checking");
@@ -261,11 +278,42 @@ export default function Home() {
   }, []);
 
   const startExperiment = useCallback(() => {
-    document.getElementById("molecule-workspace")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    setActiveArea("molecule");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const navigateToArea = useCallback((area: AppArea) => {
+    setActiveArea(area);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const selectJourneyMission = useCallback(
+    (missionId: string) => {
+      journey.setActiveMission(missionId);
+      const area: AppArea =
+        missionId === "mission-1"
+          ? "molecule"
+          : missionId === "mission-2"
+            ? "protein"
+            : "journey";
+      setActiveArea(area);
+      window.setTimeout(() => {
+        const targetId =
+          missionId === "mission-1"
+            ? "molecule-workspace"
+            : missionId === "mission-2"
+              ? "protein-workspace"
+              : missionId === "mission-3"
+                ? "mission-3-workspace"
+                : "mission-4-workspace";
+        document.getElementById(targetId)?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 50);
+    },
+    [journey],
+  );
 
   const resetDemo = useCallback(() => {
     journey.resetJourney();
@@ -280,10 +328,8 @@ export default function Home() {
     setPreparedLigand(null);
     setPreparationError(null);
     setEditorResetKey((key) => key + 1);
-    document.getElementById("guided-start")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    setActiveArea("home");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [experiment, journey]);
 
   const workflowStage = generating
@@ -294,22 +340,40 @@ export default function Home() {
         ? "outdated"
         : "ready";
 
+  const selectCaffeine = useCallback(() => {
+    chooseSample(sampleMolecules[0]);
+  }, [chooseSample]);
+
   return (
     <main className="flex min-h-screen flex-col overflow-x-clip">
+      <a
+        href="#main-content"
+        className="sr-only fixed left-3 top-3 z-[100] rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white focus:not-sr-only"
+      >
+        Skip to main content
+      </a>
       <header className="sticky top-0 z-40 flex min-h-[58px] shrink-0 items-center justify-between border-b border-[#d8d7d1] bg-[#f8f7f2]/95 px-3 py-2 backdrop-blur-xl sm:px-4 md:px-5">
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">
-          <button
-            onClick={() => setMobileNav((open) => !open)}
-            className="rounded-lg p-1.5 hover:bg-white md:hidden"
-            aria-label="Open navigation"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
           <Logo />
           <span className="hidden h-5 w-px bg-[#d9d8d2] md:block" />
-          <span className="hidden text-[12px] font-medium md:block">EGFR molecule lab</span>
-          <span className="hidden sm:inline-flex"><StatusBadge status="real">Guided Phase 3</StatusBadge></span>
-          <button onClick={() => void checkService()} title="Check the molecule calculation service">
+          <span className="hidden text-[12px] font-medium md:block">
+            {activeArea === "home"
+              ? "Scientific learning workspace"
+              : activeArea === "molecule"
+                ? "Molecule Lab"
+                : activeArea === "protein"
+                  ? "Protein Lab"
+                  : activeArea === "experiment"
+                    ? "Experiment record"
+                    : "Learning Journey"}
+          </span>
+          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 3E</StatusBadge></span>
+          <button
+            type="button"
+            onClick={() => void checkService()}
+            title="Check the molecule calculation service"
+            aria-label="Check RDKit molecule calculation service status"
+          >
             <StatusBadge
               status={serviceStatus === "online" ? "real" : serviceStatus === "offline" ? "future" : "neutral"}
             >
@@ -329,8 +393,36 @@ export default function Home() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
+            onClick={beginnerMode.toggle}
+            title={beginnerMode.enabled ? "Show advanced scientific controls" : "Return to beginner guidance"}
+            aria-pressed={beginnerMode.enabled}
+            aria-label={`Beginner Mode is ${beginnerMode.enabled ? "on" : "off"}. Toggle Beginner Mode.`}
+            className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-[10px] font-semibold transition ${
+              beginnerMode.enabled
+                ? "border-[#9ac8b1] bg-[#edf7f1] text-[#2f6f54]"
+                : "border-[#d9d8d2] bg-white text-[#65716b]"
+            }`}
+          >
+            <GraduationCap className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">Beginner Mode:</span>
+            {beginnerMode.enabled ? "On" : "Off"}
+          </button>
+          {beginnerMode.enabled && (
+            <button
+              type="button"
+              onClick={() => setGlossaryOpen(true)}
+              aria-label="Open plain-language science glossary"
+              className="hidden items-center gap-1.5 rounded-lg border border-[#d9d8d2] bg-white px-2.5 py-2 text-[10px] font-semibold text-[#65716b] sm:inline-flex"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              Glossary
+            </button>
+          )}
+          <button
             disabled
             title="Project persistence arrives in Phase 4"
+            aria-label="Save is unavailable. Project persistence arrives in Phase 4."
             className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold text-[#9aa1a7] sm:flex"
           >
             <Save className="h-3.5 w-3.5" />
@@ -339,6 +431,7 @@ export default function Home() {
           <button
             disabled
             title="Shareable projects arrive in Phase 4"
+            aria-label="Sharing is unavailable. Shareable projects arrive in Phase 4."
             className="hidden rounded-lg border border-[#deddd7] bg-white px-3 py-2 text-[11px] font-semibold text-[#a0a6aa] sm:block"
           >
             <Share2 className="h-4 w-4 sm:hidden" />
@@ -347,57 +440,112 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1">
-        <nav
-          className="sticky top-[58px] hidden h-[calc(100vh-58px)] w-[235px] shrink-0 self-start flex-col border-r border-[#d8d7d1] bg-[#f8f7f2] p-3 md:flex"
-        >
-          {journey.hydrated ? (
-            <JourneySidebar
-              state={journey.state}
-              onSelectMission={journey.setActiveMission}
-              onReset={resetDemo}
-            />
-          ) : (
-            <div className="animate-pulse rounded-2xl bg-white p-4 text-[10px] text-[#7a8580]">
-              Loading learning progress...
-            </div>
-          )}
-        </nav>
+      <AppNavigation activeArea={activeArea} onChange={navigateToArea} />
 
-        <section className="min-w-0 flex-1">
-          {journey.hydrated ? (
-            <>
-              <JourneyMobileBar
-                state={journey.state}
-                open={mobileNav}
-                onOpenChange={setMobileNav}
-                onSelectMission={journey.setActiveMission}
-                onReset={resetDemo}
-              />
-              <MissionBanner state={journey.state} />
-            </>
-          ) : (
-            <div className="h-[72px] animate-pulse border-b border-[#d8d7d1] bg-[#edf7f1]" />
-          )}
+      {beginnerMode.enabled &&
+        activeArea !== "home" &&
+        journey.hydrated &&
+        experiment.hydrated && (
+          <BeginnerExperimentGuide
+            compact
+            experiment={experiment.experiment}
+            journeyState={journey.state}
+            selectedSampleId={selectedSample.id}
+            onNavigate={navigateToArea}
+            onSelectCaffeine={selectCaffeine}
+          />
+        )}
+
+      <section id="main-content" tabIndex={-1} className="min-w-0 flex-1">
+        {activeArea === "home" && (
+          <>
           <GuidedStart
             selectedSample={selectedSample}
             onChooseSample={chooseSample}
             onStart={startExperiment}
           />
+            {beginnerMode.enabled && (
+              <section className="border-b border-[#d8d7d1] bg-white px-4 py-5 md:px-6">
+                <div className="mx-auto grid max-w-[1180px] gap-3 md:grid-cols-3">
+                  <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                      First-time promise
+                    </p>
+                    <h2 className="mt-2 text-[16px] font-semibold">You can finish without drawing.</h2>
+                    <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+                      Start with caffeine, press Generate 3D, explore EGFR, prepare
+                      the ligand, then read your results report.
+                    </p>
+                  </article>
+                  <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#65716b]">
+                      What counts as evidence
+                    </p>
+                    <h2 className="mt-2 text-[16px] font-semibold">Actions unlock real records.</h2>
+                    <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+                      Calculations and coordinate-backed protein clicks update the
+                      Experiment page. Reflection questions teach concepts only.
+                    </p>
+                  </article>
+                  <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#76591f]">
+                      Scientific boundary
+                    </p>
+                    <h2 className="mt-2 text-[16px] font-semibold">No binding claim is made.</h2>
+                    <p className="mt-2 text-[10px] leading-5 text-[#725a2d]">
+                      Compound Canvas has not docked caffeine into EGFR, scored it,
+                      or predicted whether it could work as a drug.
+                    </p>
+                  </article>
+                </div>
+              </section>
+            )}
+            {beginnerMode.enabled && journey.hydrated && experiment.hydrated && (
+              <BeginnerExperimentGuide
+                experiment={experiment.experiment}
+                journeyState={journey.state}
+                selectedSampleId={selectedSample.id}
+                onNavigate={navigateToArea}
+                onSelectCaffeine={selectCaffeine}
+              />
+            )}
+            <ProductIntroduction onNavigate={navigateToArea} />
+            {beginnerMode.enabled && (
+              <div className="border-b border-[#d8d7d1] bg-[#f8f7f2] px-4 py-7 md:px-6">
+                <div className="mx-auto max-w-[1180px]">
+                  <BeginnerGlossaryGrid
+                    title="Three words to know before you start"
+                    terms={beginnerTerms.filter((item) =>
+                      ["Molecule", "Protein", "Docking"].includes(item.term),
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+            <CapabilitiesPanel />
+          </>
+        )}
 
+        {activeArea === "molecule" && (
+          <>
           <div className="border-b border-[#d8d7d1] bg-[#fbfaf6] px-4 py-4 md:px-6">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="mx-auto flex max-w-[1180px] flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#358064]">
-                    Real workflow 01
+                    Molecule Lab - real workflow
                   </span>
                   <span className="h-1 w-1 rounded-full bg-[#aeb4b8]" />
                   <span className="text-[10px] text-[#7e8891]">Create and convert a molecule</span>
                 </div>
                 <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.03em]">
-                  Your molecule-to-3D workspace
+                  Draw, calculate, optimize, and prepare a molecule
                 </h2>
+                <p className="mt-1 max-w-2xl text-[10px] leading-5 text-[#65716b]">
+                  This lab handles the ligand side of the story. It creates a
+                  plausible 3D geometry and a prepared ligand artifact, but it does
+                  not place the molecule into EGFR or predict binding.
+                </p>
               </div>
               <div className="flex gap-2">
                 <StatusBadge status="real">
@@ -409,13 +557,34 @@ export default function Home() {
             </div>
           </div>
 
+          {beginnerMode.enabled && (
+            <>
+              <BeginnerSampleChooser
+                selectedSample={selectedSample}
+                onChoose={chooseSample}
+              />
+              <div className="border-b border-[#d8d7d1] bg-[#f8f7f2] px-4 py-5 md:px-6">
+                <div className="mx-auto max-w-[1180px]">
+                  <BeginnerGlossaryGrid
+                    title="Words used in Molecule Lab"
+                    terms={beginnerTerms.filter((item) =>
+                      ["Molecule", "Conformer", "Ligand", "SDF", "PDBQT"].includes(item.term),
+                    )}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
           <WorkflowGuide stage={workflowStage} />
+          <GeometryOptimizationExplainer conformer={conformerCurrent ? conformer : null} />
 
           <div className="workspace-grid grid gap-3 bg-[#e5e4de] p-0 sm:p-3 xl:grid-cols-[minmax(380px,1fr)_minmax(380px,1fr)_280px]">
             <KetcherEditor
-              key={editorResetKey}
+              key={`${editorResetKey}-${beginnerMode.enabled ? "beginner" : "advanced"}`}
               initialSmiles={startingSmiles}
               selectedSample={selectedSample}
+              beginnerMode={beginnerMode.enabled}
               busy={generating}
               onGenerate={createConformer}
               onStructureChange={markStructureChanged}
@@ -439,6 +608,7 @@ export default function Home() {
 
           <LigandPreparationPanel
             canPrepare={conformerCurrent && Boolean(lastStructure)}
+            beginnerMode={beginnerMode.enabled}
             busy={preparingLigand}
             result={preparedLigand}
             error={preparationError}
@@ -448,22 +618,52 @@ export default function Home() {
           {journey.hydrated && (
             <MissionCheckpointPanel missionId="mission-1" journeyState={journey.state} />
           )}
+          </>
+        )}
+
+        {activeArea === "protein" && (
+          <>
+            <div className="border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-6 md:px-6">
+              <div className="mx-auto max-w-[1180px]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                  Protein Lab - coordinate-backed exploration
+                </p>
+                <h1 className="mt-2 text-[24px] font-semibold tracking-[-0.04em]">
+                  EGFR provides the biological context for the molecule workflow.
+                </h1>
+                <p className="mt-2 max-w-3xl text-[11px] leading-5 text-[#65716b]">
+                  Proteins are the molecular machines that drugs may interact with.
+                  Here you explore the real 2ITY EGFR structure and curated teaching
+                  residues. Your prepared ligand has not been placed into this protein.
+                </p>
+              </div>
+            </div>
+            {beginnerMode.enabled && (
+              <div className="border-b border-[#d8d7d1] bg-[#f8f7f2] px-4 py-5 md:px-6">
+                <div className="mx-auto max-w-[1180px]">
+                  <BeginnerGlossaryGrid
+                    title="Words used in Protein Lab"
+                    terms={beginnerTerms.filter((item) =>
+                      ["Protein", "Residue", "EGFR", "Docking"].includes(item.term),
+                    )}
+                  />
+                </div>
+              </div>
+            )}
           <ProteinWorkspace
             onStructureLoaded={markProteinLoaded}
             onResidueSelected={markResidueSelected}
             onLigandSelected={markLigandSelected}
           />
-          {journey.hydrated && (
-            <>
+            {journey.hydrated && (
               <MissionCheckpointPanel missionId="mission-2" journeyState={journey.state} />
-              <MissionThreeWorkspace journeyState={journey.state} />
-              <MissionFourWorkspace journeyState={journey.state} />
-              <WorkflowCompletionSummary
-                journeyState={journey.state}
-                onResetDemo={resetDemo}
-              />
-            </>
-          )}
+            )}
+            <ProteinImportRoadmap />
+          </>
+        )}
+
+        {activeArea === "experiment" && (
+          <>
           {experiment.hydrated ? (
             <>
               <BeginnerResultsReport experiment={experiment.experiment} />
@@ -474,9 +674,72 @@ export default function Home() {
               Preparing your browser-local experiment record...
             </div>
           )}
-          <CapabilitiesPanel />
-        </section>
-      </div>
+          </>
+        )}
+
+        {activeArea === "journey" && (
+          <>
+            {journey.hydrated ? (
+              <>
+                <MissionBanner state={journey.state} />
+                <section className="border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-7 md:px-6">
+                  <div className="mx-auto grid max-w-[1180px] gap-5 lg:grid-cols-[300px_1fr]">
+                    <div className="rounded-2xl border border-[#d9d8d2] bg-white p-4 shadow-sm">
+                      <JourneySidebar
+                        state={journey.state}
+                        onSelectMission={selectJourneyMission}
+                        onReset={resetDemo}
+                        mobile
+                      />
+                    </div>
+                    <div className="rounded-2xl border border-[#d9d8d2] bg-white p-5">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                        Your primary guided path
+                      </p>
+                      <h1 className="mt-2 text-[24px] font-semibold tracking-[-0.04em]">
+                        One molecule, one protein, one connected learning journey.
+                      </h1>
+                      <p className="mt-3 text-[11px] leading-6 text-[#65716b]">
+                        Each checkpoint answers three questions: why you are doing
+                        the step, what scientific concept it teaches, and what
+                        completion proves. Action checkpoints require real evidence;
+                        reflection checkpoints confirm understanding and do not create
+                        scientific results.
+                      </p>
+                      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                        {[
+                          ["Why", "Understand the purpose of the step in the overall workflow."],
+                          ["Learn", "Connect the action to a protein, molecule, or preparation concept."],
+                          ["Complete", "Record real calculation or coordinate evidence when required."],
+                        ].map(([title, body]) => (
+                          <div key={title} className="rounded-xl bg-[#f4f8f5] p-3">
+                            <p className="text-[10px] font-semibold">{title}</p>
+                            <p className="mt-1 text-[9px] leading-4 text-[#68756e]">{body}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <MissionThreeWorkspace journeyState={journey.state} />
+                <MissionFourWorkspace journeyState={journey.state} />
+                <WorkflowCompletionSummary
+                  journeyState={journey.state}
+                  onResetDemo={resetDemo}
+                />
+              </>
+            ) : (
+              <div className="px-4 py-12 text-center text-[10px] text-[#718079]">
+                Loading learning progress...
+              </div>
+            )}
+          </>
+        )}
+      </section>
+      <BeginnerGlossaryDialog
+        open={glossaryOpen}
+        onClose={() => setGlossaryOpen(false)}
+      />
     </main>
   );
 }

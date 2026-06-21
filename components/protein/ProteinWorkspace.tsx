@@ -77,7 +77,8 @@ export function ProteinWorkspace({
             </h2>
             <p className="mt-2 text-[11px] leading-5 text-[#697680]">
               Mol* is rendering the experimentally deposited 2ITY structure. Click the
-              protein to inspect residues from the coordinate model.
+              protein, or use the lesson buttons below, to inspect residues from the
+              coordinate model.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -90,11 +91,11 @@ export function ProteinWorkspace({
         </div>
 
         <div className="mt-4 grid gap-2 rounded-2xl border border-[#deddd7] bg-white p-4 text-[10px] sm:grid-cols-2 lg:grid-cols-4">
-          <MetadataItem label="Structure" value={`${egfr2ity.id} · ${egfr2ity.name}`} />
+          <MetadataItem label="Structure" value={`${egfr2ity.id} - ${egfr2ity.name}`} />
           <MetadataItem label="Method" value={egfr2ity.method} />
           <MetadataItem
             label="Resolution"
-            value={`${formatResolution(egfr2ity.resolutionAngstrom)} · limited atomic detail`}
+            value={`${formatResolution(egfr2ity.resolutionAngstrom)} - limited atomic detail`}
           />
           <div>
             <p className="text-[#849089]">Source</p>
@@ -111,7 +112,7 @@ export function ProteinWorkspace({
         </div>
 
         <div className="mt-3 rounded-xl border border-[#ead4aa] bg-[#fff8e8] px-4 py-3 text-[10px] leading-5 text-[#745b2b]">
-          <strong>Resolution note:</strong> 2ITY was determined at 3.42 Å. It is useful
+          <strong>Resolution note:</strong> 2ITY was determined at 3.42 angstroms. It is useful
           for learning the overall kinase fold and deposited binding arrangement, but
           fine atomic positions are less certain than in a higher-resolution structure.
         </div>
