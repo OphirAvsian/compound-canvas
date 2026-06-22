@@ -16,6 +16,8 @@ const groups = [
       "Pinned 2ITY EGFR coordinates rendered in Mol*",
       "Coordinate-backed residue identity, chain, atom count, and position",
       "Ligand preparation with explicit hydrogens, charge/stereo reports, largest-fragment handling, prepared SDF, and Meeko PDBQT when available",
+      "Curated 2ITY Chain A receptor cleanup with deterministic alternate-location handling and downloadable PDB/manifest artifacts",
+      "RCSB PDB ID import with mmCIF validation, provenance, Mol* rendering, and residue inspection",
     ],
   },
   {
@@ -35,8 +37,8 @@ const groups = [
     status: "future" as const,
     badge: "Future phase",
     items: [
-      "Arbitrary PDB import and automated pocket detection",
-      "Protein preparation",
+      "Protein file upload, chain controls, biological assembly selection, and automated pocket detection",
+      "Docking-ready protein preparation with hydrogens, protonation, charges, and atom repair",
       "Docking poses, scores, and interaction detection",
       "Project saving, comparison, sharing, and reports",
     ],

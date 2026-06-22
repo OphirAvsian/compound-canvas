@@ -18,6 +18,7 @@ export function WorkflowCompletionSummary({
     "Real 2ITY EGFR coordinates explored",
     "Real residue inspection completed",
     "Real ligand-preparation artifact created",
+    "Real 2ITY Chain A receptor-cleanup artifact created",
   ];
 
   const boundaries = [
@@ -25,6 +26,7 @@ export function WorkflowCompletionSummary({
     "No binding prediction",
     "No docking score",
     "Ligand not placed into EGFR",
+    "Receptor not protonated, charged, repaired, or docking-ready",
   ];
 
   return (
@@ -40,9 +42,9 @@ export function WorkflowCompletionSummary({
             </h2>
             <p className="mt-2 text-[11px] leading-5 text-[#65716b]">
               You generated molecular coordinates, explored a deposited protein
-              structure, inspected real residues, and prepared a ligand artifact.
-              This is a strong foundation for future docking, but it is not a
-              binding result.
+              structure, inspected real residues, prepared a ligand artifact, and
+              cleaned a receptor-only Chain A precursor. These are traceable inputs,
+              not a docking or binding result.
             </p>
           </div>
           <button

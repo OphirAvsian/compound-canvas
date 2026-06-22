@@ -77,6 +77,7 @@ export function BeginnerResultsReport({
   const prepared = experiment.ligand?.preparation;
   const conformer = experiment.ligand?.conformer;
   const residueCount = experiment.workflow.residuesInspected.length;
+  const proteinCleanup = experiment.target.preparation;
 
   if (!complete) {
     return (
@@ -136,6 +137,14 @@ export function BeginnerResultsReport({
         ? `The preparation recorded hydrogens, formal charge ${prepared.formalCharge}, fragments, stereochemistry, and prepared SDF${prepared.pdbqtAvailable ? " plus PDBQT" : ""} files.`
         : "The ligand was prepared as a future docking input.",
     },
+    ...(proteinCleanup
+      ? [
+          {
+            title: "Cleaned a real EGFR Chain A receptor precursor",
+            body: `${proteinCleanup.selectionReport.retainedResidueCount} protein residues and ${proteinCleanup.selectionReport.retainedAtomCount} deposited atoms were retained without moving or repairing their coordinates.`,
+          },
+        ]
+      : []),
   ];
 
   const notDone = [
@@ -143,13 +152,15 @@ export function BeginnerResultsReport({
     "No binding prediction",
     "No affinity score",
     "No activity prediction",
+    "No docking-ready receptor preparation",
   ];
 
   const discoverySteps = [
     ["Molecule design", "Choose or draw a molecule to investigate."],
     ["Structure generation", "Create 3D coordinates so shape can be inspected."],
     ["Ligand preparation", "Make ligand assumptions explicit for later calculations."],
-    ["Protein preparation", "Clean and prepare the protein target. Not implemented here."],
+    ["Receptor cleanup", proteinCleanup ? "Select deposited protein coordinates and document removals." : "Not completed in this report."],
+    ["Docking-ready protein preparation", "Hydrogens, charges, protonation, and repair are not implemented."],
     ["Docking", "Test possible binding poses. Not implemented here."],
     ["Experimental validation", "Use lab experiments to test model ideas."],
   ];

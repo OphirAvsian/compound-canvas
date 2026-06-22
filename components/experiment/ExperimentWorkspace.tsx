@@ -74,13 +74,22 @@ export function ExperimentWorkspace({
         : "Prepare ligand after Generate 3D",
     },
     {
-      label: "2ITY coordinates loaded",
+      label: `${experiment.target.pdbId} coordinates loaded`,
       complete:
         experiment.workflow.proteinCoordinatesLoaded.status === "complete",
       detail: experiment.target.loadedAt
         ? `Loaded ${formatTime(experiment.target.loadedAt)}`
         : "Open the protein workspace",
     },
+    ...(experiment.target.kind === "curated"
+      ? [{
+          label: "EGFR Chain A receptor precursor cleaned",
+          complete: experiment.workflow.proteinCleaned.status === "complete",
+          detail: experiment.target.preparation
+            ? `${experiment.target.preparation.selectionReport.retainedResidueCount} residues retained; not docking-ready`
+            : "Run curated receptor cleanup in Protein Lab",
+        }]
+      : []),
     {
       label: "Coordinate residues inspected",
       complete: experiment.workflow.residuesInspected.length > 0,
@@ -91,12 +100,13 @@ export function ExperimentWorkspace({
               .join(", ")
           : "Select a residue in Mol*",
     },
-    {
-      label: "Deposited gefitinib located",
-      complete:
-        experiment.workflow.depositedLigandLocated.status === "complete",
-      detail: "Experimental 2ITY ligand, not a docking result",
-    },
+    ...(experiment.target.kind === "curated"
+      ? [{
+          label: "Deposited gefitinib located",
+          complete: experiment.workflow.depositedLigandLocated.status === "complete",
+          detail: "Experimental 2ITY ligand, not a docking result",
+        }]
+      : []),
   ];
   const completed = workflow.filter((item) => item.complete).length;
 
@@ -143,11 +153,12 @@ export function ExperimentWorkspace({
                   Target
                 </p>
                 <p className="mt-2 text-[14px] font-semibold">
-                  {experiment.target.pdbId} - EGFR
+                  {experiment.target.pdbId} - {experiment.target.kind === "curated" ? "EGFR" : "RCSB import"}
                 </p>
                 <p className="mt-1 text-[9px] leading-4 text-[#6d7872]">
-                  Chain {experiment.target.chain} - {experiment.target.method} -{" "}
-                  {experiment.target.resolutionAngstrom} angstroms
+                  {experiment.target.kind === "curated"
+                    ? `Chain ${experiment.target.chain} - ${experiment.target.method} - ${experiment.target.resolutionAngstrom} angstroms`
+                    : `${experiment.target.importSummary?.chainIds.length ?? 0} chain(s) - ${experiment.target.method ?? "method not reported"} - ${experiment.target.resolutionAngstrom ?? "resolution unavailable"}${experiment.target.resolutionAngstrom === null ? "" : " angstroms"}`}
                 </p>
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
@@ -329,6 +340,52 @@ export function ExperimentWorkspace({
                 </div>
               </div>
             )}
+
+            {experiment.target.preparation && (
+              <div className="rounded-2xl border border-[#a9c9e8] bg-[#f3f8fd] p-4 sm:p-5">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#315f86]">Protein cleanup artifact</p>
+                    <h3 className="mt-1 text-[15px] font-semibold">Cleaned 2ITY Chain A receptor precursor</h3>
+                    <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+                      Deposited protein coordinates were retained while ligand, solvent, ions, and
+                      heterogens were excluded. No hydrogens, charges, repair, or docking readiness were added.
+                    </p>
+                  </div>
+                  <StatusBadge status="real">Real coordinate cleanup</StatusBadge>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                  {[
+                    ["Residues retained", experiment.target.preparation.selectionReport.retainedResidueCount],
+                    ["Atoms retained", experiment.target.preparation.selectionReport.retainedAtomCount],
+                    ["Atoms excluded", experiment.target.preparation.removalReport.totalAtomsRemoved],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-[#c9dceb] bg-white px-3 py-2">
+                      <p className="text-[8px] uppercase tracking-wide text-[#738493]">{label}</p>
+                      <p className="mt-0.5 text-[10px] font-semibold">{value}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => downloadArtifact(`${experiment.target.preparation?.artifactId}.pdb`, experiment.target.preparation?.cleanedPdb ?? "", "chemical/x-pdb")}
+                    aria-label="Download cleaned EGFR Chain A PDB artifact"
+                    className="rounded-lg border border-[#c9dceb] bg-white px-3 py-2 text-[10px] font-semibold"
+                  >
+                    Download cleaned PDB
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => downloadArtifact(`${experiment.target.preparation?.artifactId}.json`, JSON.stringify(experiment.target.preparation?.manifest, null, 2), "application/json")}
+                    aria-label="Download EGFR Chain A cleanup manifest JSON"
+                    className="rounded-lg border border-[#c9dceb] bg-white px-3 py-2 text-[10px] font-semibold"
+                  >
+                    Download cleanup manifest
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -364,10 +421,10 @@ export function ExperimentWorkspace({
               <div className="mt-3 grid gap-2">
                 {[
                   {
-                    label: "Protein preparation",
+                    label: experiment.target.kind === "curated" ? "Protein receptor cleanup" : "Imported protein cleanup",
                     explanation:
                       experiment.futurePreparation.protein.explanation,
-                    status: "NOT IMPLEMENTED",
+                    status: experiment.target.preparation ? "AVAILABLE" : "NOT IMPLEMENTED",
                   },
                   {
                     label: "Ligand preparation",
@@ -410,9 +467,8 @@ export function ExperimentWorkspace({
                   Portable, inspectable summary
                 </p>
                 <p className="mt-1 text-[9px] leading-4 text-[#65716b]">
-                  The JSON contains artifact metadata and, after ligand preparation,
-                  the prepared ligand files. It stays on this browser unless you
-                  download it.
+                  The JSON contains artifact metadata and available ligand and receptor-cleanup
+                  files. It stays on this browser unless you download it.
                 </p>
               </div>
               <FlaskConical className="h-4 w-4 shrink-0 text-[#8a978f]" />

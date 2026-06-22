@@ -1,5 +1,5 @@
 import { Atom, BookOpen, Crosshair, Database, FlaskConical } from "lucide-react";
-import type { CuratedResidueLesson, ProteinTarget } from "@/data/protein-targets";
+import type { CuratedResidueLesson, ProteinWorkspaceTarget } from "@/data/protein-targets";
 import type { StructureSelection } from "@/lib/proteins/residue-selection";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
@@ -28,9 +28,10 @@ const residueNames: Record<string, string> = {
 
 function matchingLesson(
   selection: StructureSelection | null,
-  target: ProteinTarget,
+  target: ProteinWorkspaceTarget,
 ): CuratedResidueLesson | undefined {
   if (selection?.kind !== "protein-residue") return undefined;
+  if (target.kind !== "curated") return undefined;
   return target.lessons.find(
     (lesson) =>
       lesson.chain === selection.chain &&
@@ -42,7 +43,7 @@ export function ResidueInspector({
   target,
   selection,
 }: {
-  target: ProteinTarget;
+  target: ProteinWorkspaceTarget;
   selection: StructureSelection | null;
 }) {
   const lesson = matchingLesson(selection, target);
@@ -59,7 +60,7 @@ export function ResidueInspector({
           <Atom className="mx-auto h-6 w-6 text-[#84958c]" />
           <p className="mt-3 text-[12px] font-semibold">Choose a residue</p>
           <p className="mt-2 text-[10px] leading-5 text-[#718079]">
-            Click the protein in Mol*, or use one of the curated lesson buttons below.
+            Click the protein in Mol*{target.kind === "curated" ? ", or use one of the curated lesson buttons below" : ""}.
           </p>
         </div>
       )}
@@ -68,13 +69,13 @@ export function ResidueInspector({
         <div className="mt-5">
           <StatusBadge status="real">Experimentally deposited</StatusBadge>
           <h4 className="mt-3 text-[18px] font-semibold">
-            {selection.componentId === target.depositedLigand.code
+            {target.kind === "curated" && selection.componentId === target.depositedLigand.code
               ? target.depositedLigand.name
               : selection.componentId}
           </h4>
           <p className="mt-2 text-[11px] leading-5 text-[#64726b]">
-            This ligand is part of the published 2ITY coordinate file. It was not docked or
-            positioned by Compound Canvas.
+            This component is part of the deposited {target.id} coordinate file. It was not
+            docked, scored, or positioned by Compound Canvas.
           </p>
           <CoordinateCard selection={selection} />
         </div>
@@ -118,7 +119,7 @@ export function ResidueInspector({
           What this does not calculate
         </div>
         <p className="mt-2 text-[10px] leading-4 text-[#6d7973]">
-          No pocket was automatically detected. No protein preparation, docking,
+          No pocket was automatically detected. No docking-ready protein preparation, docking,
           interaction detection, or score has been performed.
         </p>
       </div>

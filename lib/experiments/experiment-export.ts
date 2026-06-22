@@ -10,7 +10,9 @@ export function experimentFilename(experiment: Experiment) {
 
 export function isBeginnerWorkflowComplete(experiment: Experiment) {
   return Boolean(
-    experiment.workflow.conformerGenerated.status === "complete" &&
+    experiment.target.kind === "curated" &&
+      experiment.target.pdbId === "2ITY" &&
+      experiment.workflow.conformerGenerated.status === "complete" &&
       experiment.workflow.ligandPrepared.status === "complete" &&
       experiment.workflow.proteinCoordinatesLoaded.status === "complete" &&
       experiment.workflow.residuesInspected.length > 0,
@@ -25,6 +27,7 @@ export function serializeStudentLearningReport(experiment: Experiment) {
   const ligandName = experiment.ligand?.name ?? "the selected molecule";
   const conformer = experiment.ligand?.conformer;
   const preparation = experiment.ligand?.preparation;
+  const proteinCleanup = experiment.target.preparation;
   const residues =
     experiment.workflow.residuesInspected.length > 0
       ? experiment.workflow.residuesInspected
@@ -45,6 +48,9 @@ export function serializeStudentLearningReport(experiment: Experiment) {
     "- Generated a real 3D conformer with RDKit.",
     "- Explored a real EGFR protein structure from 2ITY.",
     "- Prepared a ligand artifact for future docking.",
+    proteinCleanup
+      ? `- Cleaned EGFR 2ITY Chain A into a receptor precursor containing ${proteinCleanup.selectionReport.retainedResidueCount} residues and ${proteinCleanup.selectionReport.retainedAtomCount} deposited atoms.`
+      : "- No receptor-cleanup artifact was recorded.",
     "",
     "2. What this means",
     conformer
@@ -61,11 +67,14 @@ export function serializeStudentLearningReport(experiment: Experiment) {
     "- No affinity score was calculated.",
     "- No activity prediction was made.",
     "- The ligand was not placed into EGFR by Compound Canvas.",
+    "- The receptor was not protonated, charged, repaired, or made docking-ready.",
     "",
     "4. Where this fits in real drug discovery",
-    "Molecule design -> Structure generation -> Ligand preparation -> Protein preparation -> Docking -> Experimental validation",
+    "Molecule design -> Structure generation -> Ligand preparation -> Receptor cleanup -> Docking-ready protein preparation -> Docking -> Experimental validation",
     "",
-    "Compound Canvas has completed the first ligand-side learning steps. Protein preparation, docking, and experimental validation are future steps and are not included in this report.",
+    proteinCleanup
+      ? "Compound Canvas created separate ligand and cleaned receptor artifacts. Full protein preparation, docking, and experimental validation remain future steps."
+      : "Protein cleanup, full protein preparation, docking, and experimental validation remain future steps.",
     "",
     "5. Why caffeine was used",
     "- Caffeine is familiar and small enough for a fast beginner workflow.",

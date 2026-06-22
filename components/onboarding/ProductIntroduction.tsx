@@ -24,7 +24,7 @@ const workspaces: Array<{
   {
     area: "protein",
     title: "Protein Lab",
-    body: "Explore real EGFR coordinates and inspect residues from the deposited 2ITY structure.",
+    body: "Explore curated EGFR or import an RCSB PDB ID, then inspect real deposited residues.",
     icon: Atom,
   },
   {
@@ -66,8 +66,9 @@ export function ProductIntroduction({
             </p>
             <div className="mt-4 rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-4 text-[10px] leading-5 text-[#725a2d]">
               <strong>Current scientific boundary:</strong> Compound Canvas generates
-              conformers and prepares ligand artifacts. It does not prepare proteins,
-              dock molecules, predict binding, or calculate affinity.
+              conformers, prepares ligand artifacts, and cleans a curated EGFR Chain A
+              receptor precursor. It does not add receptor hydrogens or charges, dock
+              molecules, predict binding, or calculate affinity.
             </div>
           </div>
 

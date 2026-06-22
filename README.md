@@ -6,9 +6,10 @@ real molecule-to-3D workflow while clearly separating calculated results from
 curated lessons and capabilities that have not been implemented. The first
 Phase 2 vertical slice adds a real, curated EGFR protein workspace.
 
-Phase 3 adds a persistent, browser-local Learning Journey that connects these
-real capabilities through three guided missions without adding docking,
-preparation, scoring, or simulated scientific results.
+Phase 3 adds real ligand preparation and a persistent, browser-local Learning
+Journey. Phase 4 adds a curated 2ITY Chain A receptor-cleanup artifact without
+docking, scoring, or simulated scientific results. Phase 5A adds validated
+RCSB PDB ID import with real coordinate rendering and residue inspection.
 
 ## Phase 1 milestone
 
@@ -45,7 +46,7 @@ make the visible 3D result outdated.
 
 **Not implemented**
 
-- Arbitrary PDB import or protein preparation
+- Protein file upload or docking-ready protein preparation
 - Automated active-site detection
 - Ligand protonation and tautomer enumeration
 - Docking poses, scores, or protein-ligand interactions
@@ -74,12 +75,6 @@ energy is not a docking score. Unimplemented API routes return
 - Aspirin and the guided starting molecule generate real SDF coordinates
 - End-to-end browser verification confirms the FastAPI response renders in Mol*
 
-### Next milestone
-
-The next Phase 2 slice should add explicit protein and ligand preparation.
-Docking remains out of scope until those preparation choices are scientifically
-explicit.
-
 ## Phase 2 protein vertical slice
 
 - Loads a pinned RCSB BinaryCIF file for human EGFR structure `2ITY`
@@ -103,12 +98,39 @@ its SHA-256 checksum are stored beside it in
   gefitinib selection, and an active-site reflection.
 - Mission 3 compares caffeine and gefitinib conceptually and explains why
   preparation and docking would be required before making a binding claim.
+- Mission 4 creates a real ligand-preparation artifact without docking.
+- Mission 5 creates a real curated EGFR Chain A receptor-cleanup precursor while
+  preserving the boundary between cleanup and docking-ready protein preparation.
 - Progress is stored locally under
   `compound-canvas.learning-journey.v1`; no account or backend persistence is
   introduced.
 - Scientific actions complete only from semantic evidence events. Skipping is
   limited to curated educational checkpoints and never completes a real
   calculation or coordinate-inspection action.
+
+## Phase 4 curated receptor cleanup
+
+- `POST /api/proteins/2ity/prepare` uses only the pinned RCSB 2ITY mmCIF.
+- Retains model 1, Chain A protein-polymer atoms and deposited coordinates.
+- Resolves alternate locations by highest occupancy, then blank, `A`, and
+  lexical order for ties.
+- Excludes deposited gefitinib, water, ions, and other heterogens.
+- Produces a cleaned PDB and manifest JSON with counts, assumptions, tool
+  version, timestamps, and source/output hashes.
+- Adds no hydrogens, charges, protonation, missing atoms, loops, minimization,
+  receptor PDBQT, docking, scoring, or binding prediction.
+
+## Phase 5A RCSB protein import
+
+- `POST /api/proteins/import/rcsb` accepts only strict four-character PDB IDs.
+- Retrieves only the official RCSB mmCIF URL with timeout, streaming size, and
+  atom-count limits.
+- Requires protein polymer coordinates and records SHA-256 and Gemmi provenance.
+- Renders imported mmCIF data in Mol* and reuses coordinate-backed residue picking.
+- Preserves ligand state while clearing protein-specific cleanup and residue evidence
+  when the target changes.
+- Does not upload files, select chains or biological assemblies, clean imported
+  proteins, detect active sites, dock, score, or predict binding.
 
 ## Local development
 
@@ -188,9 +210,10 @@ required before horizontal scaling or docking.
 ## Product architecture
 
 - `app/`: Next.js guided learning experience
-- `api/app/main.py`: FastAPI molecule API and explicit unavailable-feature responses
+- `api/app/main.py`: FastAPI molecular API and explicit unavailable-feature responses
 - `api/app/middleware.py`: request limits, rate limiting, request IDs, and logs
 - `api/app/services/execution.py`: bounded RDKit execution and timeout boundary
+- `api/app/services/protein_cleanup.py`: pinned 2ITY Chain A coordinate cleanup
 - `api/app/worker.py`: reserved, unused boundary for future scientific workloads
 - `docker-compose.yml`: web, API, worker, PostgreSQL, and Redis
 

@@ -74,6 +74,8 @@ class PublicApiMiddleware(BaseHTTPMiddleware):
             if request.url.path in {
                 "/api/molecules/conformers",
                 "/api/molecules/prepare-ligand",
+                "/api/proteins/2ity/prepare",
+                "/api/proteins/import/rcsb",
             } and request.method == "POST":
                 content_length = request.headers.get("content-length")
                 if content_length:

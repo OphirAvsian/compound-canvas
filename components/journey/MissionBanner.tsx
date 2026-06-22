@@ -31,7 +31,7 @@ export function MissionBanner({ state }: { state: JourneyState }) {
             </h2>
             <p className="mt-1 text-[10px] leading-4 text-[#607269]">
               {journey.percent === 100
-                ? "You completed all three missions. Review any workspace whenever you like."
+                ? "You completed all five missions. Review any workspace whenever you like."
                 : `Current checkpoint: ${step.instruction}`}
             </p>
           </div>

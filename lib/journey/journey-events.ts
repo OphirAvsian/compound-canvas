@@ -63,13 +63,75 @@ export type JourneyEvent =
       };
     }
   | { type: "molecule.viewer_rotated" }
+  | {
+      type: "protein.target_imported";
+      target: {
+        artifactId: string;
+        pdbId: string;
+        name: string;
+        coordinateSource: string;
+        sourceUrl: string;
+        fileSha256: string;
+        method: string | null;
+        resolutionAngstrom: number | null;
+        selectedAt: string;
+        modelCount: number;
+        chainIds: string[];
+        polymerResidueCount: number;
+        atomCount: number;
+        depositedComponents: string[];
+        gemmiVersion: string;
+        warnings: string[];
+      };
+    }
+  | { type: "protein.curated_target_selected" }
   | { type: "protein.structure_loaded"; pdbId: string }
   | {
       type: "protein.residue_selected";
+      pdbId: string;
       chain: string;
       residueNumber: number;
     }
-  | { type: "protein.ligand_selected"; componentId: string }
+  | { type: "protein.ligand_selected"; pdbId: string; componentId: string }
+  | {
+      type: "protein.cleaned";
+      cleanup: {
+        artifactId: string;
+        cleanedPdb: string;
+        manifest: Record<string, unknown>;
+        selectionReport: {
+          selectedModel: number;
+          selectedChain: "A";
+          sourceModelCount: number;
+          sourceChainIds: string[];
+          sourceAtomCount: number;
+          retainedResidueCount: number;
+          retainedAtomCount: number;
+          alternateLocationGroupsResolved: number;
+          alternateLocationAtomsDiscarded: number;
+        };
+        removalReport: {
+          totalAtomsRemoved: number;
+          otherChainAtomsExcluded: number;
+          waterAtomsObserved: number;
+          depositedIreAtomsObserved: number;
+          otherHeterogenAtomsObserved: number;
+        };
+        assumptions: string[];
+        warnings: string[];
+        provenance: {
+          source: string;
+          sourceUrl: string;
+          sourceFormat: string;
+          sourceSha256: string;
+          outputSha256: string;
+          tool: string;
+          toolVersion: string;
+          preset: string;
+          generatedAt: string;
+        };
+      };
+    }
   | { type: "journey.content_reviewed"; stepId: string }
   | {
       type: "reflection.completed";

@@ -63,7 +63,7 @@ describe("experiment export", () => {
     );
     experiment = applyExperimentEvent(
       experiment,
-      { type: "protein.residue_selected", chain: "A", residueNumber: 745 },
+      { type: "protein.residue_selected", pdbId: "2ITY", chain: "A", residueNumber: 745 },
       now,
     );
     experiment = applyExperimentEvent(

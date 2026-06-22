@@ -103,7 +103,7 @@ export function applyJourneyEvent(
           )
         : state;
     case "protein.residue_selected":
-      if (event.chain !== "A") return state;
+      if (event.pdbId.toUpperCase() !== "2ITY" || event.chain !== "A") return state;
       state = completeStep(
         state,
         "m2-open",
@@ -125,7 +125,7 @@ export function applyJourneyEvent(
       }
       return state;
     case "protein.ligand_selected":
-      if (event.componentId.toUpperCase() !== "IRE") return state;
+      if (event.pdbId.toUpperCase() !== "2ITY" || event.componentId.toUpperCase() !== "IRE") return state;
       state = completeStep(
         state,
         "m2-open",
@@ -136,6 +136,19 @@ export function applyJourneyEvent(
         "m2-gefitinib",
         evidence("coordinate_model", "Deposited gefitinib (IRE) selected", now),
       );
+    case "protein.cleaned":
+      return completeStep(
+        state,
+        "m5-clean",
+        evidence(
+          "real_result",
+          `Curated receptor cleanup artifact ${event.cleanup.artifactId} created without docking readiness`,
+          now,
+        ),
+      );
+    case "protein.target_imported":
+    case "protein.curated_target_selected":
+      return state;
     case "journey.content_reviewed":
       return completeStep(
         state,

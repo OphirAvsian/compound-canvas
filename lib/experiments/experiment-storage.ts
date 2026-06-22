@@ -31,6 +31,18 @@ export function loadExperiment(
     return {
       ...initial,
       ...parsed,
+      target: {
+        ...initial.target,
+        ...parsed.target,
+        depositedLigand: parsed.target.depositedLigand
+          ? {
+              componentId: parsed.target.depositedLigand.componentId,
+              name: parsed.target.depositedLigand.name,
+              classification: parsed.target.depositedLigand.classification,
+              selectedAt: parsed.target.depositedLigand.selectedAt,
+            }
+          : undefined,
+      },
       workflow: {
         ...initial.workflow,
         ...parsed.workflow,

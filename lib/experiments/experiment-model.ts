@@ -44,6 +44,7 @@ export type ExperimentWorkflow = {
   moleculeSelected: ExperimentStepStatus;
   conformerGenerated: ExperimentStepStatus;
   ligandPrepared: ExperimentStepStatus;
+  proteinCleaned: ExperimentStepStatus;
   proteinCoordinatesLoaded: ExperimentStepStatus;
   residuesInspected: Array<{
     chain: string;
@@ -62,24 +63,70 @@ export type Experiment = {
   id: string;
   title: string;
   target: {
-    artifactId: "protein-2ity";
-    pdbId: "2ITY";
+    kind: "curated" | "rcsb_import";
+    artifactId: string;
+    pdbId: string;
     name: string;
-    organism: string;
-    chain: "A";
-    coordinateFormat: "BinaryCIF";
+    organism?: string;
+    chain?: string;
+    coordinateFormat: "BinaryCIF" | "mmCIF";
     coordinateSource: string;
     sourceUrl: string;
     fileSha256: string;
-    method: string;
-    resolutionAngstrom: number;
+    method: string | null;
+    resolutionAngstrom: number | null;
     selectedAt: string;
     loadedAt?: string;
-    depositedLigand: {
-      componentId: "IRE";
+    importSummary?: {
+      modelCount: number;
+      chainIds: string[];
+      polymerResidueCount: number;
+      atomCount: number;
+      depositedComponents: string[];
+      gemmiVersion: string;
+    };
+    depositedLigand?: {
+      componentId: string;
       name: string;
       classification: "experimentally_deposited";
       selectedAt?: string;
+    };
+    preparation?: {
+      artifactId: string;
+      status: "cleaned_not_docking_ready";
+      cleanedPdb: string;
+      manifest: Record<string, unknown>;
+      selectionReport: {
+        selectedModel: number;
+        selectedChain: "A";
+        sourceModelCount: number;
+        sourceChainIds: string[];
+        sourceAtomCount: number;
+        retainedResidueCount: number;
+        retainedAtomCount: number;
+        alternateLocationGroupsResolved: number;
+        alternateLocationAtomsDiscarded: number;
+      };
+      removalReport: {
+        totalAtomsRemoved: number;
+        otherChainAtomsExcluded: number;
+        waterAtomsObserved: number;
+        depositedIreAtomsObserved: number;
+        otherHeterogenAtomsObserved: number;
+      };
+      assumptions: string[];
+      warnings: string[];
+      provenance: {
+        source: string;
+        sourceUrl: string;
+        sourceFormat: string;
+        sourceSha256: string;
+        outputSha256: string;
+        tool: string;
+        toolVersion: string;
+        preset: string;
+        generatedAt: string;
+      };
     };
   };
   ligand: {
@@ -152,7 +199,7 @@ export type Experiment = {
   workflow: ExperimentWorkflow;
   futurePreparation: {
     protein: {
-      status: "not_implemented";
+      status: "not_implemented" | "available";
       explanation: string;
     };
     ligand: {
@@ -180,6 +227,7 @@ export function createInitialExperiment({
     id,
     title: "EGFR molecule exploration",
     target: {
+      kind: "curated",
       artifactId: "protein-2ity",
       pdbId: "2ITY",
       name: egfr2ity.name,
@@ -250,6 +298,7 @@ export function createInitialExperiment({
       moleculeSelected: { status: "pending" },
       conformerGenerated: { status: "pending" },
       ligandPrepared: { status: "pending" },
+      proteinCleaned: { status: "pending" },
       proteinCoordinatesLoaded: { status: "pending" },
       residuesInspected: [],
       depositedLigandLocated: { status: "pending" },
@@ -259,7 +308,7 @@ export function createInitialExperiment({
       protein: {
         status: "not_implemented",
         explanation:
-          "Protein preparation will later create a new, versioned artifact from the deposited coordinates.",
+          "Run the curated 2ITY Chain A cleanup to create a receptor precursor. Hydrogens, charges, protonation, and docking readiness remain unavailable.",
       },
       ligand: {
         status: "not_implemented",

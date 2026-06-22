@@ -8,7 +8,8 @@ export type CuratedResidueLesson = {
   prompt: string;
 };
 
-export type ProteinTarget = {
+export type CuratedProteinTarget = {
+  kind: "curated";
   id: string;
   name: string;
   organism: string;
@@ -26,7 +27,39 @@ export type ProteinTarget = {
   lessons: CuratedResidueLesson[];
 };
 
+export type ImportedProteinTarget = {
+  kind: "rcsb_import";
+  id: string;
+  name: string;
+  structureData: string;
+  sourceUrl: string;
+  format: "mmcif";
+  method: string | null;
+  resolutionAngstrom: number | null;
+  fileSha256: string;
+  importedAt: string;
+  summary: {
+    modelCount: number;
+    chainIds: string[];
+    polymerResidueCount: number;
+    atomCount: number;
+    depositedComponents: string[];
+    exampleResidue: {
+      residueName: string;
+      residueNumber: number;
+      insertionCode: string | null;
+      chain: string;
+    };
+  };
+  warnings: string[];
+  gemmiVersion: string;
+};
+
+export type ProteinWorkspaceTarget = CuratedProteinTarget | ImportedProteinTarget;
+export type ProteinTarget = CuratedProteinTarget;
+
 export const egfr2ity: ProteinTarget = {
+  kind: "curated",
   id: "2ITY",
   name: "EGFR kinase domain",
   organism: "Homo sapiens",

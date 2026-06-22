@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Project(BaseModel):
@@ -119,3 +119,68 @@ class LigandPreparationResponse(BaseModel):
     pdbqt_available: bool
     provenance: dict[str, str | None]
     warnings: list[str] = Field(default_factory=list)
+
+
+class ProteinSelectionReport(BaseModel):
+    selected_model: int
+    selected_chain: Literal["A"]
+    source_model_count: int
+    source_chain_ids: list[str]
+    source_atom_count: int
+    retained_residue_count: int
+    retained_atom_count: int
+    alternate_location_groups_resolved: int
+    alternate_location_atoms_discarded: int
+
+
+class ProteinRemovalReport(BaseModel):
+    total_atoms_removed: int
+    other_chain_atoms_excluded: int
+    water_atoms_observed: int
+    deposited_ire_atoms_observed: int
+    other_heterogen_atoms_observed: int
+
+
+class ProteinCleanupResponse(BaseModel):
+    artifact_id: str
+    status: Literal["cleaned_not_docking_ready"]
+    target: dict[str, str]
+    cleaned_pdb: str
+    selection_report: ProteinSelectionReport
+    removal_report: ProteinRemovalReport
+    assumptions: list[str]
+    warnings: list[str]
+    provenance: dict[str, str]
+    manifest: dict[str, object]
+
+
+class RcsbImportRequest(BaseModel):
+    pdb_id: str = Field(pattern=r"^[0-9][A-Za-z0-9]{3}$")
+
+    @field_validator("pdb_id")
+    @classmethod
+    def normalize_pdb_id(cls, value: str) -> str:
+        return value.upper()
+
+
+class ImportedStructureSummary(BaseModel):
+    title: str
+    experimental_method: str | None
+    resolution_angstrom: float | None
+    model_count: int
+    chain_ids: list[str]
+    polymer_residue_count: int
+    atom_count: int
+    deposited_components: list[str]
+    example_residue: dict[str, str | int | None]
+
+
+class RcsbImportResponse(BaseModel):
+    artifact_id: str
+    status: Literal["deposited_unprepared"]
+    pdb_id: str
+    coordinate_format: Literal["mmcif"]
+    coordinates: str
+    structure_summary: ImportedStructureSummary
+    warnings: list[str]
+    provenance: dict[str, str]

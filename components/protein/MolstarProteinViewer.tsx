@@ -2,7 +2,7 @@
 
 import { AlertTriangle, LoaderCircle, MousePointer2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { ProteinTarget } from "@/data/protein-targets";
+import type { ProteinWorkspaceTarget } from "@/data/protein-targets";
 import {
   extractStructureSelection,
   type StructureSelection,
@@ -33,7 +33,7 @@ export function MolstarProteinViewer({
   onSelection,
   onReady,
 }: {
-  target: ProteinTarget;
+  target: ProteinWorkspaceTarget;
   focusRequest: ProteinFocusRequest;
   onSelection: (selection: StructureSelection | null) => void;
   onReady: () => void;
@@ -78,9 +78,15 @@ export function MolstarProteinViewer({
         });
 
         const spec = getStructureLoadSpec(target);
-        await viewer.loadStructureFromUrl(spec.url, spec.format, spec.isBinary, {
-          label: spec.label,
-        });
+        if (spec.kind === "url") {
+          await viewer.loadStructureFromUrl(spec.url, spec.format, spec.isBinary, {
+            label: spec.label,
+          });
+        } else {
+          await viewer.loadStructureFromData(spec.data, spec.format, {
+            dataLabel: spec.label,
+          });
+        }
         if (cancelled) return;
         setLoading(false);
         setLoadVersion((version) => version + 1);
@@ -89,7 +95,7 @@ export function MolstarProteinViewer({
         if (!cancelled) {
           setLoading(false);
           setViewerError(
-            "The coordinate viewer could not load 2ITY. Check WebGL support and reload the page.",
+            `The coordinate viewer could not load ${target.id}. Check WebGL support and reload the page.`,
           );
         }
       }
@@ -139,9 +145,11 @@ export function MolstarProteinViewer({
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#e9eeeb]/95 p-6 text-center">
           <div>
             <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[#3f8265]" />
-            <p className="mt-3 text-[13px] font-semibold">Loading real 2ITY coordinates</p>
+            <p className="mt-3 text-[13px] font-semibold">Loading real {target.id} coordinates</p>
             <p className="mt-1 text-[10px] text-[#687870]">
-              Building the EGFR ribbon and deposited ligand from BinaryCIF data.
+              {target.kind === "curated"
+                ? "Building the EGFR ribbon and deposited ligand from BinaryCIF data."
+                : "Building the deposited protein model from imported RCSB mmCIF data."}
             </p>
           </div>
         </div>

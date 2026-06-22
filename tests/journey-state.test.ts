@@ -80,12 +80,12 @@ describe("learning journey state", () => {
     let state = createInitialJourneyState(now);
     state = applyJourneyEvent(
       state,
-      { type: "protein.residue_selected", chain: "A", residueNumber: 745 },
+      { type: "protein.residue_selected", pdbId: "2ITY", chain: "A", residueNumber: 745 },
       now,
     );
     state = applyJourneyEvent(
       state,
-      { type: "protein.ligand_selected", componentId: "IRE" },
+      { type: "protein.ligand_selected", pdbId: "2ITY", componentId: "IRE" },
       now,
     );
 
@@ -161,5 +161,68 @@ describe("learning journey state", () => {
         detail: "Ligand-preparation artifact ligprep_abc created without docking",
       },
     });
+  });
+
+  it("completes Mission 5 cleanup only from a real receptor artifact", () => {
+    const event = {
+      type: "protein.cleaned" as const,
+      cleanup: {
+        artifactId: "proteinprep_2ity_a_abc",
+        cleanedPdb: "ATOM\nEND\n",
+        manifest: {},
+        selectionReport: {
+          selectedModel: 1,
+          selectedChain: "A" as const,
+          sourceModelCount: 1,
+          sourceChainIds: ["A"],
+          sourceAtomCount: 2500,
+          retainedResidueCount: 286,
+          retainedAtomCount: 2200,
+          alternateLocationGroupsResolved: 0,
+          alternateLocationAtomsDiscarded: 0,
+        },
+        removalReport: {
+          totalAtomsRemoved: 300,
+          otherChainAtomsExcluded: 0,
+          waterAtomsObserved: 80,
+          depositedIreAtomsObserved: 31,
+          otherHeterogenAtomsObserved: 12,
+        },
+        assumptions: [],
+        warnings: ["Not docking-ready."],
+        provenance: {
+          source: "RCSB PDB 2ITY",
+          sourceUrl: "https://www.rcsb.org/structure/2ITY",
+          sourceFormat: "BinaryCIF",
+          sourceSha256: "source",
+          outputSha256: "output",
+          tool: "Gemmi",
+          toolVersion: "0.7.3",
+          preset: "cleanup-v1",
+          generatedAt: now,
+        },
+      },
+    };
+    const state = applyJourneyEvent(createInitialJourneyState(now), event, now);
+
+    expect(state.steps["m5-clean"]).toMatchObject({
+      status: "complete",
+      evidence: { source: "real_result" },
+    });
+    expect(
+      applyJourneyEvent(state, { type: "journey.step_skipped", stepId: "m5-clean" }, now)
+        .steps["m5-clean"].status,
+    ).toBe("complete");
+  });
+
+  it("does not treat imported protein residues as curated EGFR mission evidence", () => {
+    const state = applyJourneyEvent(
+      createInitialJourneyState(now),
+      { type: "protein.residue_selected", pdbId: "4HHB", chain: "A", residueNumber: 745 },
+      now,
+    );
+
+    expect(state.steps["m2-open"].status).toBe("pending");
+    expect(state.steps["m2-lys745"].status).toBe("pending");
   });
 });

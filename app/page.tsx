@@ -10,7 +10,7 @@ import {
   Share2,
   Sparkles,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CapabilitiesPanel } from "@/components/capabilities/CapabilitiesPanel";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
 import { BeginnerSampleChooser } from "@/components/molecule/BeginnerSampleChooser";
@@ -21,7 +21,8 @@ import { GuidedStart } from "@/components/onboarding/GuidedStart";
 import { ProductIntroduction } from "@/components/onboarding/ProductIntroduction";
 import { BeginnerExperimentGuide } from "@/components/onboarding/BeginnerExperimentGuide";
 import { ProteinWorkspace } from "@/components/protein/ProteinWorkspace";
-import { ProteinImportRoadmap } from "@/components/protein/ProteinImportRoadmap";
+import { ProteinCleanupPanel } from "@/components/protein/ProteinCleanupPanel";
+import { ProteinImportCard } from "@/components/protein/ProteinImportCard";
 import { LearningPanel } from "@/components/learning/LearningPanel";
 import {
   BeginnerGlossaryDialog,
@@ -32,6 +33,7 @@ import { JourneySidebar } from "@/components/journey/JourneySidebar";
 import { MissionBanner } from "@/components/journey/MissionBanner";
 import { MissionCheckpointPanel } from "@/components/journey/MissionCheckpointPanel";
 import { MissionFourWorkspace } from "@/components/journey/MissionFourWorkspace";
+import { MissionFiveWorkspace } from "@/components/journey/MissionFiveWorkspace";
 import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspace";
 import { WorkflowCompletionSummary } from "@/components/journey/WorkflowCompletionSummary";
 import { BeginnerResultsReport } from "@/components/experiment/BeginnerResultsReport";
@@ -42,6 +44,7 @@ import {
 } from "@/components/navigation/AppNavigation";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { startingSmiles } from "@/data/guided-project";
+import { egfr2ity, type ProteinWorkspaceTarget } from "@/data/protein-targets";
 import { sampleMolecules, type SampleMolecule } from "@/data/sample-molecules";
 import {
   checkMoleculeService,
@@ -55,6 +58,11 @@ import { useLearningJourney } from "@/hooks/useLearningJourney";
 import { useExperiment } from "@/hooks/useExperiment";
 import { useBeginnerMode } from "@/hooks/useBeginnerMode";
 import { emitJourneyEvent } from "@/lib/journey/journey-events";
+import {
+  cleanEgfrChainA,
+  importRcsbProtein,
+  type ProteinCleanupResult,
+} from "@/lib/proteins";
 
 const KetcherEditor = dynamic(
   () => import("@/components/molecule/KetcherEditor").then((module) => module.KetcherEditor),
@@ -96,6 +104,13 @@ export default function Home() {
   const [lastStructure, setLastStructure] = useState<MoleculeExport | null>(null);
   const [preparedLigand, setPreparedLigand] = useState<LigandPreparationResult | null>(null);
   const [preparationError, setPreparationError] = useState<string | null>(null);
+  const [cleaningProtein, setCleaningProtein] = useState(false);
+  const [proteinCleanup, setProteinCleanup] = useState<ProteinCleanupResult | null>(null);
+  const [proteinCleanupError, setProteinCleanupError] = useState<string | null>(null);
+  const [proteinTarget, setProteinTarget] = useState<ProteinWorkspaceTarget>(egfr2ity);
+  const [importingProtein, setImportingProtein] = useState(false);
+  const [proteinImportError, setProteinImportError] = useState<string | null>(null);
+  const restoredImportRef = useRef(false);
   const [serviceStatus, setServiceStatus] = useState<"checking" | "online" | "offline">("checking");
   const [editorResetKey, setEditorResetKey] = useState(0);
   const journey = useLearningJourney();
@@ -265,16 +280,164 @@ export default function Home() {
   const markResidueSelected = useCallback((chain: string, residueNumber: number) => {
     emitJourneyEvent({
       type: "protein.residue_selected",
+      pdbId: proteinTarget.id,
       chain,
       residueNumber,
     });
-  }, []);
+  }, [proteinTarget.id]);
 
   const markLigandSelected = useCallback((componentId: string) => {
     emitJourneyEvent({
       type: "protein.ligand_selected",
+      pdbId: proteinTarget.id,
       componentId,
     });
+  }, [proteinTarget.id]);
+
+  const importProtein = useCallback(async (pdbId: string) => {
+    setImportingProtein(true);
+    setProteinImportError(null);
+    try {
+      const result = await importRcsbProtein(pdbId);
+      const target: ProteinWorkspaceTarget = {
+        kind: "rcsb_import",
+        id: result.pdb_id,
+        name: result.structure_summary.title,
+        structureData: result.coordinates,
+        sourceUrl: result.provenance.source_url,
+        format: "mmcif",
+        method: result.structure_summary.experimental_method,
+        resolutionAngstrom: result.structure_summary.resolution_angstrom,
+        fileSha256: result.provenance.source_sha256,
+        importedAt: result.provenance.retrieved_at,
+        summary: {
+          modelCount: result.structure_summary.model_count,
+          chainIds: result.structure_summary.chain_ids,
+          polymerResidueCount: result.structure_summary.polymer_residue_count,
+          atomCount: result.structure_summary.atom_count,
+          depositedComponents: result.structure_summary.deposited_components,
+          exampleResidue: {
+            residueName: result.structure_summary.example_residue.residue_name,
+            residueNumber: result.structure_summary.example_residue.residue_number,
+            insertionCode: result.structure_summary.example_residue.insertion_code,
+            chain: result.structure_summary.example_residue.chain,
+          },
+        },
+        warnings: result.warnings,
+        gemmiVersion: result.provenance.tool_version,
+      };
+      setProteinTarget(target);
+      setProteinCleanup(null);
+      setProteinCleanupError(null);
+      emitJourneyEvent({
+        type: "protein.target_imported",
+        target: {
+          artifactId: result.artifact_id,
+          pdbId: result.pdb_id,
+          name: result.structure_summary.title,
+          coordinateSource: result.provenance.coordinate_url,
+          sourceUrl: result.provenance.source_url,
+          fileSha256: result.provenance.source_sha256,
+          method: result.structure_summary.experimental_method,
+          resolutionAngstrom: result.structure_summary.resolution_angstrom,
+          selectedAt: result.provenance.retrieved_at,
+          modelCount: result.structure_summary.model_count,
+          chainIds: result.structure_summary.chain_ids,
+          polymerResidueCount: result.structure_summary.polymer_residue_count,
+          atomCount: result.structure_summary.atom_count,
+          depositedComponents: result.structure_summary.deposited_components,
+          gemmiVersion: result.provenance.tool_version,
+          warnings: result.warnings,
+        },
+      });
+    } catch (cause) {
+      setProteinImportError(cause instanceof Error ? cause.message : "The protein could not be imported.");
+    } finally {
+      setImportingProtein(false);
+    }
+  }, []);
+
+  const restoreCuratedEgfr = useCallback(() => {
+    setProteinTarget(egfr2ity);
+    setProteinCleanup(null);
+    setProteinCleanupError(null);
+    setProteinImportError(null);
+    emitJourneyEvent({ type: "protein.curated_target_selected" });
+  }, []);
+
+  useEffect(() => {
+    if (
+      !experiment.hydrated ||
+      restoredImportRef.current ||
+      experiment.experiment.target.kind !== "rcsb_import" ||
+      proteinTarget.kind === "rcsb_import"
+    ) {
+      return;
+    }
+    restoredImportRef.current = true;
+    void importProtein(experiment.experiment.target.pdbId);
+  }, [experiment.experiment.target, experiment.hydrated, importProtein, proteinTarget.kind]);
+
+  const cleanProtein = useCallback(async () => {
+    setCleaningProtein(true);
+    setProteinCleanupError(null);
+    setProteinTarget(egfr2ity);
+    setImportingProtein(false);
+    setProteinImportError(null);
+    restoredImportRef.current = false;
+    try {
+      const result = await cleanEgfrChainA();
+      setProteinCleanup(result);
+      setServiceStatus("online");
+      emitJourneyEvent({
+        type: "protein.cleaned",
+        cleanup: {
+          artifactId: result.artifact_id,
+          cleanedPdb: result.cleaned_pdb,
+          manifest: result.manifest,
+          selectionReport: {
+            selectedModel: result.selection_report.selected_model,
+            selectedChain: result.selection_report.selected_chain,
+            sourceModelCount: result.selection_report.source_model_count,
+            sourceChainIds: result.selection_report.source_chain_ids,
+            sourceAtomCount: result.selection_report.source_atom_count,
+            retainedResidueCount: result.selection_report.retained_residue_count,
+            retainedAtomCount: result.selection_report.retained_atom_count,
+            alternateLocationGroupsResolved:
+              result.selection_report.alternate_location_groups_resolved,
+            alternateLocationAtomsDiscarded:
+              result.selection_report.alternate_location_atoms_discarded,
+          },
+          removalReport: {
+            totalAtomsRemoved: result.removal_report.total_atoms_removed,
+            otherChainAtomsExcluded: result.removal_report.other_chain_atoms_excluded,
+            waterAtomsObserved: result.removal_report.water_atoms_observed,
+            depositedIreAtomsObserved: result.removal_report.deposited_ire_atoms_observed,
+            otherHeterogenAtomsObserved:
+              result.removal_report.other_heterogen_atoms_observed,
+          },
+          assumptions: result.assumptions,
+          warnings: result.warnings,
+          provenance: {
+            source: result.provenance.source,
+            sourceUrl: result.provenance.source_url,
+            sourceFormat: result.provenance.source_format,
+            sourceSha256: result.provenance.source_sha256,
+            outputSha256: result.provenance.output_sha256,
+            tool: result.provenance.tool,
+            toolVersion: result.provenance.tool_version,
+            preset: result.provenance.preset,
+            generatedAt: result.provenance.generated_at,
+          },
+        },
+      });
+    } catch (cause) {
+      setProteinCleanupError(
+        cause instanceof Error ? cause.message : "EGFR Chain A could not be cleaned.",
+      );
+    } finally {
+      setCleaningProtein(false);
+    }
   }, []);
 
   const startExperiment = useCallback(() => {
@@ -293,7 +456,7 @@ export default function Home() {
       const area: AppArea =
         missionId === "mission-1"
           ? "molecule"
-          : missionId === "mission-2"
+          : missionId === "mission-2" || missionId === "mission-5"
             ? "protein"
             : "journey";
       setActiveArea(area);
@@ -305,7 +468,9 @@ export default function Home() {
               ? "protein-workspace"
               : missionId === "mission-3"
                 ? "mission-3-workspace"
-                : "mission-4-workspace";
+                : missionId === "mission-4"
+                  ? "mission-4-workspace"
+                  : "protein-cleanup-workspace";
         document.getElementById(targetId)?.scrollIntoView({
           behavior: "smooth",
           block: "start",
@@ -327,6 +492,9 @@ export default function Home() {
     setLastStructure(null);
     setPreparedLigand(null);
     setPreparationError(null);
+    setCleaningProtein(false);
+    setProteinCleanup(null);
+    setProteinCleanupError(null);
     setEditorResetKey((key) => key + 1);
     setActiveArea("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -367,7 +535,7 @@ export default function Home() {
                     ? "Experiment record"
                     : "Learning Journey"}
           </span>
-          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 3E</StatusBadge></span>
+          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 5A</StatusBadge></span>
           <button
             type="button"
             onClick={() => void checkService()}
@@ -421,17 +589,17 @@ export default function Home() {
           )}
           <button
             disabled
-            title="Project persistence arrives in Phase 4"
-            aria-label="Save is unavailable. Project persistence arrives in Phase 4."
+            title="Project persistence is planned for a future phase"
+            aria-label="Save is unavailable. Project persistence is planned for a future phase."
             className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-[11px] font-semibold text-[#9aa1a7] sm:flex"
           >
             <Save className="h-3.5 w-3.5" />
-            Save in Phase 4
+            Save later
           </button>
           <button
             disabled
-            title="Shareable projects arrive in Phase 4"
-            aria-label="Sharing is unavailable. Shareable projects arrive in Phase 4."
+            title="Shareable projects are planned for a future phase"
+            aria-label="Sharing is unavailable. Shareable projects are planned for a future phase."
             className="hidden rounded-lg border border-[#deddd7] bg-white px-3 py-2 text-[11px] font-semibold text-[#a0a6aa] sm:block"
           >
             <Share2 className="h-4 w-4 sm:hidden" />
@@ -629,12 +797,14 @@ export default function Home() {
                   Protein Lab - coordinate-backed exploration
                 </p>
                 <h1 className="mt-2 text-[24px] font-semibold tracking-[-0.04em]">
-                  EGFR provides the biological context for the molecule workflow.
+                  {proteinTarget.kind === "curated"
+                    ? "EGFR provides the biological context for the molecule workflow."
+                    : `${proteinTarget.id} is loaded from the RCSB Protein Data Bank.`}
                 </h1>
                 <p className="mt-2 max-w-3xl text-[11px] leading-5 text-[#65716b]">
-                  Proteins are the molecular machines that drugs may interact with.
-                  Here you explore the real 2ITY EGFR structure and curated teaching
-                  residues. Your prepared ligand has not been placed into this protein.
+                  Proteins are molecular machines that drugs may interact with. Here you
+                  inspect deposited coordinates and residues. Your ligand has not been
+                  placed into, tested against, or scored with this protein.
                 </p>
               </div>
             </div>
@@ -650,15 +820,33 @@ export default function Home() {
                 </div>
               </div>
             )}
+            <ProteinImportCard
+              target={proteinTarget}
+              busy={importingProtein}
+              error={proteinImportError}
+              onImport={(pdbId) => void importProtein(pdbId)}
+              onRestoreEgfr={restoreCuratedEgfr}
+            />
           <ProteinWorkspace
+            target={proteinTarget}
             onStructureLoaded={markProteinLoaded}
             onResidueSelected={markResidueSelected}
             onLigandSelected={markLigandSelected}
           />
+            {proteinTarget.kind === "curated" && (
+              <>
+                <ProteinCleanupPanel
+                  busy={cleaningProtein}
+                  result={proteinCleanup}
+                  error={proteinCleanupError}
+                  onClean={() => void cleanProtein()}
+                />
+                {journey.hydrated && <MissionFiveWorkspace journeyState={journey.state} />}
+              </>
+            )}
             {journey.hydrated && (
               <MissionCheckpointPanel missionId="mission-2" journeyState={journey.state} />
             )}
-            <ProteinImportRoadmap />
           </>
         )}
 
@@ -666,7 +854,9 @@ export default function Home() {
           <>
           {experiment.hydrated ? (
             <>
-              <BeginnerResultsReport experiment={experiment.experiment} />
+              {experiment.experiment.target.kind === "curated" && (
+                <BeginnerResultsReport experiment={experiment.experiment} />
+              )}
               <ExperimentWorkspace experiment={experiment.experiment} />
             </>
           ) : (

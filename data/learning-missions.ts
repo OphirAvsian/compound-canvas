@@ -15,7 +15,7 @@ export type MissionStepDefinition = {
 };
 
 export type MissionDefinition = {
-  id: "mission-1" | "mission-2" | "mission-3" | "mission-4";
+  id: "mission-1" | "mission-2" | "mission-3" | "mission-4" | "mission-5";
   number: number;
   title: string;
   subtitle: string;
@@ -201,6 +201,43 @@ export const learningMissions: MissionDefinition[] = [
         kind: "reflection",
         evidenceKind: "curated",
         skippable: true,
+      },
+    ],
+  },
+  {
+    id: "mission-5",
+    number: 5,
+    title: "Clean the EGFR Receptor",
+    subtitle: "Create a traceable Chain A receptor precursor",
+    learningGoal:
+      "Learn how scientists separate protein coordinates from solvent and deposited ligands while preserving the experimental model and documenting unresolved chemistry.",
+    steps: [
+      {
+        id: "m5-clean",
+        title: "Clean EGFR Chain A",
+        instruction: "Run the real curated cleanup service on pinned 2ITY model 1, Chain A.",
+        kind: "action",
+        evidenceKind: "calculated",
+        skippable: false,
+        targetId: "protein-cleanup-workspace",
+      },
+      {
+        id: "m5-why-clean",
+        title: "Why cleanup is limited",
+        instruction: "Review what cleanup retained, removed, and deliberately left unresolved.",
+        kind: "explanation",
+        evidenceKind: "curated",
+        skippable: true,
+        targetId: "mission-5-workspace",
+      },
+      {
+        id: "m5-reflection",
+        title: "Cleaned, not docking-ready",
+        instruction: "Confirm what the receptor cleanup artifact does and does not establish.",
+        kind: "reflection",
+        evidenceKind: "curated",
+        skippable: true,
+        targetId: "mission-5-workspace",
       },
     ],
   },

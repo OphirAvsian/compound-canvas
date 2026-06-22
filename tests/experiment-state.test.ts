@@ -136,12 +136,12 @@ describe("experiment state", () => {
     );
     experiment = applyExperimentEvent(
       experiment,
-      { type: "protein.residue_selected", chain: "A", residueNumber: 745 },
+      { type: "protein.residue_selected", pdbId: "2ITY", chain: "A", residueNumber: 745 },
       now,
     );
     experiment = applyExperimentEvent(
       experiment,
-      { type: "protein.ligand_selected", componentId: "IRE" },
+      { type: "protein.ligand_selected", pdbId: "2ITY", componentId: "IRE" },
       now,
     );
     experiment = applyExperimentEvent(
@@ -156,7 +156,7 @@ describe("experiment state", () => {
       "experimental",
       "curated",
     ]);
-    expect(experiment.target.depositedLigand.classification).toBe(
+    expect(experiment.target.depositedLigand?.classification).toBe(
       "experimentally_deposited",
     );
   });
@@ -169,5 +169,143 @@ describe("experiment state", () => {
       now,
     );
     expect(result).toBe(experiment);
+  });
+
+  it("records curated receptor cleanup without claiming docking readiness", () => {
+    const experiment = applyExperimentEvent(
+      createInitialExperiment({ id: "exp-1", now }),
+      {
+        type: "protein.cleaned",
+        cleanup: {
+          artifactId: "proteinprep_2ity_a_abc",
+          cleanedPdb: "ATOM\nEND\n",
+          manifest: { schema_version: 1 },
+          selectionReport: {
+            selectedModel: 1,
+            selectedChain: "A",
+            sourceModelCount: 1,
+            sourceChainIds: ["A"],
+            sourceAtomCount: 2500,
+            retainedResidueCount: 286,
+            retainedAtomCount: 2200,
+            alternateLocationGroupsResolved: 2,
+            alternateLocationAtomsDiscarded: 2,
+          },
+          removalReport: {
+            totalAtomsRemoved: 300,
+            otherChainAtomsExcluded: 0,
+            waterAtomsObserved: 80,
+            depositedIreAtomsObserved: 31,
+            otherHeterogenAtomsObserved: 12,
+          },
+          assumptions: ["Model 1 and Chain A only."],
+          warnings: ["Not docking-ready."],
+          provenance: {
+            source: "RCSB PDB 2ITY",
+            sourceUrl: "https://www.rcsb.org/structure/2ITY",
+            sourceFormat: "BinaryCIF",
+            sourceSha256: "source",
+            outputSha256: "output",
+            tool: "Gemmi",
+            toolVersion: "0.7.3",
+            preset: "cleanup-v1",
+            generatedAt: now,
+          },
+        },
+      },
+      now,
+    );
+
+    expect(experiment.workflow.proteinCleaned.status).toBe("complete");
+    expect(experiment.target.preparation?.status).toBe("cleaned_not_docking_ready");
+    expect(experiment.provenance.at(-1)).toMatchObject({
+      id: "cleaned-2ity-chain-a",
+      evidenceKind: "calculated",
+    });
+    expect(JSON.stringify(experiment)).not.toContain("dockingScore");
+  });
+
+  it("imports a new protein while preserving ligand state and invalidating protein evidence", () => {
+    let experiment = createInitialExperiment({ id: "exp-1", now });
+    experiment = applyExperimentEvent(
+      experiment,
+      { type: "molecule.sample_selected", sampleId: "caffeine" },
+      now,
+    );
+    experiment = applyExperimentEvent(
+      experiment,
+      { type: "protein.residue_selected", pdbId: "2ITY", chain: "A", residueNumber: 745 },
+      now,
+    );
+    experiment = applyExperimentEvent(
+      experiment,
+      {
+        type: "protein.target_imported",
+        target: {
+          artifactId: "protein_4hhb_hash",
+          pdbId: "4HHB",
+          name: "Hemoglobin",
+          coordinateSource: "https://files.rcsb.org/download/4HHB.cif",
+          sourceUrl: "https://www.rcsb.org/structure/4HHB",
+          fileSha256: "hash",
+          method: "X-RAY DIFFRACTION",
+          resolutionAngstrom: 1.74,
+          selectedAt: now,
+          modelCount: 1,
+          chainIds: ["A", "B", "C", "D"],
+          polymerResidueCount: 574,
+          atomCount: 4779,
+          depositedComponents: ["HEM"],
+          gemmiVersion: "0.7.5",
+          warnings: ["Deposited coordinates, not prepared."],
+        },
+      },
+      now,
+    );
+
+    expect(experiment.target).toMatchObject({ kind: "rcsb_import", pdbId: "4HHB" });
+    expect(experiment.ligand?.name).toBe("Caffeine");
+    expect(experiment.workflow.residuesInspected).toEqual([]);
+    expect(experiment.workflow.proteinCleaned.status).toBe("pending");
+    expect(experiment.provenance.some((item) => item.id.includes("residue-2ity"))).toBe(false);
+    expect(experiment.provenance.some((item) => item.id === "protein-import-4hhb")).toBe(true);
+  });
+
+  it("records imported residue evidence only for the active PDB ID", () => {
+    let experiment = createInitialExperiment({ id: "exp-1", now });
+    experiment = applyExperimentEvent(experiment, {
+      type: "protein.target_imported",
+      target: {
+        artifactId: "protein_4hhb_hash",
+        pdbId: "4HHB",
+        name: "Hemoglobin",
+        coordinateSource: "https://files.rcsb.org/download/4HHB.cif",
+        sourceUrl: "https://www.rcsb.org/structure/4HHB",
+        fileSha256: "hash",
+        method: "X-RAY DIFFRACTION",
+        resolutionAngstrom: 1.74,
+        selectedAt: now,
+        modelCount: 1,
+        chainIds: ["A", "B", "C", "D"],
+        polymerResidueCount: 574,
+        atomCount: 4779,
+        depositedComponents: ["HEM"],
+        gemmiVersion: "0.7.5",
+        warnings: [],
+      },
+    }, now);
+    const stale = applyExperimentEvent(
+      experiment,
+      { type: "protein.residue_selected", pdbId: "2ITY", chain: "A", residueNumber: 1 },
+      now,
+    );
+    const active = applyExperimentEvent(
+      experiment,
+      { type: "protein.residue_selected", pdbId: "4HHB", chain: "B", residueNumber: 2 },
+      now,
+    );
+
+    expect(stale).toBe(experiment);
+    expect(active.workflow.residuesInspected).toMatchObject([{ chain: "B", residueNumber: 2 }]);
   });
 });

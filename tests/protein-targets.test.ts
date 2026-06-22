@@ -8,6 +8,7 @@ import { formatResolution, getStructureLoadSpec } from "../lib/proteins/structur
 describe("curated 2ITY target", () => {
   it("pins a local binary coordinate file with provenance", () => {
     expect(getStructureLoadSpec(egfr2ity)).toEqual({
+      kind: "url",
       url: "/structures/2ity.bcif",
       format: "mmcif",
       isBinary: true,
