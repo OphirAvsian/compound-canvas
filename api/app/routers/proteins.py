@@ -2,7 +2,12 @@ from dataclasses import asdict
 
 from fastapi import APIRouter, HTTPException, Request
 
-from ..schemas import ProteinCleanupResponse, RcsbImportRequest, RcsbImportResponse
+from ..schemas import (
+    ProteinCleanupResponse,
+    ProteinReceptorPreparationResponse,
+    RcsbImportRequest,
+    RcsbImportResponse,
+)
 from ..services.execution import CalculationBusyError, CalculationExecutor, CalculationTimeoutError
 from ..services.protein_cleanup import ProteinCleanupError
 from ..services.protein_import import (
@@ -11,6 +16,7 @@ from ..services.protein_import import (
     ProteinRetrievalError,
     ProteinTooLargeError,
 )
+from ..services.protein_receptor_preparation import ProteinReceptorPreparationError
 
 router = APIRouter(prefix="/api/proteins", tags=["proteins"])
 
@@ -35,6 +41,29 @@ def prepare_2ity_chain_a(request: Request) -> ProteinCleanupResponse:
         ) from error
 
     return ProteinCleanupResponse(**asdict(result))
+
+
+@router.post("/2ity/prepare-receptor", response_model=ProteinReceptorPreparationResponse)
+def prepare_2ity_docking_input_receptor(request: Request) -> ProteinReceptorPreparationResponse:
+    executor: CalculationExecutor = request.app.state.protein_preparation_executor
+    settings = request.app.state.settings
+    try:
+        result = executor.run(timeout_seconds=settings.protein_preparation_timeout_seconds)
+    except ProteinReceptorPreparationError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    except CalculationBusyError as error:
+        raise HTTPException(
+            status_code=503,
+            detail="The calculation service is busy preparing another receptor. Please retry shortly.",
+            headers={"Retry-After": "2"},
+        ) from error
+    except CalculationTimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail="The receptor preparation took too long and was stopped. Please retry.",
+        ) from error
+
+    return ProteinReceptorPreparationResponse(**asdict(result))
 
 
 @router.post("/import/rcsb", response_model=RcsbImportResponse)

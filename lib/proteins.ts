@@ -41,6 +41,58 @@ export type ProteinCleanupResult = {
   manifest: Record<string, unknown>;
 };
 
+export type ProteinReceptorPreparationResult = {
+  artifact_id: string;
+  status: "docking_input_prepared_no_docking";
+  target: { pdb_id: "2ITY"; chain_id: "A" };
+  prepared_receptor_pdb: string;
+  receptor_pdbqt: string;
+  preparation_report: {
+    started_from_artifact_id: string;
+    input_status: string;
+    retained_residue_count: number;
+    retained_heavy_atom_count: number;
+    prepared_atom_count: number;
+    hydrogens_added: number;
+    pdbqt_atom_records: number;
+    meeko_json_available: boolean;
+  };
+  protonation_report: {
+    method: string;
+    assumed_ph: number;
+    force_field: string;
+    hydrogens_added: number;
+    prepared_atom_count: number;
+    heavy_atom_count: number;
+    total_charge: number;
+    chain_ids_preserved_in_prepared_pdb: boolean;
+    chain_ids_preserved_in_pdbqt: boolean;
+  };
+  assumptions: string[];
+  warnings: string[];
+  provenance: {
+    source: string;
+    source_url: string;
+    source_sha256: string;
+    cleaned_artifact_id: string;
+    cleaned_pdb_sha256: string;
+    prepared_pdb_sha256: string;
+    receptor_pdbqt_sha256: string;
+    tool_pdb2pqr: string;
+    tool_pdb2pqr_version: string | null;
+    tool_propka: string;
+    tool_propka_version: string | null;
+    tool_meeko: string;
+    tool_meeko_version: string | null;
+    tool_gemmi: string;
+    tool_gemmi_version: string;
+    preset: string;
+    generated_at: string;
+    manifest_sha256: string;
+  };
+  manifest: Record<string, unknown>;
+};
+
 export type RcsbImportResult = {
   artifact_id: string;
   status: "deposited_unprepared";
@@ -135,4 +187,36 @@ export async function cleanEgfrChainA(signal?: AbortSignal): Promise<ProteinClea
     throw new Error(body.detail ?? "EGFR Chain A could not be cleaned.");
   }
   return (await response.json()) as ProteinCleanupResult;
+}
+
+export async function prepareEgfrDockingInputReceptor(
+  signal?: AbortSignal,
+): Promise<ProteinReceptorPreparationResult> {
+  const timeoutController = new AbortController();
+  const timeout = globalThis.setTimeout(() => timeoutController.abort(), 90_000);
+  const combinedSignal = signal
+    ? AbortSignal.any([signal, timeoutController.signal])
+    : timeoutController.signal;
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/api/proteins/2ity/prepare-receptor`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: combinedSignal,
+    });
+  } catch {
+    if (timeoutController.signal.aborted) {
+      throw new Error("EGFR receptor preparation took longer than expected. Please retry.");
+    }
+    throw new Error("The calculation service is unavailable. Please wait a moment and retry.");
+  } finally {
+    globalThis.clearTimeout(timeout);
+  }
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as ApiError;
+    throw new Error(body.detail ?? "EGFR receptor could not be prepared.");
+  }
+  return (await response.json()) as ProteinReceptorPreparationResult;
 }

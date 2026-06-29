@@ -45,6 +45,7 @@ export type ExperimentWorkflow = {
   conformerGenerated: ExperimentStepStatus;
   ligandPrepared: ExperimentStepStatus;
   proteinCleaned: ExperimentStepStatus;
+  receptorPrepared: ExperimentStepStatus;
   proteinCoordinatesLoaded: ExperimentStepStatus;
   residuesInspected: Array<{
     chain: string;
@@ -126,6 +127,47 @@ export type Experiment = {
         toolVersion: string;
         preset: string;
         generatedAt: string;
+      };
+    };
+    receptorPreparation?: {
+      artifactId: string;
+      status: "docking_input_prepared_no_docking";
+      preparedReceptorPdb: string;
+      receptorPdbqt: string;
+      manifest: Record<string, unknown>;
+      preparationReport: Record<string, unknown>;
+      protonationReport: {
+        method: string;
+        assumedPh: number;
+        forceField: string;
+        hydrogensAdded: number;
+        preparedAtomCount: number;
+        heavyAtomCount: number;
+        totalCharge: number;
+        chainIdsPreservedInPreparedPdb: boolean;
+        chainIdsPreservedInPdbqt: boolean;
+      };
+      assumptions: string[];
+      warnings: string[];
+      provenance: {
+        source: string;
+        sourceUrl: string;
+        sourceSha256: string;
+        cleanedArtifactId: string;
+        cleanedPdbSha256: string;
+        preparedPdbSha256: string;
+        receptorPdbqtSha256: string;
+        toolPdb2pqr: string;
+        toolPdb2pqrVersion: string | null;
+        toolPropka: string;
+        toolPropkaVersion: string | null;
+        toolMeeko: string;
+        toolMeekoVersion: string | null;
+        toolGemmi: string;
+        toolGemmiVersion: string;
+        preset: string;
+        generatedAt: string;
+        manifestSha256: string;
       };
     };
   };
@@ -299,6 +341,7 @@ export function createInitialExperiment({
       conformerGenerated: { status: "pending" },
       ligandPrepared: { status: "pending" },
       proteinCleaned: { status: "pending" },
+      receptorPrepared: { status: "pending" },
       proteinCoordinatesLoaded: { status: "pending" },
       residuesInspected: [],
       depositedLigandLocated: { status: "pending" },
@@ -308,7 +351,7 @@ export function createInitialExperiment({
       protein: {
         status: "not_implemented",
         explanation:
-          "Run the curated 2ITY Chain A cleanup to create a receptor precursor. Hydrogens, charges, protonation, and docking readiness remain unavailable.",
+          "Run the curated 2ITY Chain A cleanup, then prepare a documented docking-input receptor. Docking itself remains unavailable.",
       },
       ligand: {
         status: "not_implemented",

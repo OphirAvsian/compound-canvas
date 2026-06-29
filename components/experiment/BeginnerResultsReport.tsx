@@ -78,6 +78,7 @@ export function BeginnerResultsReport({
   const conformer = experiment.ligand?.conformer;
   const residueCount = experiment.workflow.residuesInspected.length;
   const proteinCleanup = experiment.target.preparation;
+  const receptorPreparation = experiment.target.receptorPreparation;
 
   if (!complete) {
     return (
@@ -145,6 +146,14 @@ export function BeginnerResultsReport({
           },
         ]
       : []),
+    ...(receptorPreparation
+      ? [
+          {
+            title: "Prepared a curated EGFR docking-input receptor",
+            body: `PDB2PQR/PROPKA added ${receptorPreparation.protonationReport.hydrogensAdded} hydrogens at pH ${receptorPreparation.protonationReport.assumedPh}, and Meeko wrote a receptor PDBQT input file.`,
+          },
+        ]
+      : []),
   ];
 
   const notDone = [
@@ -152,7 +161,7 @@ export function BeginnerResultsReport({
     "No binding prediction",
     "No affinity score",
     "No activity prediction",
-    "No docking-ready receptor preparation",
+    receptorPreparation ? "No receptor-ligand test" : "No docking-input receptor preparation",
   ];
 
   const discoverySteps = [
@@ -160,7 +169,12 @@ export function BeginnerResultsReport({
     ["Structure generation", "Create 3D coordinates so shape can be inspected."],
     ["Ligand preparation", "Make ligand assumptions explicit for later calculations."],
     ["Receptor cleanup", proteinCleanup ? "Select deposited protein coordinates and document removals." : "Not completed in this report."],
-    ["Docking-ready protein preparation", "Hydrogens, charges, protonation, and repair are not implemented."],
+    [
+      "Docking-input receptor preparation",
+      receptorPreparation
+        ? "Completed for curated 2ITY with explicit assumptions; no ligand was tested."
+        : "Hydrogens, charges, protonation, and receptor PDBQT are not completed in this report.",
+    ],
     ["Docking", "Test possible binding poses. Not implemented here."],
     ["Experimental validation", "Use lab experiments to test model ideas."],
   ];

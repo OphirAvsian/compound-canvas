@@ -15,7 +15,7 @@ export type MissionStepDefinition = {
 };
 
 export type MissionDefinition = {
-  id: "mission-1" | "mission-2" | "mission-3" | "mission-4" | "mission-5";
+  id: "mission-1" | "mission-2" | "mission-3" | "mission-4" | "mission-5" | "mission-6";
   number: number;
   title: string;
   subtitle: string;
@@ -238,6 +238,43 @@ export const learningMissions: MissionDefinition[] = [
         evidenceKind: "curated",
         skippable: true,
         targetId: "mission-5-workspace",
+      },
+    ],
+  },
+  {
+    id: "mission-6",
+    number: 6,
+    title: "Prepare the EGFR Receptor",
+    subtitle: "Create a documented docking-input receptor without docking",
+    learningGoal:
+      "Learn why a cleaned protein still needs hydrogens, charges, and explicit assumptions before it can become a future docking input.",
+    steps: [
+      {
+        id: "m6-prepare-receptor",
+        title: "Prepare receptor input",
+        instruction: "Run the real curated receptor-preparation service after cleaning EGFR Chain A.",
+        kind: "action",
+        evidenceKind: "calculated",
+        skippable: false,
+        targetId: "protein-receptor-preparation-workspace",
+      },
+      {
+        id: "m6-what-changed",
+        title: "What changed?",
+        instruction: "Review how hydrogens, charges, and PDBQT format make a receptor more explicit for future docking.",
+        kind: "explanation",
+        evidenceKind: "curated",
+        skippable: true,
+        targetId: "mission-6-workspace",
+      },
+      {
+        id: "m6-reflection",
+        title: "Prepared, not docked",
+        instruction: "Confirm that this receptor artifact is not a binding result.",
+        kind: "reflection",
+        evidenceKind: "curated",
+        skippable: true,
+        targetId: "mission-6-workspace",
       },
     ],
   },

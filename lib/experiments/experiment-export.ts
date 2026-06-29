@@ -28,6 +28,7 @@ export function serializeStudentLearningReport(experiment: Experiment) {
   const conformer = experiment.ligand?.conformer;
   const preparation = experiment.ligand?.preparation;
   const proteinCleanup = experiment.target.preparation;
+  const receptorPreparation = experiment.target.receptorPreparation;
   const residues =
     experiment.workflow.residuesInspected.length > 0
       ? experiment.workflow.residuesInspected
@@ -51,6 +52,9 @@ export function serializeStudentLearningReport(experiment: Experiment) {
     proteinCleanup
       ? `- Cleaned EGFR 2ITY Chain A into a receptor precursor containing ${proteinCleanup.selectionReport.retainedResidueCount} residues and ${proteinCleanup.selectionReport.retainedAtomCount} deposited atoms.`
       : "- No receptor-cleanup artifact was recorded.",
+    receptorPreparation
+      ? `- Prepared a curated EGFR docking-input receptor artifact with ${receptorPreparation.protonationReport.hydrogensAdded} hydrogens added at pH ${receptorPreparation.protonationReport.assumedPh}.`
+      : "- No docking-input receptor artifact was recorded.",
     "",
     "2. What this means",
     conformer
@@ -60,6 +64,9 @@ export function serializeStudentLearningReport(experiment: Experiment) {
     preparation
       ? `- Ligand preparation added ${preparation.hydrogenReport.explicitHydrogensAdded} explicit hydrogens, recorded formal charge ${preparation.formalCharge}, and produced prepared SDF${preparation.pdbqtAvailable ? " plus PDBQT" : ""} artifacts.`
       : "- No ligand-preparation artifact was recorded in this browser-local report.",
+    receptorPreparation
+      ? `- Receptor preparation produced prepared receptor PDB and PDBQT files. The PDBQT is an input format for future docking, not a docking result.`
+      : "- No receptor-preparation artifact was recorded in this browser-local report.",
     "",
     "3. What was NOT done",
     "- No docking was run.",
@@ -67,13 +74,17 @@ export function serializeStudentLearningReport(experiment: Experiment) {
     "- No affinity score was calculated.",
     "- No activity prediction was made.",
     "- The ligand was not placed into EGFR by Compound Canvas.",
-    "- The receptor was not protonated, charged, repaired, or made docking-ready.",
+    receptorPreparation
+      ? "- The receptor was prepared as a docking input, but it was not docked, scored, repaired, minimized, or tested against the ligand."
+      : "- The receptor was not protonated, charged, repaired, or made docking-ready.",
     "",
     "4. Where this fits in real drug discovery",
     "Molecule design -> Structure generation -> Ligand preparation -> Receptor cleanup -> Docking-ready protein preparation -> Docking -> Experimental validation",
     "",
     proteinCleanup
-      ? "Compound Canvas created separate ligand and cleaned receptor artifacts. Full protein preparation, docking, and experimental validation remain future steps."
+      ? receptorPreparation
+        ? "Compound Canvas created separate ligand, cleaned receptor, and docking-input receptor artifacts. Docking and experimental validation remain future steps."
+        : "Compound Canvas created separate ligand and cleaned receptor artifacts. Full protein preparation, docking, and experimental validation remain future steps."
       : "Protein cleanup, full protein preparation, docking, and experimental validation remain future steps.",
     "",
     "5. Why caffeine was used",

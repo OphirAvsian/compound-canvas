@@ -6,6 +6,10 @@ from app.config import Settings
 from app.main import create_app
 from app.services.conformer import generate_conformer
 from app.services.protein_import import ExampleResidue, RcsbImportResult, StructureSummary
+from app.services.protein_receptor_preparation import (
+    ProtonationReport,
+    ReceptorPreparationResult,
+)
 
 
 def test_health_and_readiness_endpoints() -> None:
@@ -77,6 +81,67 @@ def test_curated_2ity_receptor_cleanup_endpoint() -> None:
     assert body["removal_report"]["deposited_ire_atoms_observed"] > 0
     assert "HETATM" not in body["cleaned_pdb"]
     assert body["manifest"]["provenance"]["output_sha256"]
+
+
+def test_curated_2ity_receptor_preparation_endpoint() -> None:
+    def fake_prepare(**_: object) -> ReceptorPreparationResult:
+        return ReceptorPreparationResult(
+            artifact_id="receptor_2ity_a_docking_input_test",
+            status="docking_input_prepared_no_docking",
+            target={"pdb_id": "2ITY", "chain_id": "A"},
+            prepared_receptor_pdb="ATOM      1  N   GLU A 697\nATOM      2  H   GLU A 697\nEND\n",
+            receptor_pdbqt="ATOM      1  N   GLU   697      0.000   0.000   0.000  1.00  0.00    -0.300 N \n",
+            preparation_report={
+                "started_from_artifact_id": "proteinprep_2ity_a_test",
+                "prepared_atom_count": 2,
+                "hydrogens_added": 1,
+                "pdbqt_atom_records": 1,
+            },
+            protonation_report=ProtonationReport(
+                method="PDB2PQR with PROPKA titration-state assignment",
+                assumed_ph=7.4,
+                force_field="AMBER",
+                hydrogens_added=1,
+                prepared_atom_count=2,
+                heavy_atom_count=1,
+                total_charge=-1.0,
+                chain_ids_preserved_in_prepared_pdb=True,
+                chain_ids_preserved_in_pdbqt=False,
+            ),
+            assumptions=["Only pinned 2ITY Chain A is prepared."],
+            warnings=["No docking, scoring, affinity, interaction, binding, or activity prediction was performed."],
+            provenance={
+                "source": "RCSB Protein Data Bank 2ITY",
+                "source_url": "https://www.rcsb.org/structure/2ITY",
+                "source_sha256": "source-hash",
+                "cleaned_artifact_id": "proteinprep_2ity_a_test",
+                "cleaned_pdb_sha256": "cleaned-hash",
+                "prepared_pdb_sha256": "pdb-hash",
+                "receptor_pdbqt_sha256": "pdbqt-hash",
+                "tool_pdb2pqr": "PDB2PQR",
+                "tool_pdb2pqr_version": "3.7.1",
+                "tool_propka": "PROPKA",
+                "tool_propka_version": "3.5.1",
+                "tool_meeko": "Meeko",
+                "tool_meeko_version": "0.7.1",
+                "tool_gemmi": "Gemmi",
+                "tool_gemmi_version": "0.7.0",
+                "preset": "test",
+                "generated_at": "2026-06-28T00:00:00Z",
+                "manifest_sha256": "manifest-hash",
+            },
+            manifest={"scientific_boundary": "Prepared as a docking input. No docking performed."},
+        )
+
+    with TestClient(create_app(protein_receptor_preparation_function=fake_prepare)) as client:
+        response = client.post("/api/proteins/2ity/prepare-receptor")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "docking_input_prepared_no_docking"
+    assert body["protonation_report"]["hydrogens_added"] == 1
+    assert "ATOM" in body["receptor_pdbqt"]
+    assert "No docking" in body["warnings"][0]
 
 
 def test_rcsb_import_endpoint_validates_id_and_returns_compact_summary() -> None:
@@ -218,6 +283,65 @@ def test_rate_limit_applies_to_receptor_cleanup() -> None:
         headers = {"X-Forwarded-For": "203.0.113.46"}
         first = client.post("/api/proteins/2ity/prepare", headers=headers)
         limited = client.post("/api/proteins/2ity/prepare", headers=headers)
+
+    assert first.status_code == 200
+    assert limited.status_code == 429
+
+
+def test_rate_limit_applies_to_receptor_preparation() -> None:
+    def fake_prepare(**_: object) -> ReceptorPreparationResult:
+        return ReceptorPreparationResult(
+            artifact_id="receptor",
+            status="docking_input_prepared_no_docking",
+            target={"pdb_id": "2ITY", "chain_id": "A"},
+            prepared_receptor_pdb="ATOM\n",
+            receptor_pdbqt="ATOM\n",
+            preparation_report={},
+            protonation_report=ProtonationReport(
+                method="method",
+                assumed_ph=7.4,
+                force_field="AMBER",
+                hydrogens_added=1,
+                prepared_atom_count=1,
+                heavy_atom_count=1,
+                total_charge=0,
+                chain_ids_preserved_in_prepared_pdb=True,
+                chain_ids_preserved_in_pdbqt=False,
+            ),
+            assumptions=[],
+            warnings=[],
+            provenance={
+                "source": "source",
+                "source_url": "url",
+                "source_sha256": "hash",
+                "cleaned_artifact_id": "clean",
+                "cleaned_pdb_sha256": "clean-hash",
+                "prepared_pdb_sha256": "pdb-hash",
+                "receptor_pdbqt_sha256": "pdbqt-hash",
+                "tool_pdb2pqr": "PDB2PQR",
+                "tool_pdb2pqr_version": "3.7.1",
+                "tool_propka": "PROPKA",
+                "tool_propka_version": "3.5.1",
+                "tool_meeko": "Meeko",
+                "tool_meeko_version": "0.7.1",
+                "tool_gemmi": "Gemmi",
+                "tool_gemmi_version": "0.7.0",
+                "preset": "test",
+                "generated_at": "2026-06-28T00:00:00Z",
+                "manifest_sha256": "manifest",
+            },
+            manifest={},
+        )
+
+    app = create_app(
+        Settings(rate_limit_requests=1, rate_limit_window_seconds=60),
+        protein_receptor_preparation_function=fake_prepare,
+    )
+
+    with TestClient(app) as client:
+        headers = {"X-Forwarded-For": "203.0.113.47"}
+        first = client.post("/api/proteins/2ity/prepare-receptor", headers=headers)
+        limited = client.post("/api/proteins/2ity/prepare-receptor", headers=headers)
 
     assert first.status_code == 200
     assert limited.status_code == 429

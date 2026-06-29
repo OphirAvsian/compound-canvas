@@ -7,6 +7,7 @@ redis==5.2.1
 celery==5.4.0
 rdkit>=2024.9,<2026
 meeko>=0.7.1,<0.8
+pdb2pqr==3.7.1
 scipy>=1.14,<2
 gemmi>=0.7,<1
 pytest==8.3.4

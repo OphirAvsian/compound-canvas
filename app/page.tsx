@@ -22,6 +22,7 @@ import { ProductIntroduction } from "@/components/onboarding/ProductIntroduction
 import { BeginnerExperimentGuide } from "@/components/onboarding/BeginnerExperimentGuide";
 import { ProteinWorkspace } from "@/components/protein/ProteinWorkspace";
 import { ProteinCleanupPanel } from "@/components/protein/ProteinCleanupPanel";
+import { ProteinPreparationPanel } from "@/components/protein/ProteinPreparationPanel";
 import { ProteinImportCard } from "@/components/protein/ProteinImportCard";
 import { LearningPanel } from "@/components/learning/LearningPanel";
 import {
@@ -34,6 +35,7 @@ import { MissionBanner } from "@/components/journey/MissionBanner";
 import { MissionCheckpointPanel } from "@/components/journey/MissionCheckpointPanel";
 import { MissionFourWorkspace } from "@/components/journey/MissionFourWorkspace";
 import { MissionFiveWorkspace } from "@/components/journey/MissionFiveWorkspace";
+import { MissionSixWorkspace } from "@/components/journey/MissionSixWorkspace";
 import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspace";
 import { WorkflowCompletionSummary } from "@/components/journey/WorkflowCompletionSummary";
 import { BeginnerResultsReport } from "@/components/experiment/BeginnerResultsReport";
@@ -61,7 +63,9 @@ import { emitJourneyEvent } from "@/lib/journey/journey-events";
 import {
   cleanEgfrChainA,
   importRcsbProtein,
+  prepareEgfrDockingInputReceptor,
   type ProteinCleanupResult,
+  type ProteinReceptorPreparationResult,
 } from "@/lib/proteins";
 
 const KetcherEditor = dynamic(
@@ -107,6 +111,9 @@ export default function Home() {
   const [cleaningProtein, setCleaningProtein] = useState(false);
   const [proteinCleanup, setProteinCleanup] = useState<ProteinCleanupResult | null>(null);
   const [proteinCleanupError, setProteinCleanupError] = useState<string | null>(null);
+  const [preparingReceptor, setPreparingReceptor] = useState(false);
+  const [receptorPreparation, setReceptorPreparation] = useState<ProteinReceptorPreparationResult | null>(null);
+  const [receptorPreparationError, setReceptorPreparationError] = useState<string | null>(null);
   const [proteinTarget, setProteinTarget] = useState<ProteinWorkspaceTarget>(egfr2ity);
   const [importingProtein, setImportingProtein] = useState(false);
   const [proteinImportError, setProteinImportError] = useState<string | null>(null);
@@ -329,6 +336,8 @@ export default function Home() {
       setProteinTarget(target);
       setProteinCleanup(null);
       setProteinCleanupError(null);
+      setReceptorPreparation(null);
+      setReceptorPreparationError(null);
       emitJourneyEvent({
         type: "protein.target_imported",
         target: {
@@ -361,6 +370,8 @@ export default function Home() {
     setProteinTarget(egfr2ity);
     setProteinCleanup(null);
     setProteinCleanupError(null);
+    setReceptorPreparation(null);
+    setReceptorPreparationError(null);
     setProteinImportError(null);
     emitJourneyEvent({ type: "protein.curated_target_selected" });
   }, []);
@@ -388,6 +399,8 @@ export default function Home() {
     try {
       const result = await cleanEgfrChainA();
       setProteinCleanup(result);
+      setReceptorPreparation(null);
+      setReceptorPreparationError(null);
       setServiceStatus("online");
       emitJourneyEvent({
         type: "protein.cleaned",
@@ -440,6 +453,68 @@ export default function Home() {
     }
   }, []);
 
+  const prepareReceptor = useCallback(async () => {
+    if (!proteinCleanup) return;
+    setPreparingReceptor(true);
+    setReceptorPreparationError(null);
+    try {
+      const result = await prepareEgfrDockingInputReceptor();
+      setReceptorPreparation(result);
+      setServiceStatus("online");
+      emitJourneyEvent({
+        type: "protein.receptor_prepared",
+        preparation: {
+          artifactId: result.artifact_id,
+          preparedReceptorPdb: result.prepared_receptor_pdb,
+          receptorPdbqt: result.receptor_pdbqt,
+          preparationReport: result.preparation_report,
+          protonationReport: {
+            method: result.protonation_report.method,
+            assumedPh: result.protonation_report.assumed_ph,
+            forceField: result.protonation_report.force_field,
+            hydrogensAdded: result.protonation_report.hydrogens_added,
+            preparedAtomCount: result.protonation_report.prepared_atom_count,
+            heavyAtomCount: result.protonation_report.heavy_atom_count,
+            totalCharge: result.protonation_report.total_charge,
+            chainIdsPreservedInPreparedPdb:
+              result.protonation_report.chain_ids_preserved_in_prepared_pdb,
+            chainIdsPreservedInPdbqt:
+              result.protonation_report.chain_ids_preserved_in_pdbqt,
+          },
+          assumptions: result.assumptions,
+          warnings: result.warnings,
+          provenance: {
+            source: result.provenance.source,
+            sourceUrl: result.provenance.source_url,
+            sourceSha256: result.provenance.source_sha256,
+            cleanedArtifactId: result.provenance.cleaned_artifact_id,
+            cleanedPdbSha256: result.provenance.cleaned_pdb_sha256,
+            preparedPdbSha256: result.provenance.prepared_pdb_sha256,
+            receptorPdbqtSha256: result.provenance.receptor_pdbqt_sha256,
+            toolPdb2pqr: result.provenance.tool_pdb2pqr,
+            toolPdb2pqrVersion: result.provenance.tool_pdb2pqr_version,
+            toolPropka: result.provenance.tool_propka,
+            toolPropkaVersion: result.provenance.tool_propka_version,
+            toolMeeko: result.provenance.tool_meeko,
+            toolMeekoVersion: result.provenance.tool_meeko_version,
+            toolGemmi: result.provenance.tool_gemmi,
+            toolGemmiVersion: result.provenance.tool_gemmi_version,
+            preset: result.provenance.preset,
+            generatedAt: result.provenance.generated_at,
+            manifestSha256: result.provenance.manifest_sha256,
+          },
+          manifest: result.manifest,
+        },
+      });
+    } catch (cause) {
+      setReceptorPreparationError(
+        cause instanceof Error ? cause.message : "EGFR receptor could not be prepared.",
+      );
+    } finally {
+      setPreparingReceptor(false);
+    }
+  }, [proteinCleanup]);
+
   const startExperiment = useCallback(() => {
     setActiveArea("molecule");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -455,8 +530,8 @@ export default function Home() {
       journey.setActiveMission(missionId);
       const area: AppArea =
         missionId === "mission-1"
-          ? "molecule"
-          : missionId === "mission-2" || missionId === "mission-5"
+            ? "molecule"
+          : missionId === "mission-2" || missionId === "mission-5" || missionId === "mission-6"
             ? "protein"
             : "journey";
       setActiveArea(area);
@@ -470,7 +545,9 @@ export default function Home() {
                 ? "mission-3-workspace"
                 : missionId === "mission-4"
                   ? "mission-4-workspace"
-                  : "protein-cleanup-workspace";
+                  : missionId === "mission-5"
+                    ? "protein-cleanup-workspace"
+                    : "protein-receptor-preparation-workspace";
         document.getElementById(targetId)?.scrollIntoView({
           behavior: "smooth",
           block: "start",
@@ -495,6 +572,9 @@ export default function Home() {
     setCleaningProtein(false);
     setProteinCleanup(null);
     setProteinCleanupError(null);
+    setPreparingReceptor(false);
+    setReceptorPreparation(null);
+    setReceptorPreparationError(null);
     setEditorResetKey((key) => key + 1);
     setActiveArea("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -535,7 +615,7 @@ export default function Home() {
                     ? "Experiment record"
                     : "Learning Journey"}
           </span>
-          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 5A</StatusBadge></span>
+          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 5B</StatusBadge></span>
           <button
             type="button"
             onClick={() => void checkService()}
@@ -841,7 +921,15 @@ export default function Home() {
                   error={proteinCleanupError}
                   onClean={() => void cleanProtein()}
                 />
+                <ProteinPreparationPanel
+                  cleanup={proteinCleanup}
+                  busy={preparingReceptor}
+                  result={receptorPreparation}
+                  error={receptorPreparationError}
+                  onPrepare={() => void prepareReceptor()}
+                />
                 {journey.hydrated && <MissionFiveWorkspace journeyState={journey.state} />}
+                {journey.hydrated && <MissionSixWorkspace journeyState={journey.state} />}
               </>
             )}
             {journey.hydrated && (

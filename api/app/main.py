@@ -14,6 +14,10 @@ from .services.execution import CalculationExecutor, ConformerExecutor
 from .services.ligand_preparation import LigandPreparationResult, prepare_ligand
 from .services.protein_cleanup import ProteinCleanupResult, prepare_egfr_chain_a
 from .services.protein_import import RcsbImportResult, import_rcsb_structure
+from .services.protein_receptor_preparation import (
+    ReceptorPreparationResult,
+    prepare_egfr_docking_input_receptor,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
@@ -24,6 +28,9 @@ def create_app(
     ligand_preparation_function: Callable[..., LigandPreparationResult] = prepare_ligand,
     protein_cleanup_function: Callable[..., ProteinCleanupResult] = prepare_egfr_chain_a,
     protein_import_function: Callable[..., RcsbImportResult] = import_rcsb_structure,
+    protein_receptor_preparation_function: Callable[
+        ..., ReceptorPreparationResult
+    ] = prepare_egfr_docking_input_receptor,
 ) -> FastAPI:
     executor = ConformerExecutor(
         conformer_function,
@@ -48,6 +55,12 @@ def create_app(
         timeout_seconds=app_settings.protein_import_timeout_seconds,
         thread_name_prefix="gemmi-rcsb-import",
     )
+    protein_preparation_executor = CalculationExecutor(
+        protein_receptor_preparation_function,
+        max_concurrency=1,
+        timeout_seconds=app_settings.protein_preparation_timeout_seconds,
+        thread_name_prefix="pdb2pqr-meeko-receptor-prep",
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -56,6 +69,7 @@ def create_app(
         ligand_preparation_executor.shutdown()
         protein_cleanup_executor.shutdown()
         protein_import_executor.shutdown()
+        protein_preparation_executor.shutdown()
 
     application = FastAPI(
         title=app_settings.app_name,
@@ -67,6 +81,7 @@ def create_app(
     application.state.ligand_preparation_executor = ligand_preparation_executor
     application.state.protein_cleanup_executor = protein_cleanup_executor
     application.state.protein_import_executor = protein_import_executor
+    application.state.protein_preparation_executor = protein_preparation_executor
     application.state.settings = app_settings
 
     application.add_middleware(PublicApiMiddleware, settings=app_settings)
@@ -91,7 +106,8 @@ def create_app(
         ligand_executor: CalculationExecutor = application.state.ligand_preparation_executor
         protein_executor: CalculationExecutor = application.state.protein_cleanup_executor
         import_executor: CalculationExecutor = application.state.protein_import_executor
-        if not executor.ready or not ligand_executor.ready or not protein_executor.ready or not import_executor.ready:
+        receptor_executor: CalculationExecutor = application.state.protein_preparation_executor
+        if not executor.ready or not ligand_executor.ready or not protein_executor.ready or not import_executor.ready or not receptor_executor.ready:
             raise HTTPException(status_code=503, detail="Calculation service is not ready.")
         return {"status": "ready"}
 

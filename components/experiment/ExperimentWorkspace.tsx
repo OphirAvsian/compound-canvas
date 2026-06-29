@@ -90,6 +90,15 @@ export function ExperimentWorkspace({
             : "Run curated receptor cleanup in Protein Lab",
         }]
       : []),
+    ...(experiment.target.kind === "curated"
+      ? [{
+          label: "EGFR docking-input receptor prepared",
+          complete: experiment.workflow.receptorPrepared.status === "complete",
+          detail: experiment.target.receptorPreparation
+            ? `${experiment.target.receptorPreparation.protonationReport.hydrogensAdded} hydrogens added; receptor PDBQT created`
+            : "Prepare receptor after cleanup; no docking is run",
+        }]
+      : []),
     {
       label: "Coordinate residues inspected",
       complete: experiment.workflow.residuesInspected.length > 0,
@@ -386,6 +395,66 @@ export function ExperimentWorkspace({
                 </div>
               </div>
             )}
+
+            {experiment.target.receptorPreparation && (
+              <div className="rounded-2xl border border-[#b8d8c8] bg-[#f5fbf7] p-4 sm:p-5">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                      Protein preparation artifact
+                    </p>
+                    <h3 className="mt-1 text-[15px] font-semibold">
+                      Curated 2ITY docking-input receptor
+                    </h3>
+                    <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+                      Hydrogens and charges were added under one pH assumption, and
+                      Meeko produced a receptor PDBQT. This is still not docking,
+                      scoring, binding, or interaction analysis.
+                    </p>
+                  </div>
+                  <StatusBadge status="real">Real receptor prep</StatusBadge>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-4">
+                  {[
+                    ["Hydrogens added", experiment.target.receptorPreparation.protonationReport.hydrogensAdded],
+                    ["Assumed pH", experiment.target.receptorPreparation.protonationReport.assumedPh],
+                    ["Total charge", experiment.target.receptorPreparation.protonationReport.totalCharge],
+                    ["PDBQT atoms", experiment.target.receptorPreparation.preparationReport.pdbqt_atom_records as number],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-[#d9e8df] bg-white px-3 py-2">
+                      <p className="text-[8px] uppercase tracking-wide text-[#738493]">{label}</p>
+                      <p className="mt-0.5 text-[10px] font-semibold">{value}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => downloadArtifact(`${experiment.target.receptorPreparation?.artifactId}.pdb`, experiment.target.receptorPreparation?.preparedReceptorPdb ?? "", "chemical/x-pdb")}
+                    aria-label="Download prepared EGFR receptor PDB artifact"
+                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                  >
+                    Download prepared PDB
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => downloadArtifact(`${experiment.target.receptorPreparation?.artifactId}.pdbqt`, experiment.target.receptorPreparation?.receptorPdbqt ?? "", "chemical/x-pdbqt")}
+                    aria-label="Download prepared EGFR receptor PDBQT artifact"
+                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                  >
+                    Download receptor PDBQT
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => downloadArtifact(`${experiment.target.receptorPreparation?.artifactId}.json`, JSON.stringify(experiment.target.receptorPreparation?.manifest, null, 2), "application/json")}
+                    aria-label="Download EGFR receptor preparation manifest JSON"
+                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                  >
+                    Download prep manifest
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -426,6 +495,17 @@ export function ExperimentWorkspace({
                       experiment.futurePreparation.protein.explanation,
                     status: experiment.target.preparation ? "AVAILABLE" : "NOT IMPLEMENTED",
                   },
+                  ...(experiment.target.kind === "curated"
+                    ? [{
+                        label: "Docking-input receptor",
+                        explanation: experiment.target.receptorPreparation
+                          ? "Available as prepared receptor PDB and receptor PDBQT. No docking, scoring, or binding prediction has been run."
+                          : "Clean EGFR Chain A, then prepare the receptor to create a docking-input artifact.",
+                        status: experiment.target.receptorPreparation
+                          ? "AVAILABLE"
+                          : "NOT IMPLEMENTED",
+                      }]
+                    : []),
                   {
                     label: "Ligand preparation",
                     explanation:

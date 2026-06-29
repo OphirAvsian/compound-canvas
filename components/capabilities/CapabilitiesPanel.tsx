@@ -17,6 +17,7 @@ const groups = [
       "Coordinate-backed residue identity, chain, atom count, and position",
       "Ligand preparation with explicit hydrogens, charge/stereo reports, largest-fragment handling, prepared SDF, and Meeko PDBQT when available",
       "Curated 2ITY Chain A receptor cleanup with deterministic alternate-location handling and downloadable PDB/manifest artifacts",
+      "Curated 2ITY docking-input receptor preparation with PDB2PQR/PROPKA hydrogens, documented pH assumption, prepared PDB, and receptor PDBQT",
       "RCSB PDB ID import with mmCIF validation, provenance, Mol* rendering, and residue inspection",
     ],
   },
@@ -38,7 +39,7 @@ const groups = [
     badge: "Future phase",
     items: [
       "Protein file upload, chain controls, biological assembly selection, and automated pocket detection",
-      "Docking-ready protein preparation with hydrogens, protonation, charges, and atom repair",
+      "Arbitrary protein preparation with atom repair, missing loops, custom protonation states, and minimization",
       "Docking poses, scores, and interaction detection",
       "Project saving, comparison, sharing, and reports",
     ],

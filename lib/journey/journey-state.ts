@@ -146,6 +146,16 @@ export function applyJourneyEvent(
           now,
         ),
       );
+    case "protein.receptor_prepared":
+      return completeStep(
+        state,
+        "m6-prepare-receptor",
+        evidence(
+          "real_result",
+          `Docking-input receptor artifact ${event.preparation.artifactId} created without docking`,
+          now,
+        ),
+      );
     case "protein.target_imported":
     case "protein.curated_target_selected":
       return state;

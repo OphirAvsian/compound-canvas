@@ -132,6 +132,49 @@ export type JourneyEvent =
         };
       };
     }
+  | {
+      type: "protein.receptor_prepared";
+      preparation: {
+        artifactId: string;
+        preparedReceptorPdb: string;
+        receptorPdbqt: string;
+        preparationReport: Record<string, unknown>;
+        protonationReport: {
+          method: string;
+          assumedPh: number;
+          forceField: string;
+          hydrogensAdded: number;
+          preparedAtomCount: number;
+          heavyAtomCount: number;
+          totalCharge: number;
+          chainIdsPreservedInPreparedPdb: boolean;
+          chainIdsPreservedInPdbqt: boolean;
+        };
+        assumptions: string[];
+        warnings: string[];
+        provenance: {
+          source: string;
+          sourceUrl: string;
+          sourceSha256: string;
+          cleanedArtifactId: string;
+          cleanedPdbSha256: string;
+          preparedPdbSha256: string;
+          receptorPdbqtSha256: string;
+          toolPdb2pqr: string;
+          toolPdb2pqrVersion: string | null;
+          toolPropka: string;
+          toolPropkaVersion: string | null;
+          toolMeeko: string;
+          toolMeekoVersion: string | null;
+          toolGemmi: string;
+          toolGemmiVersion: string;
+          preset: string;
+          generatedAt: string;
+          manifestSha256: string;
+        };
+        manifest: Record<string, unknown>;
+      };
+    }
   | { type: "journey.content_reviewed"; stepId: string }
   | {
       type: "reflection.completed";

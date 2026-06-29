@@ -154,6 +154,32 @@ class ProteinCleanupResponse(BaseModel):
     manifest: dict[str, object]
 
 
+class ProteinProtonationReport(BaseModel):
+    method: str
+    assumed_ph: float
+    force_field: str
+    hydrogens_added: int
+    prepared_atom_count: int
+    heavy_atom_count: int
+    total_charge: float
+    chain_ids_preserved_in_prepared_pdb: bool
+    chain_ids_preserved_in_pdbqt: bool
+
+
+class ProteinReceptorPreparationResponse(BaseModel):
+    artifact_id: str
+    status: Literal["docking_input_prepared_no_docking"]
+    target: dict[str, str]
+    prepared_receptor_pdb: str
+    receptor_pdbqt: str
+    preparation_report: dict[str, object]
+    protonation_report: ProteinProtonationReport
+    assumptions: list[str]
+    warnings: list[str]
+    provenance: dict[str, str | None]
+    manifest: dict[str, object]
+
+
 class RcsbImportRequest(BaseModel):
     pdb_id: str = Field(pattern=r"^[0-9][A-Za-z0-9]{3}$")
 

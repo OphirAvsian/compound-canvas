@@ -75,6 +75,7 @@ class PublicApiMiddleware(BaseHTTPMiddleware):
                 "/api/molecules/conformers",
                 "/api/molecules/prepare-ligand",
                 "/api/proteins/2ity/prepare",
+                "/api/proteins/2ity/prepare-receptor",
                 "/api/proteins/import/rcsb",
             } and request.method == "POST":
                 content_length = request.headers.get("content-length")

@@ -215,6 +215,69 @@ describe("learning journey state", () => {
     ).toBe("complete");
   });
 
+  it("completes Mission 6 receptor preparation only from a real receptor-preparation artifact", () => {
+    const event = {
+      type: "protein.receptor_prepared" as const,
+      preparation: {
+        artifactId: "receptor_2ity_a_docking_input_abc",
+        preparedReceptorPdb: "ATOM\nEND\n",
+        receptorPdbqt: "ATOM\n",
+        preparationReport: { hydrogens_added: 100 },
+        protonationReport: {
+          method: "PDB2PQR with PROPKA titration-state assignment",
+          assumedPh: 7.4,
+          forceField: "AMBER",
+          hydrogensAdded: 100,
+          preparedAtomCount: 3000,
+          heavyAtomCount: 2200,
+          totalCharge: -3,
+          chainIdsPreservedInPreparedPdb: true,
+          chainIdsPreservedInPdbqt: false,
+        },
+        assumptions: ["pH 7.4"],
+        warnings: ["No docking performed."],
+        provenance: {
+          source: "RCSB PDB 2ITY",
+          sourceUrl: "https://www.rcsb.org/structure/2ITY",
+          sourceSha256: "source",
+          cleanedArtifactId: "proteinprep_2ity_a_abc",
+          cleanedPdbSha256: "cleaned",
+          preparedPdbSha256: "pdb",
+          receptorPdbqtSha256: "pdbqt",
+          toolPdb2pqr: "PDB2PQR",
+          toolPdb2pqrVersion: "3.7.1",
+          toolPropka: "PROPKA",
+          toolPropkaVersion: "3.5.1",
+          toolMeeko: "Meeko",
+          toolMeekoVersion: "0.7.1",
+          toolGemmi: "Gemmi",
+          toolGemmiVersion: "0.7.0",
+          preset: "receptor-v1",
+          generatedAt: now,
+          manifestSha256: "manifest",
+        },
+        manifest: {},
+      },
+    };
+    const state = applyJourneyEvent(createInitialJourneyState(now), event, now);
+
+    expect(state.steps["m6-prepare-receptor"]).toMatchObject({
+      status: "complete",
+      evidence: {
+        source: "real_result",
+        detail:
+          "Docking-input receptor artifact receptor_2ity_a_docking_input_abc created without docking",
+      },
+    });
+    expect(
+      applyJourneyEvent(
+        createInitialJourneyState(now),
+        { type: "journey.step_skipped", stepId: "m6-prepare-receptor" },
+        now,
+      ).steps["m6-prepare-receptor"].status,
+    ).toBe("pending");
+  });
+
   it("does not treat imported protein residues as curated EGFR mission evidence", () => {
     const state = applyJourneyEvent(
       createInitialJourneyState(now),

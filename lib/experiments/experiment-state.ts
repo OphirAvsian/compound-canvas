@@ -19,7 +19,13 @@ function withoutProteinProvenance(provenance: ScientificProvenance[]) {
     (entry) =>
       !entry.id.startsWith("protein-") &&
       !entry.id.startsWith("residue-") &&
-      !["2ity-coordinates", "deposited-gefitinib", "cleaned-2ity-chain-a"].includes(entry.id),
+      ![
+        "2ity-coordinates",
+        "deposited-gefitinib",
+        "cleaned-2ity-chain-a",
+        "prepared-2ity-receptor-pdb",
+        "prepared-2ity-receptor-pdbqt",
+      ].includes(entry.id),
   );
 }
 
@@ -203,6 +209,7 @@ export function applyExperimentEvent(
         workflow: {
           ...experiment.workflow,
           proteinCleaned: { status: "pending" as const },
+          receptorPrepared: { status: "pending" as const },
           proteinCoordinatesLoaded: { status: "pending" as const },
           residuesInspected: [],
           depositedLigandLocated: { status: "pending" as const },
@@ -387,6 +394,7 @@ export function applyExperimentEvent(
             warnings: cleanup.warnings,
             provenance: cleanup.provenance,
           },
+          receptorPreparation: undefined,
         },
         workflow: {
           ...experiment.workflow,
@@ -394,6 +402,7 @@ export function applyExperimentEvent(
             status: "complete",
             completedAt: cleanup.provenance.generatedAt,
           },
+          receptorPrepared: { status: "pending" as const },
         },
         warnings: [
           ...experiment.warnings.filter((warning) => !warning.id.startsWith("protein-cleanup-")),
@@ -422,7 +431,86 @@ export function applyExperimentEvent(
           protein: {
             status: "available",
             explanation:
-              "A cleaned Chain A receptor precursor is available. Hydrogens, charges, protonation, atom repair, and docking readiness remain unavailable.",
+              "A cleaned Chain A receptor precursor is available. Prepare the receptor to add documented hydrogens, charges, and a receptor PDBQT for future docking input.",
+          },
+        },
+        updatedAt: now,
+      };
+    }
+    case "protein.receptor_prepared": {
+      if (experiment.target.kind !== "curated" || experiment.target.pdbId !== egfr2ity.id) {
+        return experiment;
+      }
+      const preparation = event.preparation;
+      let provenance = addProvenance(experiment.provenance, {
+        id: "prepared-2ity-receptor-pdb",
+        evidenceKind: "calculated",
+        label: "2ITY Chain A prepared receptor PDB",
+        source: preparation.provenance.source,
+        sourceUrl: preparation.provenance.sourceUrl,
+        method:
+          "PDB2PQR/PROPKA hydrogen addition and pH 7.4 protonation-state assignment; no protein minimization or docking",
+        tool: {
+          name: preparation.provenance.toolPdb2pqr,
+          version: preparation.provenance.toolPdb2pqrVersion,
+        },
+        recordedAt: preparation.provenance.generatedAt,
+      });
+      provenance = addProvenance(provenance, {
+        id: "prepared-2ity-receptor-pdbqt",
+        evidenceKind: "calculated",
+        label: "2ITY Chain A receptor PDBQT",
+        source: "Meeko receptor preparation",
+        sourceUrl: preparation.provenance.sourceUrl,
+        method:
+          "AutoDock-style receptor input generated from PQR charges; prepared for future docking input, not docked",
+        tool: {
+          name: preparation.provenance.toolMeeko,
+          version: preparation.provenance.toolMeekoVersion,
+        },
+        recordedAt: preparation.provenance.generatedAt,
+      });
+      return {
+        ...experiment,
+        target: {
+          ...experiment.target,
+          receptorPreparation: {
+            artifactId: preparation.artifactId,
+            status: "docking_input_prepared_no_docking",
+            preparedReceptorPdb: preparation.preparedReceptorPdb,
+            receptorPdbqt: preparation.receptorPdbqt,
+            manifest: preparation.manifest,
+            preparationReport: preparation.preparationReport,
+            protonationReport: preparation.protonationReport,
+            assumptions: preparation.assumptions,
+            warnings: preparation.warnings,
+            provenance: preparation.provenance,
+          },
+        },
+        workflow: {
+          ...experiment.workflow,
+          receptorPrepared: {
+            status: "complete",
+            completedAt: preparation.provenance.generatedAt,
+          },
+        },
+        warnings: [
+          ...experiment.warnings.filter(
+            (warning) => !warning.id.startsWith("protein-receptor-prep-"),
+          ),
+          ...preparation.warnings.map((warning, index) => ({
+            id: `protein-receptor-prep-${index}`,
+            severity: "caution" as const,
+            message: warning,
+          })),
+        ],
+        provenance,
+        futurePreparation: {
+          ...experiment.futurePreparation,
+          protein: {
+            status: "available",
+            explanation:
+              "A curated 2ITY docking-input receptor artifact is available. Docking, scoring, affinity, and interaction predictions remain unavailable.",
           },
         },
         updatedAt: now,
