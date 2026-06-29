@@ -7,9 +7,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import Settings, settings
 from .middleware import PublicApiMiddleware
+from .routers.docking import router as docking_router
 from .routers.molecules import router as molecules_router
 from .routers.proteins import router as proteins_router
 from .services.conformer import ConformerResult, generate_conformer
+from .services.docking import DockingLessonResult, run_curated_egfr_vina_lesson
 from .services.execution import CalculationExecutor, ConformerExecutor
 from .services.ligand_preparation import LigandPreparationResult, prepare_ligand
 from .services.protein_cleanup import ProteinCleanupResult, prepare_egfr_chain_a
@@ -31,6 +33,7 @@ def create_app(
     protein_receptor_preparation_function: Callable[
         ..., ReceptorPreparationResult
     ] = prepare_egfr_docking_input_receptor,
+    docking_function: Callable[..., DockingLessonResult] = run_curated_egfr_vina_lesson,
 ) -> FastAPI:
     executor = ConformerExecutor(
         conformer_function,
@@ -61,6 +64,12 @@ def create_app(
         timeout_seconds=app_settings.protein_preparation_timeout_seconds,
         thread_name_prefix="pdb2pqr-meeko-receptor-prep",
     )
+    docking_executor = CalculationExecutor(
+        docking_function,
+        max_concurrency=1,
+        timeout_seconds=app_settings.docking_timeout_seconds,
+        thread_name_prefix="vina-docking-lesson",
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -70,6 +79,7 @@ def create_app(
         protein_cleanup_executor.shutdown()
         protein_import_executor.shutdown()
         protein_preparation_executor.shutdown()
+        docking_executor.shutdown()
 
     application = FastAPI(
         title=app_settings.app_name,
@@ -82,6 +92,7 @@ def create_app(
     application.state.protein_cleanup_executor = protein_cleanup_executor
     application.state.protein_import_executor = protein_import_executor
     application.state.protein_preparation_executor = protein_preparation_executor
+    application.state.docking_executor = docking_executor
     application.state.settings = app_settings
 
     application.add_middleware(PublicApiMiddleware, settings=app_settings)
@@ -95,6 +106,7 @@ def create_app(
     )
     application.include_router(molecules_router)
     application.include_router(proteins_router)
+    application.include_router(docking_router)
 
     @application.get("/health")
     def health() -> dict[str, str]:
@@ -126,8 +138,8 @@ def create_app(
         raise HTTPException(
             status_code=501,
             detail=(
-                "Docking is not implemented. "
-                "Compound Canvas does not provide simulated docking results."
+                "Only the curated 2ITY AutoDock Vina lesson is available in this release. "
+                "Arbitrary docking is not implemented and Compound Canvas does not provide simulated docking results."
             ),
         )
 

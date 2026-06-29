@@ -46,6 +46,7 @@ export type ExperimentWorkflow = {
   ligandPrepared: ExperimentStepStatus;
   proteinCleaned: ExperimentStepStatus;
   receptorPrepared: ExperimentStepStatus;
+  dockingLessonRun: ExperimentStepStatus;
   proteinCoordinatesLoaded: ExperimentStepStatus;
   residuesInspected: Array<{
     chain: string;
@@ -170,6 +171,47 @@ export type Experiment = {
         manifestSha256: string;
       };
     };
+    dockingLesson?: {
+      artifactId: string;
+      status: "docking_estimate_curated_box";
+      engine: "AutoDock Vina";
+      engineVersion: string | null;
+      box: {
+        center: { x: number; y: number; z: number };
+        size: { x: number; y: number; z: number };
+      };
+      scoreTable: Array<{
+        rank: number;
+        vinaScoreKcalMol: number | null;
+        rmsdLowerBound: number | null;
+        rmsdUpperBound: number | null;
+      }>;
+      topPosePdbqt: string;
+      posePdbqt: string;
+      poseSdf: string | null;
+      dockingLog: string;
+      manifest: Record<string, unknown>;
+      assumptions: string[];
+      warnings: string[];
+      provenance: {
+        engine: string;
+        engineVersion: string | null;
+        preset: string;
+        generatedAt: string;
+        receptorArtifactId: string;
+        receptorPdbqtSha256: string;
+        ligandArtifactId: string;
+        ligandPdbqtSha256: string;
+        posePdbqtSha256: string;
+        sourcePdbId: string;
+        sourceChain: string;
+        siteDefinition: string;
+        exhaustiveness: number;
+        numPoses: number;
+        seed: number;
+        manifestSha256: string;
+      };
+    };
   };
   ligand: {
     artifactId: string;
@@ -250,7 +292,7 @@ export type Experiment = {
     };
   };
   futureDocking: {
-    status: "not_implemented";
+    status: "not_implemented" | "available";
     explanation: string;
   };
   createdAt: string;
@@ -342,6 +384,7 @@ export function createInitialExperiment({
       ligandPrepared: { status: "pending" },
       proteinCleaned: { status: "pending" },
       receptorPrepared: { status: "pending" },
+      dockingLessonRun: { status: "pending" },
       proteinCoordinatesLoaded: { status: "pending" },
       residuesInspected: [],
       depositedLigandLocated: { status: "pending" },

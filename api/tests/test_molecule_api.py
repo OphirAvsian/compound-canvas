@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from app.config import Settings
 from app.main import create_app
 from app.services.conformer import generate_conformer
+from app.services.docking import DockingLessonResult, DockingPose
 from app.services.protein_import import ExampleResidue, RcsbImportResult, StructureSummary
 from app.services.protein_receptor_preparation import (
     ProtonationReport,
@@ -142,6 +143,81 @@ def test_curated_2ity_receptor_preparation_endpoint() -> None:
     assert body["protonation_report"]["hydrogens_added"] == 1
     assert "ATOM" in body["receptor_pdbqt"]
     assert "No docking" in body["warnings"][0]
+
+
+def test_curated_2ity_vina_docking_endpoint_records_estimate_without_binding_claim() -> None:
+    def fake_docking(**_: object) -> DockingLessonResult:
+        return DockingLessonResult(
+            artifact_id="docking_2ity_vina_lesson_test",
+            status="docking_estimate_curated_box",
+            engine="AutoDock Vina",
+            engine_version="1.2.5",
+            target={"pdb_id": "2ITY", "chain_id": "A"},
+            box={
+                "center": {"x": 1.0, "y": 2.0, "z": 3.0},
+                "size": {"x": 20.0, "y": 20.0, "z": 20.0},
+            },
+            poses=[
+                DockingPose(
+                    rank=1,
+                    vina_score_kcal_mol=-6.2,
+                    rmsd_lower_bound=0.0,
+                    rmsd_upper_bound=0.0,
+                    pdbqt="MODEL 1\nATOM\nENDMDL\n",
+                    sdf=None,
+                )
+            ],
+            pose_pdbqt="MODEL 1\nATOM\nENDMDL\n",
+            pose_sdf=None,
+            score_table=[
+                {
+                    "rank": 1,
+                    "vina_score_kcal_mol": -6.2,
+                    "rmsd_lower_bound": 0.0,
+                    "rmsd_upper_bound": 0.0,
+                }
+            ],
+            docking_log="Docking estimate only.",
+            assumptions=["Curated 2ITY only."],
+            warnings=["This is a docking estimate, not experimental evidence that the molecule binds EGFR."],
+            provenance={
+                "engine": "AutoDock Vina",
+                "engine_version": "1.2.5",
+                "preset": "test",
+                "generated_at": "2026-06-29T00:00:00Z",
+                "receptor_artifact_id": "receptor_2ity_a_docking_input_test",
+                "receptor_pdbqt_sha256": "receptor-hash",
+                "ligand_artifact_id": "ligprep_test",
+                "ligand_pdbqt_sha256": "ligand-hash",
+                "pose_pdbqt_sha256": "pose-hash",
+                "source_pdb_id": "2ITY",
+                "source_chain": "A",
+                "site_definition": "curated_from_deposited_gefitinib_IRE",
+                "exhaustiveness": 4,
+                "num_poses": 5,
+                "seed": 61453,
+                "manifest_sha256": "manifest-hash",
+            },
+            manifest={"scientific_boundary": "Docking estimate only."},
+        )
+
+    with TestClient(create_app(docking_function=fake_docking)) as client:
+        response = client.post(
+            "/api/docking/2ity/vina",
+            json={
+                "ligand_artifact_id": "ligprep_test",
+                "ligand_pdbqt": "ROOT\nATOM\nENDROOT\n",
+                "receptor_artifact_id": "receptor_2ity_a_docking_input_test",
+                "receptor_pdbqt": "ATOM\n",
+            },
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "docking_estimate_curated_box"
+    assert body["engine"] == "AutoDock Vina"
+    assert body["score_table"][0]["vina_score_kcal_mol"] == -6.2
+    assert "not experimental evidence" in body["warnings"][0]
 
 
 def test_rcsb_import_endpoint_validates_id_and_returns_compact_summary() -> None:

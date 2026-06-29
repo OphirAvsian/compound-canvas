@@ -19,6 +19,7 @@ function withoutProteinProvenance(provenance: ScientificProvenance[]) {
     (entry) =>
       !entry.id.startsWith("protein-") &&
       !entry.id.startsWith("residue-") &&
+      !entry.id.startsWith("docking-") &&
       ![
         "2ity-coordinates",
         "deposited-gefitinib",
@@ -47,15 +48,20 @@ export function applyExperimentEvent(
           inputSmiles: sample.smiles,
           selectedAt: now,
         },
+        target: {
+          ...experiment.target,
+          dockingLesson: undefined,
+        },
         workflow: {
           ...experiment.workflow,
           moleculeSelected: { status: "complete", completedAt: now },
           conformerGenerated: { status: "pending" },
           ligandPrepared: { status: "pending" },
+          dockingLessonRun: { status: "pending" },
         },
         provenance: experiment.provenance.filter(
           (entry) =>
-            !["rdkit-conformer", "prepared-ligand-sdf", "prepared-ligand-pdbqt"].includes(
+            !["rdkit-conformer", "prepared-ligand-sdf", "prepared-ligand-pdbqt", "docking-2ity-vina"].includes(
               entry.id,
             ),
         ),
@@ -81,6 +87,10 @@ export function applyExperimentEvent(
           },
           preparation: undefined,
         },
+        target: {
+          ...experiment.target,
+          dockingLesson: undefined,
+        },
         workflow: {
           ...experiment.workflow,
           conformerGenerated: {
@@ -88,8 +98,11 @@ export function applyExperimentEvent(
             completedAt: event.conformer.generatedAt,
           },
           ligandPrepared: { status: "pending" },
+          dockingLessonRun: { status: "pending" },
         },
-        provenance: addProvenance(experiment.provenance, {
+        provenance: addProvenance(
+          experiment.provenance.filter((entry) => entry.id !== "docking-2ity-vina"),
+          {
           id: "rdkit-conformer",
           evidenceKind: "calculated",
           label: `${experiment.ligand.name} 3D conformer`,
@@ -159,12 +172,17 @@ export function applyExperimentEvent(
           ...experiment.ligand,
           preparation,
         },
+        target: {
+          ...experiment.target,
+          dockingLesson: undefined,
+        },
         workflow: {
           ...experiment.workflow,
           ligandPrepared: {
             status: "complete",
             completedAt: event.preparation.provenance.generatedAt,
           },
+          dockingLessonRun: { status: "pending" },
         },
         warnings: [
           ...experiment.warnings.filter(
@@ -177,6 +195,14 @@ export function applyExperimentEvent(
           })),
         ],
         provenance,
+        futureDocking: {
+          status: experiment.target.receptorPreparation && event.preparation.pdbqtAvailable
+            ? "available"
+            : "not_implemented",
+          explanation: experiment.target.receptorPreparation && event.preparation.pdbqtAvailable
+            ? "The curated 2ITY AutoDock Vina lesson is available. It will produce a docking estimate, not experimental evidence."
+            : "Prepare both a ligand PDBQT and the curated 2ITY receptor before running the docking lesson.",
+        },
         updatedAt: now,
       };
     }
@@ -209,7 +235,8 @@ export function applyExperimentEvent(
         workflow: {
           ...experiment.workflow,
           proteinCleaned: { status: "pending" as const },
-          receptorPrepared: { status: "pending" as const },
+            receptorPrepared: { status: "pending" as const },
+            dockingLessonRun: { status: "pending" as const },
           proteinCoordinatesLoaded: { status: "pending" as const },
           residuesInspected: [],
           depositedLigandLocated: { status: "pending" as const },
@@ -395,6 +422,7 @@ export function applyExperimentEvent(
             provenance: cleanup.provenance,
           },
           receptorPreparation: undefined,
+          dockingLesson: undefined,
         },
         workflow: {
           ...experiment.workflow,
@@ -403,6 +431,7 @@ export function applyExperimentEvent(
             completedAt: cleanup.provenance.generatedAt,
           },
           receptorPrepared: { status: "pending" as const },
+          dockingLessonRun: { status: "pending" as const },
         },
         warnings: [
           ...experiment.warnings.filter((warning) => !warning.id.startsWith("protein-cleanup-")),
@@ -433,6 +462,11 @@ export function applyExperimentEvent(
             explanation:
               "A cleaned Chain A receptor precursor is available. Prepare the receptor to add documented hydrogens, charges, and a receptor PDBQT for future docking input.",
           },
+        },
+        futureDocking: {
+          status: "not_implemented" as const,
+          explanation:
+            "Run ligand preparation and curated receptor preparation before the curated EGFR docking lesson is available.",
         },
         updatedAt: now,
       };
@@ -486,6 +520,7 @@ export function applyExperimentEvent(
             warnings: preparation.warnings,
             provenance: preparation.provenance,
           },
+          dockingLesson: undefined,
         },
         workflow: {
           ...experiment.workflow,
@@ -493,6 +528,7 @@ export function applyExperimentEvent(
             status: "complete",
             completedAt: preparation.provenance.generatedAt,
           },
+          dockingLessonRun: { status: "pending" },
         },
         warnings: [
           ...experiment.warnings.filter(
@@ -512,6 +548,65 @@ export function applyExperimentEvent(
             explanation:
               "A curated 2ITY docking-input receptor artifact is available. Docking, scoring, affinity, and interaction predictions remain unavailable.",
           },
+        },
+        futureDocking: {
+          status: experiment.ligand?.preparation?.pdbqtAvailable ? "available" : "not_implemented",
+          explanation: experiment.ligand?.preparation?.pdbqtAvailable
+            ? "The curated 2ITY AutoDock Vina lesson is available. It will produce a docking estimate, not experimental evidence."
+            : "Prepare a ligand PDBQT before running the curated 2ITY AutoDock Vina lesson.",
+        },
+        updatedAt: now,
+      };
+    }
+    case "docking.lesson_completed": {
+      if (
+        experiment.target.kind !== "curated" ||
+        experiment.target.pdbId !== egfr2ity.id ||
+        !experiment.ligand?.preparation?.pdbqtAvailable ||
+        !experiment.target.receptorPreparation
+      ) {
+        return experiment;
+      }
+      const docking = event.docking;
+      return {
+        ...experiment,
+        target: {
+          ...experiment.target,
+          dockingLesson: docking,
+        },
+        workflow: {
+          ...experiment.workflow,
+          dockingLessonRun: {
+            status: "complete",
+            completedAt: docking.provenance.generatedAt,
+          },
+        },
+        warnings: [
+          ...experiment.warnings.filter((warning) => !warning.id.startsWith("docking-lesson-")),
+          ...docking.warnings.map((warning, index) => ({
+            id: `docking-lesson-${index}`,
+            severity: "caution" as const,
+            message: warning,
+          })),
+        ],
+        provenance: addProvenance(experiment.provenance, {
+          id: "docking-2ity-vina",
+          evidenceKind: "calculated",
+          label: "Curated 2ITY AutoDock Vina docking estimate",
+          source: "Compound Canvas curated docking lesson",
+          sourceUrl: experiment.target.sourceUrl,
+          method:
+            "AutoDock Vina in a fixed teaching box centered on deposited gefitinib; docking estimate only, not experimental evidence",
+          tool: {
+            name: docking.engine,
+            version: docking.engineVersion,
+          },
+          recordedAt: docking.provenance.generatedAt,
+        }),
+        futureDocking: {
+          status: "available",
+          explanation:
+            "A curated 2ITY docking estimate has been recorded. Arbitrary docking, interaction analysis, and affinity prediction remain unavailable.",
         },
         updatedAt: now,
       };

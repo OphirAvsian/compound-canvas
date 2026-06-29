@@ -278,6 +278,69 @@ describe("learning journey state", () => {
     ).toBe("pending");
   });
 
+  it("completes Mission 7 only from a real docking lesson result", () => {
+    const event: JourneyEvent = {
+      type: "docking.lesson_completed",
+      docking: {
+        artifactId: "docking_2ity_vina_lesson_abc",
+        status: "docking_estimate_curated_box",
+        engine: "AutoDock Vina",
+        engineVersion: "1.2.5",
+        box: {
+          center: { x: 1, y: 2, z: 3 },
+          size: { x: 20, y: 20, z: 20 },
+        },
+        scoreTable: [
+          {
+            rank: 1,
+            vinaScoreKcalMol: -6.2,
+            rmsdLowerBound: 0,
+            rmsdUpperBound: 0,
+          },
+        ],
+        topPosePdbqt: "MODEL 1\nATOM\nENDMDL\n",
+        posePdbqt: "MODEL 1\nATOM\nENDMDL\n",
+        poseSdf: null,
+        dockingLog: "Docking estimate only.",
+        assumptions: ["Curated 2ITY only."],
+        warnings: ["Docking estimate, not experimental evidence."],
+        provenance: {
+          engine: "AutoDock Vina",
+          engineVersion: "1.2.5",
+          preset: "test",
+          generatedAt: now,
+          receptorArtifactId: "receptor_2ity_a_docking_input_abc",
+          receptorPdbqtSha256: "receptor",
+          ligandArtifactId: "ligprep_abc",
+          ligandPdbqtSha256: "ligand",
+          posePdbqtSha256: "pose",
+          sourcePdbId: "2ITY",
+          sourceChain: "A",
+          siteDefinition: "curated_from_deposited_gefitinib_IRE",
+          exhaustiveness: 4,
+          numPoses: 5,
+          seed: 61453,
+          manifestSha256: "manifest",
+        },
+        manifest: {},
+      },
+    };
+
+    const state = applyJourneyEvent(createInitialJourneyState(now), event, now);
+
+    expect(state.steps["m7-run-docking"]).toMatchObject({
+      status: "complete",
+      evidence: { source: "real_result" },
+    });
+    expect(
+      applyJourneyEvent(
+        createInitialJourneyState(now),
+        { type: "journey.step_skipped", stepId: "m7-run-docking" },
+        now,
+      ).steps["m7-run-docking"].status,
+    ).toBe("pending");
+  });
+
   it("does not treat imported protein residues as curated EGFR mission evidence", () => {
     const state = applyJourneyEvent(
       createInitialJourneyState(now),

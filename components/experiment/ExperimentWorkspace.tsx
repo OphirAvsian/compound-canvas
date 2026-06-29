@@ -13,7 +13,9 @@ import {
 import { ScientificManifest } from "./ScientificManifest";
 import type { Experiment } from "@/lib/experiments/experiment-model";
 import {
+  dockingLessonReportFilename,
   experimentFilename,
+  serializeDockingLessonReport,
   serializeExperimentSummary,
 } from "@/lib/experiments/experiment-export";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -99,6 +101,15 @@ export function ExperimentWorkspace({
             : "Prepare receptor after cleanup; no docking is run",
         }]
       : []),
+    ...(experiment.target.kind === "curated"
+      ? [{
+          label: "Curated docking lesson run",
+          complete: experiment.workflow.dockingLessonRun.status === "complete",
+          detail: experiment.target.dockingLesson
+            ? `Top Vina score ${experiment.target.dockingLesson.scoreTable[0]?.vinaScoreKcalMol?.toFixed(2) ?? "n/a"} kcal/mol; estimate only`
+            : "Run the curated EGFR AutoDock Vina lesson after preparation",
+        }]
+      : []),
     {
       label: "Coordinate residues inspected",
       complete: experiment.workflow.residuesInspected.length > 0,
@@ -132,7 +143,9 @@ export function ExperimentWorkspace({
                 Experiment workspace
               </span>
               <StatusBadge status="neutral">Browser-local record</StatusBadge>
-              <StatusBadge status="future">No docking data</StatusBadge>
+              <StatusBadge status={experiment.target.dockingLesson ? "real" : "future"}>
+                {experiment.target.dockingLesson ? "Docking estimate recorded" : "No docking data"}
+              </StatusBadge>
             </div>
             <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.035em]">
               Your scientific record
@@ -203,11 +216,16 @@ export function ExperimentWorkspace({
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#68756e]">
-                    Workflow record
+                    Chronological experiment story
                   </p>
                   <h3 className="mt-1 text-[15px] font-semibold">
-                    Completed scientific steps
+                    From molecule idea to docking estimate
                   </h3>
+                  <p className="mt-1 text-[9px] leading-4 text-[#707a75]">
+                    Each row is recorded only when the matching real action happens in
+                    this browser. Reflection checkpoints can help learning, but they do
+                    not create scientific provenance.
+                  </p>
                 </div>
                 <span className="text-[10px] font-semibold text-[#527362]">
                   {Math.round((completed / workflow.length) * 100)}%
@@ -455,6 +473,88 @@ export function ExperimentWorkspace({
                 </div>
               </div>
             )}
+
+            {experiment.target.dockingLesson && (
+              <div className="rounded-2xl border border-[#dfcfac] bg-[#fffaf0] p-4 sm:p-5">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#86651f]">
+                      Docking lesson artifact
+                    </p>
+                    <h3 className="mt-1 text-[15px] font-semibold">
+                      Curated 2ITY AutoDock Vina estimate
+                    </h3>
+                    <p className="mt-1 text-[9px] leading-4 text-[#725a2d]">
+                      The ligand was docked only inside a fixed teaching box centered on
+                      deposited gefitinib. This is not experimental evidence, measured
+                      affinity, activity prediction, or drug ranking.
+                    </p>
+                  </div>
+                  <StatusBadge status="real">Real Vina run</StatusBadge>
+                </div>
+                <div className="mt-4 grid gap-2 sm:grid-cols-4">
+                  {[
+                    ["Engine", experiment.target.dockingLesson.engine],
+                    ["Top score", `${experiment.target.dockingLesson.scoreTable[0]?.vinaScoreKcalMol?.toFixed(2) ?? "n/a"} kcal/mol`],
+                    ["Exhaustiveness", experiment.target.dockingLesson.provenance.exhaustiveness],
+                    ["Poses", experiment.target.dockingLesson.provenance.numPoses],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-[#ead9b5] bg-white px-3 py-2">
+                      <p className="text-[8px] uppercase tracking-wide text-[#8b7b58]">{label}</p>
+                      <p className="mt-0.5 text-[10px] font-semibold">{value}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-xl border border-[#d9e8df] bg-[#f5fbf7] p-3">
+                    <p className="text-[10px] font-semibold text-[#2d6b51]">Student Report</p>
+                    <p className="mt-1 text-[9px] leading-4 text-[#65716b]">
+                      Plain-language interpretation of what Vina did and what the score cannot prove.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => downloadArtifact(dockingLessonReportFilename(experiment), serializeDockingLessonReport(experiment), "text/plain")}
+                      aria-label="Download beginner docking lesson report"
+                      className="mt-2 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                    >
+                      Download docking lesson report
+                    </button>
+                  </div>
+                  <details className="rounded-xl border border-[#dfcfac] bg-white/70 p-3">
+                    <summary className="cursor-pointer text-[10px] font-semibold">Scientific Files</summary>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => downloadArtifact(`${experiment.target.dockingLesson?.artifactId}.pdbqt`, experiment.target.dockingLesson?.posePdbqt ?? "", "chemical/x-pdbqt")}
+                        aria-label="Download curated docking pose PDBQT artifact"
+                        className="rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[10px] font-semibold"
+                      >
+                        Download poses PDBQT
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => downloadArtifact(`${experiment.target.dockingLesson?.artifactId}.json`, JSON.stringify(experiment.target.dockingLesson?.manifest, null, 2), "application/json")}
+                        aria-label="Download curated docking manifest JSON"
+                        className="rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[10px] font-semibold"
+                      >
+                        Download docking manifest
+                      </button>
+                    </div>
+                  </details>
+                  <details className="rounded-xl border border-[#dfcfac] bg-white/70 p-3">
+                    <summary className="cursor-pointer text-[10px] font-semibold">Advanced Files</summary>
+                    <button
+                      type="button"
+                      onClick={() => downloadArtifact(`${experiment.target.dockingLesson?.artifactId}.log.txt`, experiment.target.dockingLesson?.dockingLog ?? "", "text/plain")}
+                      aria-label="Download curated docking log"
+                      className="mt-3 rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[10px] font-semibold"
+                    >
+                      Download docking log
+                    </button>
+                  </details>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
@@ -518,8 +618,10 @@ export function ExperimentWorkspace({
                   },
                   {
                     label: "Docking",
-                    explanation: experiment.futureDocking.explanation,
-                    status: "NOT IMPLEMENTED",
+                    explanation: experiment.target.dockingLesson
+                      ? "Curated 2ITY Vina estimate available. Arbitrary docking, interaction analysis, and affinity prediction remain unavailable."
+                      : experiment.futureDocking.explanation,
+                    status: experiment.target.dockingLesson ? "AVAILABLE" : "NOT IMPLEMENTED",
                   },
                 ].map((item) => (
                   <div

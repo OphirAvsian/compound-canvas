@@ -13,7 +13,9 @@ import {
 } from "lucide-react";
 import type { Experiment } from "@/lib/experiments/experiment-model";
 import {
+  dockingLessonReportFilename,
   isBeginnerWorkflowComplete,
+  serializeDockingLessonReport,
   serializeStudentLearningReport,
   studentReportFilename,
 } from "@/lib/experiments/experiment-export";
@@ -79,6 +81,7 @@ export function BeginnerResultsReport({
   const residueCount = experiment.workflow.residuesInspected.length;
   const proteinCleanup = experiment.target.preparation;
   const receptorPreparation = experiment.target.receptorPreparation;
+  const dockingLesson = experiment.target.dockingLesson;
 
   if (!complete) {
     return (
@@ -154,14 +157,26 @@ export function BeginnerResultsReport({
           },
         ]
       : []),
+    ...(dockingLesson
+      ? [
+          {
+            title: "Ran a curated docking estimate",
+            body: `AutoDock Vina tested possible placements in a fixed EGFR teaching box and returned a top model score of ${dockingLesson.scoreTable[0]?.vinaScoreKcalMol?.toFixed(2) ?? "n/a"} kcal/mol.`,
+          },
+        ]
+      : []),
   ];
 
   const notDone = [
-    "No docking",
+    dockingLesson ? "No experimental binding proof" : "No docking",
     "No binding prediction",
-    "No affinity score",
+    "No measured affinity score",
     "No activity prediction",
-    receptorPreparation ? "No receptor-ligand test" : "No docking-input receptor preparation",
+    dockingLesson
+      ? "No drug ranking"
+      : receptorPreparation
+        ? "No receptor-ligand test"
+        : "No docking-input receptor preparation",
   ];
 
   const discoverySteps = [
@@ -175,7 +190,12 @@ export function BeginnerResultsReport({
         ? "Completed for curated 2ITY with explicit assumptions; no ligand was tested."
         : "Hydrogens, charges, protonation, and receptor PDBQT are not completed in this report.",
     ],
-    ["Docking", "Test possible binding poses. Not implemented here."],
+    [
+      "Docking",
+      dockingLesson
+        ? "A first curated estimate was run. It is approximate and not experimental proof."
+        : "Test possible binding poses. Not implemented here.",
+    ],
     ["Experimental validation", "Use lab experiments to test model ideas."],
   ];
 
@@ -189,15 +209,17 @@ export function BeginnerResultsReport({
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status="real">Beginner results report</StatusBadge>
-              <StatusBadge status="future">No docking data</StatusBadge>
+              <StatusBadge status={dockingLesson ? "real" : "future"}>
+                {dockingLesson ? "Docking lesson included" : "No docking data"}
+              </StatusBadge>
             </div>
             <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.045em]">
               What Did I Accomplish?
             </h2>
             <p className="mt-2 text-[12px] leading-6 text-[#5d6b64]">
-              You completed the beginner molecule-to-preparation workflow. This
+              You completed the beginner molecule-to-docking lesson workflow. This
               report translates the technical artifacts into a plain-language
-              learning summary.
+              learning summary and keeps model estimates separate from proof.
             </p>
           </div>
           <button
@@ -243,8 +265,9 @@ export function BeginnerResultsReport({
                 You did not just look at pictures. Compound Canvas used real
                 molecular-coordinate tools to make a 3D ligand shape, real protein
                 coordinates to explore EGFR, and a real ligand-preparation service
-                to create future docking input files. These are setup steps, not
-                proof that the molecule binds a protein.
+                to create future docking input files. {dockingLesson
+                  ? "It also ran a curated AutoDock Vina lesson to estimate possible placements in one teaching box. This is still not proof that the molecule binds a protein."
+                  : "These are setup steps, not proof that the molecule binds a protein."}
               </p>
             </article>
 
@@ -264,8 +287,10 @@ export function BeginnerResultsReport({
                 ))}
               </div>
               <p className="mt-3 text-[10px] leading-5 text-[#725a2d]">
-                Compound Canvas has not placed {ligandName} into EGFR, predicted
-                activity, produced a binding pose, or calculated a score.
+                Compound Canvas has not{" "}
+                {dockingLesson
+                  ? `proved that ${ligandName} binds EGFR, measured affinity, predicted activity, or ranked drug usefulness.`
+                  : `placed ${ligandName} into EGFR, predicted activity, produced a binding pose, or calculated a score.`}
               </p>
             </article>
           </div>
@@ -335,6 +360,33 @@ export function BeginnerResultsReport({
                 No account is needed. The report is generated in this browser.
               </p>
             </article>
+
+            {dockingLesson && (
+              <article className="rounded-2xl border border-[#dfcfac] bg-[#fffaf0] p-4">
+                <div className="flex items-center gap-2 text-[13px] font-semibold text-[#76591f]">
+                  <BookOpenCheck className="h-4 w-4" />
+                  Docking Lesson Report
+                </div>
+                <p className="mt-2 text-[10px] leading-5 text-[#725a2d]">
+                  This student-friendly report explains what Vina did, why there are
+                  multiple poses, what the score means, and why the result is not
+                  experimental binding proof.
+                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    downloadText(
+                      dockingLessonReportFilename(experiment),
+                      serializeDockingLessonReport(experiment),
+                    )
+                  }
+                  className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#dfcfac] bg-white px-3 py-2.5 text-[10px] font-semibold text-[#76591f] hover:bg-[#fff8e8]"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download docking lesson report
+                </button>
+              </article>
+            )}
           </div>
         </div>
       </div>

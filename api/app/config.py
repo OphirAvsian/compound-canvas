@@ -16,6 +16,7 @@ class Settings(BaseSettings):
         "https://www.compoundcanvas.com",
     ]
     max_request_bytes: int = 128 * 1024
+    docking_max_request_bytes: int = 3 * 1024 * 1024
     rate_limit_requests: int = 20
     rate_limit_window_seconds: int = 60
     conformer_timeout_seconds: float = 20.0
@@ -24,6 +25,7 @@ class Settings(BaseSettings):
     protein_import_atom_limit: int = 100_000
     protein_import_timeout_seconds: float = 20.0
     protein_preparation_timeout_seconds: float = 60.0
+    docking_timeout_seconds: float = 120.0
     trust_proxy_headers: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="CC_")

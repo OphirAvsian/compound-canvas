@@ -156,6 +156,16 @@ export function applyJourneyEvent(
           now,
         ),
       );
+    case "docking.lesson_completed":
+      return completeStep(
+        state,
+        "m7-run-docking",
+        evidence(
+          "real_result",
+          `Curated AutoDock Vina estimate ${event.docking.artifactId} created with explicit uncertainty warnings`,
+          now,
+        ),
+      );
     case "protein.target_imported":
     case "protein.curated_target_selected":
       return state;

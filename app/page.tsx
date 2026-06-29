@@ -39,6 +39,7 @@ import { MissionSixWorkspace } from "@/components/journey/MissionSixWorkspace";
 import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspace";
 import { WorkflowCompletionSummary } from "@/components/journey/WorkflowCompletionSummary";
 import { BeginnerResultsReport } from "@/components/experiment/BeginnerResultsReport";
+import { DockingLessonPanel } from "@/components/experiment/DockingLessonPanel";
 import { ExperimentWorkspace } from "@/components/experiment/ExperimentWorkspace";
 import {
   AppNavigation,
@@ -55,6 +56,10 @@ import {
   type ConformerResult,
   type LigandPreparationResult,
 } from "@/lib/molecules";
+import {
+  runCuratedEgfrDockingLesson,
+  type DockingLessonResult,
+} from "@/lib/docking";
 import type { MoleculeExport } from "@/components/molecule/KetcherEditor";
 import { useLearningJourney } from "@/hooks/useLearningJourney";
 import { useExperiment } from "@/hooks/useExperiment";
@@ -114,6 +119,9 @@ export default function Home() {
   const [preparingReceptor, setPreparingReceptor] = useState(false);
   const [receptorPreparation, setReceptorPreparation] = useState<ProteinReceptorPreparationResult | null>(null);
   const [receptorPreparationError, setReceptorPreparationError] = useState<string | null>(null);
+  const [runningDocking, setRunningDocking] = useState(false);
+  const [dockingLesson, setDockingLesson] = useState<DockingLessonResult | null>(null);
+  const [dockingError, setDockingError] = useState<string | null>(null);
   const [proteinTarget, setProteinTarget] = useState<ProteinWorkspaceTarget>(egfr2ity);
   const [importingProtein, setImportingProtein] = useState(false);
   const [proteinImportError, setProteinImportError] = useState<string | null>(null);
@@ -152,6 +160,8 @@ export default function Home() {
       setConformer(result);
       setPreparedLigand(null);
       setPreparationError(null);
+      setDockingLesson(null);
+      setDockingError(null);
       setStale(false);
       setServiceStatus("online");
       emitJourneyEvent({
@@ -186,6 +196,8 @@ export default function Home() {
     setApiError(null);
     setPreparedLigand(null);
     setPreparationError(null);
+    setDockingLesson(null);
+    setDockingError(null);
   }, []);
 
   const retryConformer = useCallback(() => {
@@ -198,6 +210,8 @@ export default function Home() {
     setApiError(null);
     setPreparedLigand(null);
     setPreparationError(null);
+    setDockingLesson(null);
+    setDockingError(null);
     emitJourneyEvent({
       type: "molecule.sample_selected",
       sampleId: sample.id,
@@ -221,6 +235,8 @@ export default function Home() {
         },
       });
       setPreparedLigand(result);
+      setDockingLesson(null);
+      setDockingError(null);
       setServiceStatus("online");
       emitJourneyEvent({
         type: "ligand.prepared",
@@ -338,6 +354,8 @@ export default function Home() {
       setProteinCleanupError(null);
       setReceptorPreparation(null);
       setReceptorPreparationError(null);
+      setDockingLesson(null);
+      setDockingError(null);
       emitJourneyEvent({
         type: "protein.target_imported",
         target: {
@@ -372,6 +390,8 @@ export default function Home() {
     setProteinCleanupError(null);
     setReceptorPreparation(null);
     setReceptorPreparationError(null);
+    setDockingLesson(null);
+    setDockingError(null);
     setProteinImportError(null);
     emitJourneyEvent({ type: "protein.curated_target_selected" });
   }, []);
@@ -401,6 +421,8 @@ export default function Home() {
       setProteinCleanup(result);
       setReceptorPreparation(null);
       setReceptorPreparationError(null);
+      setDockingLesson(null);
+      setDockingError(null);
       setServiceStatus("online");
       emitJourneyEvent({
         type: "protein.cleaned",
@@ -460,6 +482,8 @@ export default function Home() {
     try {
       const result = await prepareEgfrDockingInputReceptor();
       setReceptorPreparation(result);
+      setDockingLesson(null);
+      setDockingError(null);
       setServiceStatus("online");
       emitJourneyEvent({
         type: "protein.receptor_prepared",
@@ -515,6 +539,71 @@ export default function Home() {
     }
   }, [proteinCleanup]);
 
+  const runDockingLesson = useCallback(async () => {
+    const ligandPdbqt = preparedLigand?.pdbqt;
+    const receptorPdbqt = receptorPreparation?.receptor_pdbqt;
+    if (!preparedLigand || !ligandPdbqt || !receptorPreparation || !receptorPdbqt) return;
+    setRunningDocking(true);
+    setDockingError(null);
+    try {
+      const result = await runCuratedEgfrDockingLesson({
+        ligand_artifact_id: preparedLigand.artifact_id,
+        ligand_pdbqt: ligandPdbqt,
+        receptor_artifact_id: receptorPreparation.artifact_id,
+        receptor_pdbqt: receptorPdbqt,
+      });
+      setDockingLesson(result);
+      setServiceStatus("online");
+      emitJourneyEvent({
+        type: "docking.lesson_completed",
+        docking: {
+          artifactId: result.artifact_id,
+          status: result.status,
+          engine: result.engine,
+          engineVersion: result.engine_version,
+          box: result.box,
+          scoreTable: result.score_table.map((row) => ({
+            rank: row.rank,
+            vinaScoreKcalMol: row.vina_score_kcal_mol,
+            rmsdLowerBound: row.rmsd_lower_bound,
+            rmsdUpperBound: row.rmsd_upper_bound,
+          })),
+          topPosePdbqt: result.poses[0]?.pdbqt ?? result.pose_pdbqt,
+          posePdbqt: result.pose_pdbqt,
+          poseSdf: result.pose_sdf,
+          dockingLog: result.docking_log,
+          assumptions: result.assumptions,
+          warnings: result.warnings,
+          provenance: {
+            engine: result.provenance.engine,
+            engineVersion: result.provenance.engine_version,
+            preset: result.provenance.preset,
+            generatedAt: result.provenance.generated_at,
+            receptorArtifactId: result.provenance.receptor_artifact_id,
+            receptorPdbqtSha256: result.provenance.receptor_pdbqt_sha256,
+            ligandArtifactId: result.provenance.ligand_artifact_id,
+            ligandPdbqtSha256: result.provenance.ligand_pdbqt_sha256,
+            posePdbqtSha256: result.provenance.pose_pdbqt_sha256,
+            sourcePdbId: result.provenance.source_pdb_id,
+            sourceChain: result.provenance.source_chain,
+            siteDefinition: result.provenance.site_definition,
+            exhaustiveness: result.provenance.exhaustiveness,
+            numPoses: result.provenance.num_poses,
+            seed: result.provenance.seed,
+            manifestSha256: result.provenance.manifest_sha256,
+          },
+          manifest: result.manifest,
+        },
+      });
+    } catch (cause) {
+      setDockingError(
+        cause instanceof Error ? cause.message : "The curated docking lesson could not be completed.",
+      );
+    } finally {
+      setRunningDocking(false);
+    }
+  }, [preparedLigand, receptorPreparation]);
+
   const startExperiment = useCallback(() => {
     setActiveArea("molecule");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -533,6 +622,8 @@ export default function Home() {
             ? "molecule"
           : missionId === "mission-2" || missionId === "mission-5" || missionId === "mission-6"
             ? "protein"
+            : missionId === "mission-7"
+              ? "experiment"
             : "journey";
       setActiveArea(area);
       window.setTimeout(() => {
@@ -545,9 +636,11 @@ export default function Home() {
                 ? "mission-3-workspace"
                 : missionId === "mission-4"
                   ? "mission-4-workspace"
-                  : missionId === "mission-5"
-                    ? "protein-cleanup-workspace"
-                    : "protein-receptor-preparation-workspace";
+                    : missionId === "mission-5"
+                      ? "protein-cleanup-workspace"
+                      : missionId === "mission-6"
+                        ? "protein-receptor-preparation-workspace"
+                        : "docking-lesson-workspace";
         document.getElementById(targetId)?.scrollIntoView({
           behavior: "smooth",
           block: "start",
@@ -575,6 +668,9 @@ export default function Home() {
     setPreparingReceptor(false);
     setReceptorPreparation(null);
     setReceptorPreparationError(null);
+    setRunningDocking(false);
+    setDockingLesson(null);
+    setDockingError(null);
     setEditorResetKey((key) => key + 1);
     setActiveArea("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -615,7 +711,7 @@ export default function Home() {
                     ? "Experiment record"
                     : "Learning Journey"}
           </span>
-          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 5B</StatusBadge></span>
+          <span className="hidden sm:inline-flex"><StatusBadge status="real">Phase 6A prototype</StatusBadge></span>
           <button
             type="button"
             onClick={() => void checkService()}
@@ -944,6 +1040,16 @@ export default function Home() {
             <>
               {experiment.experiment.target.kind === "curated" && (
                 <BeginnerResultsReport experiment={experiment.experiment} />
+              )}
+              {experiment.experiment.target.kind === "curated" && (
+                <DockingLessonPanel
+                  experiment={experiment.experiment}
+                  busy={runningDocking}
+                  result={dockingLesson}
+                  error={dockingError}
+                  onRun={() => void runDockingLesson()}
+                  beginnerMode={beginnerMode.enabled}
+                />
               )}
               <ExperimentWorkspace experiment={experiment.experiment} />
             </>

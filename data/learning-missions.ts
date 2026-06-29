@@ -15,7 +15,7 @@ export type MissionStepDefinition = {
 };
 
 export type MissionDefinition = {
-  id: "mission-1" | "mission-2" | "mission-3" | "mission-4" | "mission-5" | "mission-6";
+  id: "mission-1" | "mission-2" | "mission-3" | "mission-4" | "mission-5" | "mission-6" | "mission-7";
   number: number;
   title: string;
   subtitle: string;
@@ -275,6 +275,42 @@ export const learningMissions: MissionDefinition[] = [
         evidenceKind: "curated",
         skippable: true,
         targetId: "mission-6-workspace",
+      },
+    ],
+  },
+  {
+    id: "mission-7",
+    number: 7,
+    title: "Run a Docking Estimate",
+    subtitle: "Use a curated EGFR box to learn what docking can and cannot say",
+    learningGoal:
+      "Learn how AutoDock Vina estimates possible ligand placements while staying honest that docking is approximate and not experimental proof of binding.",
+    steps: [
+      {
+        id: "m7-run-docking",
+        title: "Run docking lesson",
+        instruction: "Run the curated 2ITY AutoDock Vina lesson after ligand and receptor preparation are complete.",
+        kind: "action",
+        evidenceKind: "calculated",
+        skippable: false,
+        targetId: "docking-lesson-workspace",
+      },
+      {
+        id: "m7-read-score",
+        title: "Read the score carefully",
+        instruction: "Review why a Vina score is a model estimate, not a measured affinity or drug ranking.",
+        kind: "explanation",
+        evidenceKind: "curated",
+        skippable: true,
+        targetId: "docking-lesson-workspace",
+      },
+      {
+        id: "m7-reflection",
+        title: "Docking honesty checkpoint",
+        instruction: "Confirm that docking does not prove binding, activity, safety, or efficacy.",
+        kind: "reflection",
+        evidenceKind: "curated",
+        skippable: true,
       },
     ],
   },

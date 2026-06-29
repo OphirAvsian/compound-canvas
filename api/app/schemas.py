@@ -180,6 +180,52 @@ class ProteinReceptorPreparationResponse(BaseModel):
     manifest: dict[str, object]
 
 
+class DockingLessonRequest(BaseModel):
+    ligand_artifact_id: str = Field(pattern=r"^ligprep_[A-Za-z0-9_:-]+$")
+    ligand_pdbqt: str = Field(min_length=1, max_length=2_000_000)
+    receptor_artifact_id: str = Field(pattern=r"^receptor_2ity_a_docking_input_[A-Za-z0-9_:-]+$")
+    receptor_pdbqt: str = Field(min_length=1, max_length=2_000_000)
+
+
+class DockingBox(BaseModel):
+    center: dict[str, float]
+    size: dict[str, float]
+
+
+class DockingPoseResponse(BaseModel):
+    rank: int
+    vina_score_kcal_mol: float
+    rmsd_lower_bound: float | None
+    rmsd_upper_bound: float | None
+    pdbqt: str
+    sdf: str | None
+
+
+class DockingLessonResponse(BaseModel):
+    artifact_id: str
+    status: Literal["docking_estimate_curated_box"]
+    engine: Literal["AutoDock Vina"]
+    engine_version: str | None
+    target: dict[str, str]
+    box: DockingBox
+    poses: list[DockingPoseResponse]
+    pose_pdbqt: str
+    pose_sdf: str | None
+    score_table: list[dict[str, float | int | None]]
+    docking_log: str
+    assumptions: list[str]
+    warnings: list[str]
+    provenance: dict[str, str | int | float | None]
+    manifest: dict[str, object]
+
+
+class VinaReadinessResponse(BaseModel):
+    available: bool
+    engine: Literal["AutoDock Vina"]
+    version: str | None
+    detail: str
+
+
 class RcsbImportRequest(BaseModel):
     pdb_id: str = Field(pattern=r"^[0-9][A-Za-z0-9]{3}$")
 

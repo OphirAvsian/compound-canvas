@@ -71,36 +71,43 @@ class PublicApiMiddleware(BaseHTTPMiddleware):
 
         response: Response
         try:
-            if request.url.path in {
+            calculation_paths = {
                 "/api/molecules/conformers",
                 "/api/molecules/prepare-ligand",
                 "/api/proteins/2ity/prepare",
                 "/api/proteins/2ity/prepare-receptor",
                 "/api/proteins/import/rcsb",
-            } and request.method == "POST":
+                "/api/docking/2ity/vina",
+            }
+            if request.url.path in calculation_paths and request.method == "POST":
+                request_limit = (
+                    self.settings.docking_max_request_bytes
+                    if request.url.path == "/api/docking/2ity/vina"
+                    else self.settings.max_request_bytes
+                )
                 content_length = request.headers.get("content-length")
                 if content_length:
                     try:
                         declared_size = int(content_length)
                     except ValueError:
-                        declared_size = self.settings.max_request_bytes + 1
-                    if declared_size > self.settings.max_request_bytes:
+                        declared_size = request_limit + 1
+                    if declared_size > request_limit:
                         response = JSONResponse(
                             status_code=413,
                             content={
                                 "detail": (
-                                    "The submitted molecule is too large for the calculation service."
+                                    "The submitted calculation input is too large for the calculation service."
                                 )
                             },
                         )
                         return self._finish(request, response, request_id, client_ip, started)
 
                 body = await request.body()
-                if len(body) > self.settings.max_request_bytes:
+                if len(body) > request_limit:
                     response = JSONResponse(
                         status_code=413,
                         content={
-                            "detail": "The submitted molecule is too large for the calculation service."
+                            "detail": "The submitted calculation input is too large for the calculation service."
                         },
                     )
                     return self._finish(request, response, request_id, client_ip, started)
