@@ -18,6 +18,8 @@ body {
   min-height: 100%;
   margin: 0;
   scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -35,6 +37,16 @@ input {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 button:focus-visible,

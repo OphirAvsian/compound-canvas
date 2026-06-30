@@ -23,7 +23,7 @@ export function GuidedStart({
   onStart: () => void;
 }) {
   return (
-    <section id="guided-start" className="relative overflow-hidden border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-7 md:px-6 md:py-9">
+    <section id="guided-start" className="relative overflow-hidden border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-9 md:px-6 md:py-12">
       <div className="onboarding-orb onboarding-orb-one" />
       <div className="onboarding-orb onboarding-orb-two" />
       <div className="relative mx-auto max-w-[1180px]">
@@ -34,14 +34,14 @@ export function GuidedStart({
                 <FlaskConical className="h-3 w-3" />
                 Real molecule calculation
               </StatusBadge>
-              <span className="text-[10px] font-semibold text-[#69756e]">
+              <span className="text-[12px] font-semibold text-[#52635a]">
                 No chemistry experience needed
               </span>
             </div>
-            <h1 className="mt-4 max-w-[680px] text-[30px] font-semibold leading-[1.08] tracking-[-0.045em] text-ink md:text-[42px]">
-              Draw a molecule. Watch it become three-dimensional.
+            <h1 className="mt-4 max-w-[720px] text-[34px] font-semibold leading-[1.06] tracking-[-0.05em] text-ink md:text-[48px]">
+              Start with caffeine. Learn the drug-discovery workflow by doing it.
             </h1>
-            <p className="mt-4 max-w-[620px] text-[13px] leading-6 text-[#64716b] md:text-[14px]">
+            <p className="mt-5 max-w-[650px] text-[15px] leading-7 text-[#52635a] md:text-[16px]">
               Compound Canvas is a guided computational drug-discovery learning
               workspace. Start with a familiar molecule, generate real coordinates
               with RDKit, connect the molecule story to EGFR, and learn what each
@@ -52,13 +52,13 @@ export function GuidedStart({
                 type="button"
                 onClick={onStart}
                 aria-label={`Start the beginner workflow with ${selectedSample.name}`}
-                className="group inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-[0_10px_28px_rgba(23,40,59,.18)] transition hover:-translate-y-0.5 hover:bg-[#21364e]"
+                className="group inline-flex min-h-12 items-center gap-2 rounded-xl bg-ink px-5 py-3 text-[14px] font-semibold text-white shadow-[0_10px_28px_rgba(23,40,59,.18)] transition hover:-translate-y-0.5 hover:bg-[#21364e]"
               >
                 <Play className="h-3.5 w-3.5 fill-current" />
                 Start with {selectedSample.name}
                 <ArrowDown className="h-3.5 w-3.5 transition group-hover:translate-y-0.5" />
               </button>
-              <div className="flex items-center gap-2 px-1 text-[10px] leading-4 text-[#718079]">
+              <div className="flex items-center gap-2 px-1 text-[12px] leading-5 text-[#65716b]">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#dff3e8] text-[#2f7659]">
                   <Check className="h-3.5 w-3.5" />
                 </span>
@@ -70,10 +70,10 @@ export function GuidedStart({
           <div>
             <div className="mb-3 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#65746d]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#52635a]">
                   Choose a starting molecule
                 </p>
-                <p className="mt-1 text-[10px] text-[#87908b]">
+                <p className="mt-1 text-[12px] text-[#65716b]">
                   You can edit it after it loads.
                 </p>
               </div>
@@ -89,7 +89,7 @@ export function GuidedStart({
                     onClick={() => onChooseSample(sample)}
                     aria-pressed={selected}
                     aria-label={`Select ${sample.name}. ${sample.commonUse}. ${selected ? "Currently selected." : ""}`}
-                    className={`sample-card min-h-[132px] rounded-2xl border p-3 text-left transition ${
+                    className={`sample-card min-h-[150px] rounded-2xl border p-4 text-left transition ${
                       selected
                         ? "border-[#79b999] bg-white shadow-[0_12px_35px_rgba(43,85,66,.12)] ring-2 ring-[#c9ead9]"
                         : "border-[#deddd7] bg-white/70 hover:-translate-y-0.5 hover:border-[#b9c8bf] hover:bg-white"
@@ -112,9 +112,9 @@ export function GuidedStart({
                         </span>
                       )}
                     </div>
-                    <p className="mt-3 text-[12px] font-semibold">{sample.name}</p>
-                    <p className="mt-0.5 text-[9px] text-[#7a8580]">{sample.commonUse}</p>
-                    <p className="mt-2 line-clamp-2 text-[9px] leading-4 text-[#66736d]">
+                    <p className="mt-3 text-[14px] font-semibold">{sample.name}</p>
+                    <p className="mt-0.5 text-[11px] text-[#65716b]">{sample.commonUse}</p>
+                    <p className="mt-2 line-clamp-3 text-[11px] leading-5 text-[#52635a]">
                       {sample.lesson}
                     </p>
                   </button>
@@ -142,13 +142,13 @@ export function GuidedStart({
               body: "Rotate the coordinates in Mol* and unpack the calculated properties.",
             },
           ].map((item) => (
-            <div key={item.title} className="flex gap-3 rounded-xl px-2 py-2">
+            <div key={item.title} className="flex gap-3 rounded-2xl bg-white/55 px-3 py-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-[#35775b] shadow-sm">
                 <item.icon className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-[10px] font-semibold">{item.title}</p>
-                <p className="mt-1 text-[9px] leading-4 text-[#748079]">{item.body}</p>
+                <p className="text-[13px] font-semibold">{item.title}</p>
+                <p className="mt-1 text-[12px] leading-5 text-[#65716b]">{item.body}</p>
               </div>
             </div>
           ))}

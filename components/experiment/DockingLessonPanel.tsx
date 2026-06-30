@@ -61,15 +61,15 @@ export function DockingLessonPanel({
               <StatusBadge status="real">AutoDock Vina lesson</StatusBadge>
               <StatusBadge status="future">Estimate, not proof</StatusBadge>
             </div>
-            <h2 className="mt-3 text-[22px] font-semibold tracking-[-0.035em]">
+            <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.035em]">
               Run a curated EGFR docking lesson
             </h2>
-            <p className="mt-2 text-[11px] leading-5 text-[#65716b]">
+            <p className="mt-2 text-[14px] leading-7 text-[#65716b]">
               This uses your prepared ligand PDBQT, the curated prepared 2ITY receptor
               PDBQT, and a fixed teaching box centered on the experimentally deposited
               gefitinib site. It is not automated pocket detection.
             </p>
-            <p className="mt-3 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-3 py-2 text-[10px] font-semibold leading-5 text-[#76591f]">
+            <p className="mt-3 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-4 py-3 text-[13px] font-semibold leading-6 text-[#76591f]">
               Docking produces an approximate pose and Vina model score. It does not
               prove binding, drug activity, safety, efficacy, or real affinity.
             </p>
@@ -79,7 +79,7 @@ export function DockingLessonPanel({
             onClick={onRun}
             disabled={!canRun || busy}
             aria-label="Run curated EGFR AutoDock Vina docking lesson"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[11px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ink px-5 py-3 text-[14px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
             {busy ? "Running docking..." : result ? "Run docking again" : "Run docking lesson"}
@@ -88,11 +88,11 @@ export function DockingLessonPanel({
 
         {!canRun && (
           <div className="mt-4 grid gap-2 md:grid-cols-2">
-            <p className="rounded-xl border border-[#deddd7] bg-[#fbfaf6] p-3 text-[10px] leading-5 text-[#65716b]">
+            <p className="rounded-xl border border-[#deddd7] bg-[#fbfaf6] p-4 text-[13px] leading-6 text-[#65716b]">
               Prepare a ligand with PDBQT first. This lesson does not accept unprepared
               drawings, SDF-only molecules, or arbitrary molecules.
             </p>
-            <p className="rounded-xl border border-[#deddd7] bg-[#fbfaf6] p-3 text-[10px] leading-5 text-[#65716b]">
+            <p className="rounded-xl border border-[#deddd7] bg-[#fbfaf6] p-4 text-[13px] leading-6 text-[#65716b]">
               Prepare the curated 2ITY receptor first. Imported proteins cannot be docked
               in this release.
             </p>
@@ -100,13 +100,13 @@ export function DockingLessonPanel({
         )}
 
         {busy && (
-          <div role="status" className="mt-4 rounded-xl bg-[#fff8e8] p-3 text-[10px] leading-5 text-[#76591f]">
+          <div role="status" className="mt-4 rounded-xl bg-[#fff8e8] p-4 text-[13px] leading-6 text-[#76591f]">
             AutoDock Vina is trying possible ligand placements inside the curated
             gefitinib-site box. This can take a minute on the public calculation service.
           </div>
         )}
         {error && (
-          <div role="alert" className="mt-4 flex gap-2 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-3 text-[10px] text-[#944c3c]">
+          <div role="alert" className="mt-4 flex gap-2 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-4 text-[13px] leading-6 text-[#944c3c]">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -119,7 +119,7 @@ export function DockingLessonPanel({
                 <StatusBadge status="real">Your First Docking Experiment</StatusBadge>
                 <StatusBadge status="neutral">Curated EGFR lesson</StatusBadge>
               </div>
-              <h3 className="mt-3 text-[16px] font-semibold tracking-[-0.025em]">
+              <h3 className="mt-3 text-[20px] font-semibold tracking-[-0.025em]">
                 Molecule to docking result, without overclaiming it
               </h3>
               <div className="mt-4 grid gap-2 md:grid-cols-4">
@@ -133,8 +133,8 @@ export function DockingLessonPanel({
                     <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#dff2e7] text-[10px] font-bold text-[#2d7357]">
                       {number}
                     </span>
-                    <p className="mt-2 text-[10px] font-semibold">{title}</p>
-                    <p className="mt-1 text-[9px] leading-4 text-[#64716a]">{body}</p>
+                    <p className="mt-2 text-[13px] font-semibold">{title}</p>
+                    <p className="mt-1 text-[12px] leading-5 text-[#64716a]">{body}</p>
                   </div>
                 ))}
               </div>
@@ -143,29 +143,29 @@ export function DockingLessonPanel({
             <div className="grid gap-3 lg:grid-cols-[.8fr_1.2fr]">
               <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
                 <CheckCircle2 className="h-4 w-4 text-[#33785b]" />
-                <h3 className="mt-2 text-[12px] font-semibold">Top pose estimate</h3>
+                <h3 className="mt-2 text-[15px] font-semibold">Top pose estimate</h3>
                 <p className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#2d6b51]">
                   {topPose?.vina_score_kcal_mol.toFixed(2)} kcal/mol
                 </p>
-                <p className="mt-1 text-[10px] leading-5 text-[#65716b]">
+                <p className="mt-1 text-[13px] leading-6 text-[#65716b]">
                   This is a Vina score for pose rank 1, not a measured binding affinity.
                 </p>
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-[12px] font-semibold">Score table</h3>
-                  <span className="rounded-full bg-[#fff4de] px-2.5 py-1 text-[8px] font-bold uppercase tracking-wide text-[#77591f]">
+                  <h3 className="text-[15px] font-semibold">Score table</h3>
+                  <span className="rounded-full bg-[#fff4de] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#77591f]">
                     Model estimate
                   </span>
                 </div>
-                <p className="mt-2 text-[9px] leading-4 text-[#65716b]">
+                <p className="mt-2 text-[13px] leading-6 text-[#65716b]">
                   Vina reports several possible placements because flexible molecules can
                   fit into the same box in more than one way. Within this one run, more
                   negative scores are often more favorable model estimates, but they are
                   not measured affinities.
                 </p>
                 <div className="mt-3 overflow-x-auto">
-                  <table className="w-full min-w-[360px] text-left text-[10px]">
+                  <table className="w-full min-w-[360px] text-left text-[12px]">
                     <thead className="text-[#68756e]">
                       <tr>
                         <th className="py-2">Rank</th>
@@ -190,7 +190,7 @@ export function DockingLessonPanel({
             </div>
 
             <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-              <div className="flex items-center gap-2 text-[12px] font-semibold">
+              <div className="flex items-center gap-2 text-[15px] font-semibold">
                 <BookOpenCheck className="h-4 w-4 text-[#39765b]" />
                 How to read this docking lesson
               </div>
@@ -222,8 +222,8 @@ export function DockingLessonPanel({
                   ],
                 ].map(([title, body]) => (
                   <div key={title} className="rounded-xl border border-[#e4e2dc] bg-[#fbfaf7] p-3">
-                    <p className="text-[10px] font-semibold">{title}</p>
-                    <p className="mt-1 text-[9px] leading-4 text-[#65716b]">{body}</p>
+                    <p className="text-[13px] font-semibold">{title}</p>
+                    <p className="mt-1 text-[12px] leading-5 text-[#65716b]">{body}</p>
                   </div>
                 ))}
               </div>
@@ -231,23 +231,23 @@ export function DockingLessonPanel({
 
             <div className="grid gap-3 lg:grid-cols-2">
               <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-4">
-                <div className="flex items-center gap-2 text-[12px] font-semibold text-[#76591f]">
+                <div className="flex items-center gap-2 text-[15px] font-semibold text-[#76591f]">
                   <ShieldAlert className="h-4 w-4" />
                   Scientific warnings
                 </div>
-                <ul className="mt-3 space-y-2 text-[9px] leading-4 text-[#725a2d]">
+                <ul className="mt-3 space-y-2 text-[12px] leading-5 text-[#725a2d]">
                   {result.warnings.map((warning) => <li key={warning}>- {warning}</li>)}
                 </ul>
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-                <h3 className="text-[12px] font-semibold">Downloads</h3>
-                <p className="mt-1 text-[9px] leading-4 text-[#65716b]">
+                <h3 className="text-[15px] font-semibold">Downloads</h3>
+                <p className="mt-1 text-[12px] leading-5 text-[#65716b]">
                   Start with the student report. Scientific and advanced files are
                   available for transparency, but they are not required to understand
                   the lesson.
                 </p>
                 <div className="mt-3 rounded-xl border border-[#cde2d6] bg-[#f5fbf7] p-3">
-                  <p className="text-[10px] font-semibold text-[#2d6b51]">Student Report</p>
+                  <p className="text-[13px] font-semibold text-[#2d6b51]">Student Report</p>
                   <button
                     type="button"
                     onClick={() =>
@@ -257,14 +257,14 @@ export function DockingLessonPanel({
                         "text/plain",
                       )
                     }
-                    className="mt-2 rounded-xl border border-[#cde2d6] bg-white px-3 py-2.5 text-[10px] font-semibold text-[#2d6b51]"
+                    className="mt-2 min-h-11 rounded-xl border border-[#cde2d6] bg-white px-4 py-2.5 text-[12px] font-semibold text-[#2d6b51]"
                   >
                     <Download className="mr-1 inline h-3.5 w-3.5" /> docking lesson report
                   </button>
                 </div>
 
                 <details className="mt-3 rounded-xl border border-[#d9d8d2] bg-[#fbfaf6] p-3" open={!beginnerMode}>
-                  <summary className="flex cursor-pointer list-none items-center justify-between text-[10px] font-semibold">
+                  <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between text-[13px] font-semibold">
                     Scientific Files
                     <ChevronDown className="h-3.5 w-3.5" />
                   </summary>
@@ -272,14 +272,14 @@ export function DockingLessonPanel({
                     <button
                       type="button"
                       onClick={() => downloadText(`${result.artifact_id}.pdbqt`, result.pose_pdbqt, "chemical/x-pdbqt")}
-                      className="rounded-xl border border-[#d9d8d2] bg-white px-3 py-2.5 text-[10px] font-semibold"
+                      className="min-h-11 rounded-xl border border-[#d9d8d2] bg-white px-4 py-2.5 text-[12px] font-semibold"
                     >
                       <Download className="mr-1 inline h-3.5 w-3.5" /> poses PDBQT
                     </button>
                     <button
                       type="button"
                       onClick={() => downloadText(`${result.artifact_id}.json`, JSON.stringify(result.manifest, null, 2), "application/json")}
-                      className="rounded-xl border border-[#d9d8d2] bg-white px-3 py-2.5 text-[10px] font-semibold"
+                      className="min-h-11 rounded-xl border border-[#d9d8d2] bg-white px-4 py-2.5 text-[12px] font-semibold"
                     >
                       <FileJson className="mr-1 inline h-3.5 w-3.5" /> manifest JSON
                     </button>
@@ -287,7 +287,7 @@ export function DockingLessonPanel({
                 </details>
 
                 <details className="mt-3 rounded-xl border border-[#d9d8d2] bg-[#fbfaf6] p-3" open={!beginnerMode}>
-                  <summary className="flex cursor-pointer list-none items-center justify-between text-[10px] font-semibold">
+                  <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between text-[13px] font-semibold">
                     Advanced Files
                     <ChevronDown className="h-3.5 w-3.5" />
                   </summary>
@@ -295,7 +295,7 @@ export function DockingLessonPanel({
                   <button
                     type="button"
                     onClick={() => downloadText(`${result.artifact_id}.log.txt`, result.docking_log, "text/plain")}
-                    className="rounded-xl border border-[#d9d8d2] bg-white px-3 py-2.5 text-[10px] font-semibold"
+                    className="min-h-11 rounded-xl border border-[#d9d8d2] bg-white px-4 py-2.5 text-[12px] font-semibold"
                   >
                     <Download className="mr-1 inline h-3.5 w-3.5" /> log
                   </button>

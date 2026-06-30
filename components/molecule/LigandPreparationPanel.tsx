@@ -48,10 +48,10 @@ function StatusPill({
     >
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 rounded-full bg-current" />
-        <p className="text-[9px] font-bold uppercase tracking-[0.12em]">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-[0.12em]">{label}</p>
       </div>
-      <p className="mt-1 text-[12px] font-semibold text-ink">{value}</p>
-      <p className="mt-1 text-[9px] leading-4 opacity-80">{help}</p>
+      <p className="mt-1 text-[14px] font-semibold text-ink">{value}</p>
+      <p className="mt-1 text-[12px] leading-5 opacity-80">{help}</p>
     </div>
   );
 }
@@ -66,8 +66,8 @@ function MoleculeStatusPanel({ result }: { result: LigandPreparationResult }) {
     <article className="lg:col-span-2 rounded-xl border border-[#d9d8d2] bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-[12px] font-semibold">Molecule Status</h3>
-          <p className="mt-1 text-[9px] leading-4 text-[#747d78]">
+          <h3 className="text-[16px] font-semibold">Molecule Status</h3>
+          <p className="mt-1 text-[13px] leading-6 text-[#747d78]">
             These are validation and preparation checks from the real calculation
             service. Green means straightforward; yellow means an assumption was
             recorded and should be noticed.
@@ -167,7 +167,7 @@ export function LigandPreparationPanel({
   return (
     <section
       id="ligand-preparation-workspace"
-      className="border-t border-[#d8d7d1] bg-[#f7f7f2] px-4 py-5 md:px-6"
+      className="border-t border-[#d8d7d1] bg-[#f7f7f2] px-4 py-7 md:px-6"
     >
       <div className="mx-auto max-w-[1180px] rounded-2xl border border-[#d9d8d2] bg-white p-4 shadow-[0_10px_30px_rgba(28,45,39,.04)] sm:p-5">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
@@ -181,12 +181,12 @@ export function LigandPreparationPanel({
               </StatusBadge>
               <StatusBadge status="future">Not docked</StatusBadge>
             </div>
-            <h2 className="mt-2 text-[18px] font-semibold tracking-[-0.03em]">
+            <h2 className="mt-2 text-[26px] font-semibold tracking-[-0.03em]">
               {beginnerMode
                 ? "Prepare this molecule for later calculations"
                 : "Prepare this ligand"}
             </h2>
-            <p className="mt-1 text-[11px] leading-5 text-[#65716b]">
+            <p className="mt-2 text-[14px] leading-7 text-[#65716b]">
               {beginnerMode && (
                 <strong className="font-semibold text-ink">
                   Scientists call this ligand preparation. {" "}
@@ -198,12 +198,12 @@ export function LigandPreparationPanel({
               affinity, activity, or interactions.
             </p>
             {beginnerMode && (
-              <p className="mt-2 rounded-xl border border-[#cfe2d8] bg-[#f4fbf7] px-3 py-2 text-[10px] leading-4 text-[#3f6655]">
+              <p className="mt-3 rounded-xl border border-[#cfe2d8] bg-[#f4fbf7] px-4 py-3 text-[13px] leading-6 text-[#3f6655]">
                 Plain language: preparation is like filling in missing setup details
                 before a future calculation. It is not the future calculation itself.
               </p>
             )}
-            <p className="mt-2 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-3 py-2 text-[10px] font-semibold leading-4 text-[#76591f]">
+            <p className="mt-3 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-4 py-3 text-[13px] font-semibold leading-6 text-[#76591f]">
               Ligand-only step: this molecule has not been placed into EGFR.
             </p>
           </div>
@@ -217,7 +217,7 @@ export function LigandPreparationPanel({
                 : "Prepare ligand is unavailable until a current 3D conformer has been generated."
             }
             aria-describedby="prepare-ligand-help"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-sm hover:bg-[#263b50] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ink px-5 py-3 text-[14px] font-semibold text-white shadow-sm hover:bg-[#263b50] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? (
               <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -226,7 +226,7 @@ export function LigandPreparationPanel({
             )}
             {busy ? "Preparing ligand..." : "Prepare ligand"}
           </button>
-          <p id="prepare-ligand-help" className="text-[9px] leading-4 text-[#737e78] lg:max-w-[220px]">
+          <p id="prepare-ligand-help" className="text-[12px] leading-5 text-[#737e78] lg:max-w-[240px]">
             {canPrepare
               ? "Creates ligand-preparation artifacts only. It does not dock the molecule."
               : "Available after Generate 3D creates a current conformer."}
@@ -234,14 +234,14 @@ export function LigandPreparationPanel({
         </div>
 
         {!canPrepare && !result && (
-          <div className="mt-4 rounded-xl border border-dashed border-[#d8d7d1] bg-[#f8f8f4] p-3 text-[10px] leading-4 text-[#727c76]">
+          <div className="mt-4 rounded-xl border border-dashed border-[#d8d7d1] bg-[#f8f8f4] p-4 text-[13px] leading-6 text-[#727c76]">
             Generate a current RDKit 3D conformer first. Preparation will stay
             disabled while the 2D drawing and 3D result are out of sync.
           </div>
         )}
 
         {busy && (
-          <div className="mt-4 rounded-xl bg-[#eef7f2] p-3 text-[10px] leading-4 text-[#426f59]" role="status">
+          <div className="mt-4 rounded-xl bg-[#eef7f2] p-4 text-[13px] leading-6 text-[#426f59]" role="status">
             Adding explicit hydrogens, checking formal charge and stereochemistry,
             generating a small capped conformer ensemble, minimizing geometry, and
             trying to write a Meeko PDBQT docking-format artifact.
@@ -249,7 +249,7 @@ export function LigandPreparationPanel({
         )}
 
         {error && (
-          <div className="mt-4 flex items-start gap-2 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-3 text-[10px] leading-4 text-[#944c3c]" role="alert">
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-4 text-[13px] leading-6 text-[#944c3c]" role="alert">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {error}
           </div>
@@ -260,8 +260,8 @@ export function LigandPreparationPanel({
             <MoleculeStatusPanel result={result} />
 
             <article className="lg:col-span-2 rounded-xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
-              <h3 className="text-[12px] font-semibold">What changed during preparation?</h3>
-              <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+              <h3 className="text-[16px] font-semibold">What changed during preparation?</h3>
+              <p className="mt-1 text-[13px] leading-6 text-[#64716a]">
                 Preparation did not test the molecule against EGFR. It made the
                 ligand description more explicit and selected a minimized 3D input
                 for a future docking workflow.
@@ -293,9 +293,9 @@ export function LigandPreparationPanel({
                   },
                 ].map((item) => (
                   <div key={item.label} className="rounded-xl border border-[#d9e8df] bg-white p-3">
-                    <p className="text-[9px] font-semibold text-[#39765b]">{item.label}</p>
+                    <p className="text-[12px] font-semibold text-[#39765b]">{item.label}</p>
                     <p className="mt-1 text-[11px] font-semibold text-ink">{item.value}</p>
-                    <p className="mt-1 text-[8px] leading-4 text-[#6d7872]">{item.body}</p>
+                    <p className="mt-1 text-[12px] leading-5 text-[#6d7872]">{item.body}</p>
                   </div>
                 ))}
               </div>
@@ -304,11 +304,11 @@ export function LigandPreparationPanel({
             <article className="rounded-xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-[#33785b]" />
-                <h3 className="text-[12px] font-semibold">
+                <h3 className="text-[15px] font-semibold">
                   Ligand-preparation artifact created
                 </h3>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-[9px] text-[#65716b] sm:grid-cols-4">
+              <div className="mt-3 grid grid-cols-2 gap-2 text-[12px] text-[#65716b] sm:grid-cols-4">
                 <div className="rounded-lg bg-white/80 p-2">
                   <p className="text-[#87918b]">Formula</p>
                   <p className="mt-0.5 font-semibold text-ink">{result.molecular_formula}</p>
@@ -333,7 +333,7 @@ export function LigandPreparationPanel({
                   </p>
                 </div>
               </div>
-              <p className="mt-3 text-[9px] leading-4 text-[#66726c]">
+              <p className="mt-3 text-[13px] leading-6 text-[#66726c]">
                 Selected conformer {result.conformer_report.selected_conformer_id} from{" "}
                 {result.conformer_report.generated_conformers} generated conformer(s)
                 using {result.conformer_report.force_field}. This is not a
@@ -344,7 +344,7 @@ export function LigandPreparationPanel({
             <article className="rounded-xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
               <div className="flex items-center gap-2">
                 <FileCode2 className="h-4 w-4 text-[#65716b]" />
-                <h3 className="text-[12px] font-semibold">Download artifacts</h3>
+                <h3 className="text-[15px] font-semibold">Download artifacts</h3>
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-3">
                 <button
@@ -356,7 +356,7 @@ export function LigandPreparationPanel({
                       "application/json",
                     )
                   }
-                  className="rounded-lg border border-[#d9d8d2] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f5f3]"
+                  className="min-h-11 rounded-lg border border-[#d9d8d2] bg-white px-4 py-2 text-[12px] font-semibold hover:bg-[#f2f5f3]"
                 >
                   <Download className="mr-1 inline h-3 w-3" />
                   JSON
@@ -366,7 +366,7 @@ export function LigandPreparationPanel({
                   onClick={() =>
                     downloadText(`${result.artifact_id}.sdf`, result.prepared_sdf)
                   }
-                  className="rounded-lg border border-[#d9d8d2] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f5f3]"
+                  className="min-h-11 rounded-lg border border-[#d9d8d2] bg-white px-4 py-2 text-[12px] font-semibold hover:bg-[#f2f5f3]"
                 >
                   <Download className="mr-1 inline h-3 w-3" />
                   SDF
@@ -378,30 +378,30 @@ export function LigandPreparationPanel({
                     result.pdbqt &&
                     downloadText(`${result.artifact_id}.pdbqt`, result.pdbqt)
                   }
-                  className="rounded-lg border border-[#d9d8d2] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f5f3] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="min-h-11 rounded-lg border border-[#d9d8d2] bg-white px-4 py-2 text-[12px] font-semibold hover:bg-[#f2f5f3] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Download className="mr-1 inline h-3 w-3" />
                   PDBQT
                 </button>
               </div>
-              <p className="mt-3 text-[9px] leading-4 text-[#747d78]">
+              <p className="mt-3 text-[12px] leading-5 text-[#747d78]">
                 These downloads are optional evidence files. Compound Canvas has
                 not docked this ligand, predicted binding, or produced a score.
               </p>
             </article>
 
             <article className="lg:col-span-2 rounded-xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
-              <h3 className="text-[12px] font-semibold">Quick definitions</h3>
+              <h3 className="text-[16px] font-semibold">Quick definitions</h3>
               <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
                 {definitions.map((definition) => (
                   <div
                     key={definition.term}
                     className="rounded-xl border border-[#e1e0da] bg-white p-3"
                   >
-                    <p className="text-[10px] font-semibold text-ink">
+                    <p className="text-[13px] font-semibold text-ink">
                       {definition.term}
                     </p>
-                    <p className="mt-1 text-[9px] leading-4 text-[#6a746f]">
+                    <p className="mt-1 text-[12px] leading-5 text-[#6a746f]">
                       {definition.body}
                     </p>
                   </div>
@@ -413,7 +413,7 @@ export function LigandPreparationPanel({
               <article className="lg:col-span-2 rounded-xl border border-[#e8c98f] bg-[#fff8e8] p-4">
                 <div className="flex items-center gap-2 text-[#7d5a1f]">
                   <AlertTriangle className="h-4 w-4" />
-                  <h3 className="text-[12px] font-semibold">
+                  <h3 className="text-[15px] font-semibold">
                     Preparation warnings for beginners
                   </h3>
                 </div>
@@ -421,7 +421,7 @@ export function LigandPreparationPanel({
                   {result.warnings.map((warning) => (
                     <li
                       key={warning}
-                      className="rounded-lg bg-white/70 px-3 py-2 text-[9px] leading-4 text-[#77591f]"
+                      className="rounded-lg bg-white/70 px-3 py-2 text-[12px] leading-5 text-[#77591f]"
                     >
                       {warning}
                     </li>
@@ -430,7 +430,7 @@ export function LigandPreparationPanel({
               </article>
             )}
 
-            <div className="lg:col-span-2 flex items-center gap-2 rounded-xl bg-[#eef1ee] px-3 py-2 text-[9px] text-[#65716b]">
+            <div className="lg:col-span-2 flex items-center gap-2 rounded-xl bg-[#eef1ee] px-3 py-2 text-[12px] text-[#65716b]">
               <CheckCircle2 className="h-3.5 w-3.5 text-[#39765b]" />
               Artifact ID: {result.artifact_id} - RDKit{" "}
               {result.provenance.rdkit_version ?? "version not reported"} - Meeko{" "}

@@ -68,7 +68,7 @@ export function ProteinWorkspace({
 
   return (
     <section id="protein-workspace" className="border-t border-[#d8d7d1] bg-[#fbfaf6]">
-      <div className="px-4 py-5 md:px-6">
+      <div className="px-4 py-7 md:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
@@ -80,10 +80,10 @@ export function ProteinWorkspace({
                 Inspect a deposited protein structure
               </span>
             </div>
-            <h2 className="mt-2 text-[21px] font-semibold tracking-[-0.03em]">
+            <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.03em]">
               {target.kind === "curated" ? "Meet EGFR through real coordinates" : `Explore imported ${target.id} coordinates`}
             </h2>
-            <p className="mt-2 text-[11px] leading-5 text-[#697680]">
+            <p className="mt-2 text-[14px] leading-7 text-[#697680]">
               Mol* is rendering the experimentally deposited {target.id} structure. Click the
               protein{target.kind === "curated" ? ", or use the lesson buttons below," : ""} to inspect residues from the coordinate model.
             </p>
@@ -101,7 +101,7 @@ export function ProteinWorkspace({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-2 rounded-2xl border border-[#deddd7] bg-white p-4 text-[10px] sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid gap-3 rounded-2xl border border-[#deddd7] bg-white p-4 text-[13px] sm:grid-cols-2 lg:grid-cols-4">
           <MetadataItem label="Structure" value={`${target.id} - ${target.name}`} />
           <MetadataItem label="Method" value={target.method ?? "Not reported"} />
           <MetadataItem
@@ -122,7 +122,7 @@ export function ProteinWorkspace({
           </div>
         </div>
 
-        <div className="mt-3 rounded-xl border border-[#ead4aa] bg-[#fff8e8] px-4 py-3 text-[10px] leading-5 text-[#745b2b]">
+        <div className="mt-4 rounded-xl border border-[#ead4aa] bg-[#fff8e8] px-4 py-3 text-[13px] leading-6 text-[#745b2b]">
           {target.kind === "curated" ? (
             <><strong>Resolution note:</strong> 2ITY was determined at 3.42 angstroms. Fine atomic positions are less certain than in a higher-resolution structure.</>
           ) : (
@@ -130,7 +130,7 @@ export function ProteinWorkspace({
           )}
         </div>
         {target.kind === "rcsb_import" && (
-          <div className="mt-3 grid gap-2 rounded-2xl border border-[#c9dceb] bg-[#f3f8fd] p-4 text-[10px] sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-3 rounded-2xl border border-[#c9dceb] bg-[#f3f8fd] p-4 text-[13px] sm:grid-cols-2 lg:grid-cols-4">
             <MetadataItem label="Models" value={String(target.summary.modelCount)} />
             <MetadataItem label="Protein chains" value={target.summary.chainIds.join(", ")} />
             <MetadataItem label="Protein residues" value={target.summary.polymerResidueCount.toLocaleString()} />
@@ -141,7 +141,7 @@ export function ProteinWorkspace({
                 target.summary.exampleResidue.chain,
                 target.summary.exampleResidue.residueNumber,
               )}
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[#a9c9e8] bg-white px-3 py-2 text-[9px] font-semibold text-[#315f86] sm:col-span-2 lg:col-span-4"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#a9c9e8] bg-white px-4 py-3 text-[13px] font-semibold text-[#315f86] sm:col-span-2 lg:col-span-4"
             >
               <Crosshair className="h-3.5 w-3.5" />
               Inspect example: {target.summary.exampleResidue.residueName}{" "}
@@ -171,7 +171,7 @@ export function ProteinWorkspace({
         />
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#d8d7d1] bg-[#eef7f2] px-4 py-3 text-[9px] text-[#436554] md:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#d8d7d1] bg-[#eef7f2] px-4 py-4 text-[12px] leading-5 text-[#436554] md:px-6">
         <span className="flex items-center gap-2">
           <Microscope className="h-3.5 w-3.5" />
           {ready ? `${target.id} coordinate model loaded in Mol*.` : "Preparing the coordinate model."}

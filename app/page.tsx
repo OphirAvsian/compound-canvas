@@ -45,6 +45,7 @@ import {
   AppNavigation,
   type AppArea,
 } from "@/components/navigation/AppNavigation";
+import { NextStepBanner } from "@/components/navigation/NextStepBanner";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { startingSmiles } from "@/data/guided-project";
 import { egfr2ity, type ProteinWorkspaceTarget } from "@/data/protein-targets";
@@ -800,6 +801,14 @@ export default function Home() {
           />
         )}
 
+      {beginnerMode.enabled && (
+        <NextStepBanner
+          activeArea={activeArea}
+          experiment={experiment.experiment}
+          onNavigate={navigateToArea}
+        />
+      )}
+
       <section id="main-content" tabIndex={-1} className="min-w-0 flex-1">
         {activeArea === "home" && (
           <>
@@ -809,36 +818,36 @@ export default function Home() {
             onStart={startExperiment}
           />
             {beginnerMode.enabled && (
-              <section className="border-b border-[#d8d7d1] bg-white px-4 py-5 md:px-6">
+              <section className="border-b border-[#d8d7d1] bg-white px-4 py-7 md:px-6">
                 <div className="mx-auto grid max-w-[1180px] gap-3 md:grid-cols-3">
-                  <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                  <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-5">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
                       First-time promise
                     </p>
-                    <h2 className="mt-2 text-[16px] font-semibold">You can finish without drawing.</h2>
-                    <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+                    <h2 className="mt-2 text-[19px] font-semibold leading-snug">You can finish without drawing.</h2>
+                    <p className="mt-2 text-[13px] leading-6 text-[#52635a]">
                       Start with caffeine, press Generate 3D, explore EGFR, prepare
                       the ligand, then read your results report.
                     </p>
                   </article>
-                  <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#65716b]">
+                  <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-5">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#65716b]">
                       What counts as evidence
                     </p>
-                    <h2 className="mt-2 text-[16px] font-semibold">Actions unlock real records.</h2>
-                    <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+                    <h2 className="mt-2 text-[19px] font-semibold leading-snug">Actions unlock real records.</h2>
+                    <p className="mt-2 text-[13px] leading-6 text-[#52635a]">
                       Calculations and coordinate-backed protein clicks update the
                       Experiment page. Reflection questions teach concepts only.
                     </p>
                   </article>
-                  <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#76591f]">
+                  <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-5">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#76591f]">
                       Scientific boundary
                     </p>
-                    <h2 className="mt-2 text-[16px] font-semibold">No binding claim is made.</h2>
-                    <p className="mt-2 text-[10px] leading-5 text-[#725a2d]">
-                      Compound Canvas has not docked caffeine into EGFR, scored it,
-                      or predicted whether it could work as a drug.
+                    <h2 className="mt-2 text-[19px] font-semibold leading-snug">A score is not proof.</h2>
+                    <p className="mt-2 text-[13px] leading-6 text-[#725a2d]">
+                      Docking lessons are model estimates. Compound Canvas does not
+                      prove binding or predict whether a molecule could work as a drug.
                     </p>
                   </article>
                 </div>
@@ -872,20 +881,20 @@ export default function Home() {
 
         {activeArea === "molecule" && (
           <>
-          <div className="border-b border-[#d8d7d1] bg-[#fbfaf6] px-4 py-4 md:px-6">
+          <div className="border-b border-[#d8d7d1] bg-[#fbfaf6] px-4 py-7 md:px-6">
             <div className="mx-auto flex max-w-[1180px] flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#358064]">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#358064]">
                     Molecule Lab - real workflow
                   </span>
                   <span className="h-1 w-1 rounded-full bg-[#aeb4b8]" />
                   <span className="text-[10px] text-[#7e8891]">Create and convert a molecule</span>
                 </div>
-                <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.03em]">
+                <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.04em]">
                   Draw, calculate, optimize, and prepare a molecule
                 </h2>
-                <p className="mt-1 max-w-2xl text-[10px] leading-5 text-[#65716b]">
+                <p className="mt-2 max-w-3xl text-[14px] leading-7 text-[#52635a]">
                   This lab handles the ligand side of the story. It creates a
                   plausible 3D geometry and a prepared ligand artifact, but it does
                   not place the molecule into EGFR or predict binding.
@@ -896,7 +905,7 @@ export default function Home() {
                   <Sparkles className="h-3 w-3" />
                   Ketcher + RDKit + Mol*
                 </StatusBadge>
-                <StatusBadge status="future">Docking not implemented</StatusBadge>
+                <StatusBadge status="future">Curated docking lesson only</StatusBadge>
               </div>
             </div>
           </div>
@@ -967,17 +976,17 @@ export default function Home() {
 
         {activeArea === "protein" && (
           <>
-            <div className="border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-6 md:px-6">
+            <div className="border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-8 md:px-6">
               <div className="mx-auto max-w-[1180px]">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
                   Protein Lab - coordinate-backed exploration
                 </p>
-                <h1 className="mt-2 text-[24px] font-semibold tracking-[-0.04em]">
+                <h1 className="mt-2 max-w-[820px] text-[30px] font-semibold leading-tight tracking-[-0.045em]">
                   {proteinTarget.kind === "curated"
                     ? "EGFR provides the biological context for the molecule workflow."
                     : `${proteinTarget.id} is loaded from the RCSB Protein Data Bank.`}
                 </h1>
-                <p className="mt-2 max-w-3xl text-[11px] leading-5 text-[#65716b]">
+                <p className="mt-3 max-w-3xl text-[14px] leading-7 text-[#52635a]">
                   Proteins are molecular machines that drugs may interact with. Here you
                   inspect deposited coordinates and residues. Your ligand has not been
                   placed into, tested against, or scored with this protein.
@@ -1054,7 +1063,7 @@ export default function Home() {
               <ExperimentWorkspace experiment={experiment.experiment} />
             </>
           ) : (
-            <div className="border-t border-[#d8d7d1] bg-[#eef2ef] px-4 py-10 text-center text-[10px] text-[#718079]">
+            <div className="border-t border-[#d8d7d1] bg-[#eef2ef] px-4 py-10 text-center text-[13px] text-[#65716b]">
               Preparing your browser-local experiment record...
             </div>
           )}
@@ -1077,13 +1086,13 @@ export default function Home() {
                       />
                     </div>
                     <div className="rounded-2xl border border-[#d9d8d2] bg-white p-5">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
                         Your primary guided path
                       </p>
-                      <h1 className="mt-2 text-[24px] font-semibold tracking-[-0.04em]">
+                      <h1 className="mt-2 text-[30px] font-semibold leading-tight tracking-[-0.045em]">
                         One molecule, one protein, one connected learning journey.
                       </h1>
-                      <p className="mt-3 text-[11px] leading-6 text-[#65716b]">
+                      <p className="mt-3 text-[14px] leading-7 text-[#52635a]">
                         Each checkpoint answers three questions: why you are doing
                         the step, what scientific concept it teaches, and what
                         completion proves. Action checkpoints require real evidence;

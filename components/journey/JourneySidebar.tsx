@@ -70,8 +70,8 @@ export function JourneySidebar({
           <Route className="h-4 w-4" />
         </span>
         <div>
-          <p className="text-[11px] font-semibold">Learning Journey</p>
-          <p className="text-[9px] text-[#7b8580]">{journey.percent}% complete</p>
+          <p className="text-[14px] font-semibold">Learning Journey</p>
+          <p className="text-[12px] text-[#7b8580]">{journey.percent}% complete</p>
         </div>
       </div>
       <div className="mx-2 mt-3 h-1.5 overflow-hidden rounded-full bg-[#e0dfda]">
@@ -91,7 +91,7 @@ export function JourneySidebar({
               key={mission.id}
               onClick={() => selectMission(mission.id)}
               disabled={!unlocked}
-              className={`w-full rounded-xl border p-3 text-left transition ${
+              className={`w-full rounded-xl border p-3.5 text-left transition ${
                 active
                   ? "border-[#9ac8b1] bg-white shadow-sm"
                   : unlocked
@@ -118,8 +118,8 @@ export function JourneySidebar({
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[10px] font-semibold">{mission.title}</span>
-                  <span className="mt-1 block text-[9px] leading-4 text-[#758079]">
+                  <span className="block text-[13px] font-semibold">{mission.title}</span>
+                  <span className="mt-1 block text-[12px] leading-5 text-[#758079]">
                     {progress.completed} of {progress.total} checkpoints
                   </span>
                 </span>
@@ -131,13 +131,13 @@ export function JourneySidebar({
       </div>
 
       <div className="mt-5 rounded-2xl border border-[#deddd7] bg-white p-3">
-        <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-[#7c8781]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c8781]">
           Current checkpoint
         </p>
-        <p className="mt-2 text-[11px] font-semibold">
+        <p className="mt-2 text-[15px] font-semibold">
           {journey.percent === 100 ? "Journey complete" : activeStep.title}
         </p>
-        <p className="mt-1 text-[9px] leading-4 text-[#707b75]">
+        <p className="mt-1 text-[13px] leading-6 text-[#707b75]">
           {journey.percent === 100
             ? "All mission checkpoints have been reviewed."
             : activeStep.instruction}
@@ -145,18 +145,18 @@ export function JourneySidebar({
         {journey.percent < 100 && (
           <div className="mt-3 space-y-2">
             <div className="rounded-lg bg-[#f4f8f5] p-2.5">
-              <p className="text-[8px] font-bold uppercase tracking-wide text-[#39765b]">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[#39765b]">
                 Why this matters
               </p>
-              <p className="mt-1 text-[8px] leading-4 text-[#66736c]">
+              <p className="mt-1 text-[12px] leading-5 text-[#66736c]">
                 {activeMission.learningGoal}
               </p>
             </div>
             <div className="rounded-lg bg-[#fbfaf6] p-2.5">
-              <p className="text-[8px] font-bold uppercase tracking-wide text-[#7a8580]">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[#7a8580]">
                 Completion means
               </p>
-              <p className="mt-1 text-[8px] leading-4 text-[#66736c]">
+              <p className="mt-1 text-[12px] leading-5 text-[#66736c]">
                 {completionMeaning}
               </p>
             </div>
@@ -168,7 +168,7 @@ export function JourneySidebar({
               goToTarget(activeStep.targetId);
               onClose?.();
             }}
-            className="mt-3 flex w-full items-center justify-center gap-1 rounded-xl bg-ink px-3 py-2.5 text-[10px] font-semibold text-white"
+            className="mt-3 flex min-h-11 w-full items-center justify-center gap-1 rounded-xl bg-ink px-3 py-2.5 text-[13px] font-semibold text-white"
           >
             Resume checkpoint
             <ChevronRight className="h-3.5 w-3.5" />
@@ -176,14 +176,14 @@ export function JourneySidebar({
         )}
       </div>
 
-      <p className="mt-4 rounded-xl bg-white/65 px-3 py-2 text-[9px] leading-4 text-[#707b75]">
+      <p className="mt-4 rounded-xl bg-white/65 px-3 py-3 text-[12px] leading-5 text-[#707b75]">
         Progress and the experiment summary are stored locally in this browser.
         Reset before handing the demo to someone else.
       </p>
 
       <button
         onClick={onReset}
-        className={`mt-auto flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[9px] font-semibold text-[#7b8580] hover:bg-white ${
+        className={`mt-auto flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-semibold text-[#7b8580] hover:bg-white ${
           mobile ? "mt-5" : ""
         }`}
       >

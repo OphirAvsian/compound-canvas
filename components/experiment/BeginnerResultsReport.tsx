@@ -61,8 +61,8 @@ function StepCard({
           )}
         </span>
         <div>
-          <h3 className="text-[12px] font-semibold">{title}</h3>
-          <p className="mt-1 text-[10px] leading-5 text-[#65716b]">{body}</p>
+          <h3 className="text-[14px] font-semibold">{title}</h3>
+          <p className="mt-1 text-[13px] leading-6 text-[#65716b]">{body}</p>
         </div>
       </div>
     </article>
@@ -91,10 +91,10 @@ export function BeginnerResultsReport({
             <StatusBadge status="neutral">Beginner report</StatusBadge>
             <StatusBadge status="future">Unlocks after core workflow</StatusBadge>
           </div>
-          <h2 className="mt-3 text-[22px] font-semibold tracking-[-0.04em]">
+          <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.04em]">
             What Did I Accomplish?
           </h2>
-          <p className="mt-2 max-w-2xl text-[11px] leading-5 text-[#65716b]">
+          <p className="mt-2 max-w-2xl text-[14px] leading-7 text-[#65716b]">
             A plain-language learning report will appear here after you generate a
             real 3D conformer, explore the EGFR structure, and prepare a ligand
             artifact. It will explain what happened and what was not calculated.
@@ -213,10 +213,10 @@ export function BeginnerResultsReport({
                 {dockingLesson ? "Docking lesson included" : "No docking data"}
               </StatusBadge>
             </div>
-            <h2 className="mt-3 text-[26px] font-semibold tracking-[-0.045em]">
+            <h2 className="mt-3 text-[30px] font-semibold tracking-[-0.045em]">
               What Did I Accomplish?
             </h2>
-            <p className="mt-2 text-[12px] leading-6 text-[#5d6b64]">
+            <p className="mt-2 text-[15px] leading-7 text-[#5d6b64]">
               You completed the beginner molecule-to-docking lesson workflow. This
               report translates the technical artifacts into a plain-language
               learning summary and keeps model estimates separate from proof.
@@ -230,7 +230,7 @@ export function BeginnerResultsReport({
                 serializeStudentLearningReport(experiment),
               )
             }
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[11px] font-semibold text-white shadow-sm hover:bg-[#263b50]"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ink px-5 py-3 text-[14px] font-semibold text-white shadow-sm hover:bg-[#263b50]"
           >
             <Download className="h-4 w-4" />
             Download student report
@@ -240,15 +240,15 @@ export function BeginnerResultsReport({
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
           <div className="space-y-4">
             <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-[#2d6b51]">
+              <div className="flex items-center gap-2 text-[16px] font-semibold text-[#2d6b51]">
                 <BookOpenCheck className="h-4 w-4" />
                 What you did
               </div>
               <div className="mt-3 grid gap-2">
                 {realSteps.map((step) => (
                   <div key={step.title} className="rounded-xl bg-white/75 p-3">
-                    <p className="text-[11px] font-semibold">{step.title}</p>
-                    <p className="mt-1 text-[10px] leading-5 text-[#5e6d65]">
+                    <p className="text-[14px] font-semibold">{step.title}</p>
+                    <p className="mt-1 text-[13px] leading-6 text-[#5e6d65]">
                       {step.body}
                     </p>
                   </div>
@@ -257,11 +257,11 @@ export function BeginnerResultsReport({
             </article>
 
             <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold">
+              <div className="flex items-center gap-2 text-[16px] font-semibold">
                 <FlaskConical className="h-4 w-4 text-[#39765b]" />
                 What this means
               </div>
-              <p className="mt-3 text-[11px] leading-6 text-[#65716b]">
+              <p className="mt-3 text-[14px] leading-7 text-[#65716b]">
                 You did not just look at pictures. Compound Canvas used real
                 molecular-coordinate tools to make a 3D ligand shape, real protein
                 coordinates to explore EGFR, and a real ligand-preparation service
@@ -272,7 +272,7 @@ export function BeginnerResultsReport({
             </article>
 
             <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-[#76591f]">
+              <div className="flex items-center gap-2 text-[16px] font-semibold text-[#76591f]">
                 <ShieldAlert className="h-4 w-4" />
                 What was NOT done
               </div>
@@ -280,13 +280,13 @@ export function BeginnerResultsReport({
                 {notDone.map((item) => (
                   <div
                     key={item}
-                    className="rounded-xl border border-[#f0dfb2] bg-white/65 px-3 py-2 text-[10px] font-semibold text-[#725a2d]"
+                    className="rounded-xl border border-[#f0dfb2] bg-white/65 px-3 py-2 text-[12px] font-semibold text-[#725a2d]"
                   >
                     {item}
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[10px] leading-5 text-[#725a2d]">
+              <p className="mt-3 text-[13px] leading-6 text-[#725a2d]">
                 Compound Canvas has not{" "}
                 {dockingLesson
                   ? `proved that ${ligandName} binds EGFR, measured affinity, predicted activity, or ranked drug usefulness.`
@@ -297,7 +297,7 @@ export function BeginnerResultsReport({
 
           <div className="space-y-4">
             <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold">
+              <div className="flex items-center gap-2 text-[16px] font-semibold">
                 <ArrowRight className="h-4 w-4 text-[#39765b]" />
                 Where this fits in real drug discovery
               </div>
@@ -311,8 +311,8 @@ export function BeginnerResultsReport({
                       {index + 1}
                     </span>
                     <div>
-                      <p className="text-[10px] font-semibold">{title}</p>
-                      <p className="mt-0.5 text-[9px] leading-4 text-[#707b75]">
+                      <p className="text-[13px] font-semibold">{title}</p>
+                      <p className="mt-1 text-[12px] leading-5 text-[#707b75]">
                         {body}
                       </p>
                     </div>
@@ -322,11 +322,11 @@ export function BeginnerResultsReport({
             </article>
 
             <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold">
+              <div className="flex items-center gap-2 text-[16px] font-semibold">
                 <HeartPulse className="h-4 w-4 text-[#b66b4a]" />
                 Why caffeine was used
               </div>
-              <ul className="mt-3 space-y-2 text-[10px] leading-5 text-[#65716b]">
+              <ul className="mt-3 space-y-2 text-[13px] leading-6 text-[#65716b]">
                 <li>Caffeine is familiar, so the first molecule feels less abstract.</li>
                 <li>It is small enough for a fast educational workflow.</li>
                 <li>It is not presented as an EGFR drug candidate.</li>
@@ -334,11 +334,11 @@ export function BeginnerResultsReport({
             </article>
 
             <article className="rounded-2xl border border-[#cfd9d3] bg-[#f7fbf8] p-4">
-              <div className="flex items-center gap-2 text-[13px] font-semibold">
+              <div className="flex items-center gap-2 text-[16px] font-semibold">
                 <Share2 className="h-4 w-4 text-[#39765b]" />
                 Share Your Learning Report
               </div>
-              <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+              <p className="mt-2 text-[13px] leading-6 text-[#65716b]">
                 Download a human-readable summary you can send to a teacher,
                 mentor, or friend. It is separate from the technical JSON, SDF,
                 and PDBQT artifacts.
@@ -351,23 +351,23 @@ export function BeginnerResultsReport({
                     serializeStudentLearningReport(experiment),
                   )
                 }
-                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#cfd9d3] bg-white px-3 py-2.5 text-[10px] font-semibold text-[#38664f] hover:bg-[#eef7f2]"
+                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#cfd9d3] bg-white px-4 py-2.5 text-[12px] font-semibold text-[#38664f] hover:bg-[#eef7f2]"
               >
                 <Download className="h-3.5 w-3.5" />
                 Download learning report
               </button>
-              <p className="mt-2 text-[9px] leading-4 text-[#7a8580]">
+              <p className="mt-2 text-[12px] leading-5 text-[#7a8580]">
                 No account is needed. The report is generated in this browser.
               </p>
             </article>
 
             {dockingLesson && (
               <article className="rounded-2xl border border-[#dfcfac] bg-[#fffaf0] p-4">
-                <div className="flex items-center gap-2 text-[13px] font-semibold text-[#76591f]">
+                <div className="flex items-center gap-2 text-[16px] font-semibold text-[#76591f]">
                   <BookOpenCheck className="h-4 w-4" />
                   Docking Lesson Report
                 </div>
-                <p className="mt-2 text-[10px] leading-5 text-[#725a2d]">
+                <p className="mt-2 text-[13px] leading-6 text-[#725a2d]">
                   This student-friendly report explains what Vina did, why there are
                   multiple poses, what the score means, and why the result is not
                   experimental binding proof.
@@ -380,7 +380,7 @@ export function BeginnerResultsReport({
                       serializeDockingLessonReport(experiment),
                     )
                   }
-                  className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#dfcfac] bg-white px-3 py-2.5 text-[10px] font-semibold text-[#76591f] hover:bg-[#fff8e8]"
+                  className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#dfcfac] bg-white px-4 py-2.5 text-[12px] font-semibold text-[#76591f] hover:bg-[#fff8e8]"
                 >
                   <Download className="h-3.5 w-3.5" />
                   Download docking lesson report
