@@ -116,7 +116,7 @@ export function ConformerViewer({
         <div>
           <div className="flex items-center gap-2">
             <Rotate3D className="h-4 w-4 text-[#2f7c5e]" />
-            <h2 className="text-[12px] font-semibold">3D conformer</h2>
+            <h2 className="text-[16px] font-semibold">3D conformer</h2>
             <StatusBadge status={conformer && !stale ? "real" : "neutral"}>
               {conformer && !stale
                 ? "RDKit calculated"
@@ -125,7 +125,7 @@ export function ConformerViewer({
                   : "Waiting for molecule"}
             </StatusBadge>
           </div>
-          <p className="mt-1 text-[10px] text-[#748079]">
+          <p className="mt-1 text-[13px] leading-6 text-[#66736c]">
             RDKit calculates one plausible shape, then relaxes strained bonds and angles.
           </p>
         </div>
@@ -137,11 +137,11 @@ export function ConformerViewer({
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-[#eef1ee]/90 p-8 text-center">
             <div className="max-w-[310px]">
               <Rotate3D className="mx-auto h-8 w-8 text-[#8ba196]" />
-              <p className="mt-3 text-[13px] font-semibold">Your calculated 3D molecule will appear here</p>
-              <p className="mt-1 text-[11px] leading-5 text-[#718079]">
+              <p className="mt-3 text-[16px] font-semibold">Your calculated 3D molecule will appear here</p>
+              <p className="mt-1 text-[13px] leading-6 text-[#718079]">
                 Use the button under the 2D editor. The coordinates shown here will come from your real RDKit result.
               </p>
-              <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[9px] font-semibold text-[#607168]">
+              <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-white/80 px-3 py-2 text-[12px] font-semibold text-[#607168]">
                 <span className="h-2 w-2 rounded-full bg-[#79b999]" />
                 Drag to rotate after calculation
               </div>
@@ -152,8 +152,8 @@ export function ConformerViewer({
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#eef1ee]/95 p-8 text-center" role="status">
             <div className="max-w-[320px]">
               <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[#3f8265]" />
-              <p className="mt-3 text-[13px] font-semibold">Calculating a 3D shape</p>
-              <p className="mt-1 text-[10px] leading-5 text-[#6e7c75]">
+              <p className="mt-3 text-[16px] font-semibold">Calculating a 3D shape</p>
+              <p className="mt-1 text-[13px] leading-6 text-[#6e7c75]">
                 Checking atoms and bonds, adding hydrogens, generating coordinates, and minimizing the structure.
               </p>
               <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#d7e3dc]">
@@ -163,20 +163,20 @@ export function ConformerViewer({
           </div>
         )}
         {stale && conformer && !busy && (
-          <div className="absolute inset-x-4 top-4 z-20 rounded-xl border border-[#e8c98f] bg-[#fff8e8]/95 px-3 py-2 text-[10px] text-[#76591f] shadow-sm">
+          <div className="absolute inset-x-4 top-4 z-20 rounded-xl border border-[#e8c98f] bg-[#fff8e8]/95 px-3 py-2 text-[13px] leading-6 text-[#76591f] shadow-sm">
             You changed the 2D molecule. The visible 3D result belongs to the previous structure; generate again to update it.
           </div>
         )}
       </div>
 
       {(error || viewerError) && (
-        <div className="border-t border-[#e7c4ba] bg-[#fff1ed] px-4 py-3 text-[10px] text-[#8d4637]" role="alert">
+        <div className="border-t border-[#e7c4ba] bg-[#fff1ed] px-4 py-3 text-[13px] leading-6 text-[#8d4637]" role="alert">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <div className="flex-1">
               <p>{error ?? viewerError}</p>
               {error && (
-                <button type="button" onClick={onRetry} className="mt-2 rounded-lg border border-[#d99f91] bg-white px-2.5 py-1 text-[9px] font-semibold">
+                <button type="button" onClick={onRetry} className="mt-2 min-h-10 rounded-lg border border-[#d99f91] bg-white px-3 py-2 text-[12px] font-semibold">
                   Retry calculation
                 </button>
               )}
@@ -220,14 +220,14 @@ export function ConformerViewer({
             },
           ].map(({ label, value, help }) => (
             <div key={label} title={help} className="bg-[#fffefa] px-3 py-2.5">
-              <p className="text-[9px] text-[#87918b]">{label}</p>
-              <p className="mt-0.5 truncate text-[11px] font-semibold">{value}</p>
+              <p className="text-[12px] text-[#87918b]">{label}</p>
+              <p className="mt-0.5 truncate text-[13px] font-semibold">{value}</p>
             </div>
           ))}
         </div>
       )}
       {conformer && !stale && (
-        <div className="flex items-center gap-2 border-t border-[#d9ddd9] bg-[#eaf7ef] px-4 py-2 text-[9px] text-[#376b54]">
+        <div className="flex items-center gap-2 border-t border-[#d9ddd9] bg-[#eaf7ef] px-4 py-3 text-[12px] leading-5 text-[#376b54]">
           <CheckCircle2 className="h-3.5 w-3.5" />
           Coordinates shown in Mol* came directly from this RDKit result.
         </div>

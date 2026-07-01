@@ -108,7 +108,7 @@ export function BeginnerExperimentGuide({
     return (
       <section className="border-b border-[#cfe2d8] bg-[#f6fbf8] px-3 py-3 sm:px-4">
         <div className="mx-auto flex max-w-[1180px] flex-col gap-3 sm:flex-row sm:items-center">
-          <span className="text-[11px] font-bold uppercase tracking-wide text-[#39765b] sm:inline">
+          <span className="text-[12px] font-bold uppercase tracking-wide text-[#39765b] sm:inline">
             First experiment
           </span>
           <span className="h-2 flex-1 overflow-hidden rounded-full bg-white shadow-inner">
@@ -138,7 +138,7 @@ export function BeginnerExperimentGuide({
       <div className="mx-auto max-w-[1180px]">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
               Recommended beginner path
             </p>
             <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.04em]">
@@ -147,7 +147,7 @@ export function BeginnerExperimentGuide({
             <p className="mt-3 max-w-2xl text-[14px] leading-7 text-[#52635a]">
               Follow one connected story from a familiar molecule to a protein lesson
               and a preparation report. If a term feels new, that is expected.
-              Every real result is labeled; no docking or binding prediction occurs.
+              Every real result is labeled; docking estimates are not binding proof or drug predictions.
             </p>
           </div>
           <button
@@ -186,7 +186,7 @@ export function BeginnerExperimentGuide({
                   {step.complete ? <Check className="h-4 w-4" /> : <step.icon className="h-4 w-4" />}
                 </span>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-[#65716b]">
+                  <p className="text-[12px] font-bold uppercase tracking-wide text-[#65716b]">
                     Step {index + 1} - {step.title}
                   </p>
                   <p className="mt-1 text-[14px] font-semibold leading-snug">{step.plainTitle}</p>

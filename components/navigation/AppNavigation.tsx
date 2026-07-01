@@ -78,15 +78,15 @@ export function AppNavigation({
           aria-expanded={mobileOpen}
           aria-controls="mobile-workspace-menu"
           aria-label={`Open workspace navigation. Current workspace is ${currentArea.label}.`}
-          className="flex min-h-14 w-full items-center justify-between rounded-2xl border border-[#8fc6aa] bg-white px-4 py-3 text-left shadow-sm"
+          className="flex min-h-16 w-full items-center justify-between rounded-2xl border-2 border-[#79b999] bg-white px-4 py-3 text-left shadow-[0_10px_26px_rgba(43,85,66,.12)]"
         >
           <span className="flex items-center gap-2">
             <Menu className="h-5 w-5 text-[#39765b]" />
             <span>
-              <span className="block text-[10px] font-bold uppercase tracking-wide text-[#66746d]">
+              <span className="block text-[12px] font-bold uppercase tracking-wide text-[#66746d]">
                 You are in
               </span>
-              <span className="mt-0.5 block text-[14px] font-semibold">{currentArea.label}</span>
+              <span className="mt-0.5 block text-[16px] font-semibold">{currentArea.label}</span>
             </span>
           </span>
           <ChevronDown className={`h-4 w-4 transition ${mobileOpen ? "rotate-180" : ""}`} />
@@ -102,14 +102,14 @@ export function AppNavigation({
                   onClick={() => chooseArea(area.id)}
                   aria-current={active ? "page" : undefined}
                   aria-label={`${active ? "Current workspace:" : "Go to"} ${area.label}. ${area.shortDescription}`}
-                  className={`flex min-h-14 items-start gap-3 rounded-xl px-3 py-3 text-left ${
-                    active ? "bg-[#edf7f1] ring-1 ring-[#9ac8b1]" : "hover:bg-[#f7f7f2]"
+                  className={`flex min-h-16 items-start gap-3 rounded-xl px-3 py-3 text-left ${
+                    active ? "bg-[#edf7f1] ring-2 ring-[#79b999]" : "hover:bg-[#f7f7f2]"
                   }`}
                 >
                   <area.icon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? "text-[#2f7659]" : "text-[#7d8882]"}`} />
                   <span>
-                    <span className="block text-[13px] font-semibold">{area.label}</span>
-                    <span className="mt-0.5 block text-[11px] leading-5 text-[#65716b]">
+                    <span className="block text-[15px] font-semibold">{area.label}</span>
+                    <span className="mt-0.5 block text-[13px] leading-5 text-[#65716b]">
                       {area.shortDescription}
                     </span>
                   </span>
@@ -130,17 +130,17 @@ export function AppNavigation({
               onClick={() => chooseArea(area.id)}
               aria-current={active ? "page" : undefined}
               aria-label={`${active ? "Current workspace:" : "Go to"} ${area.label}. ${area.shortDescription}`}
-              className={`min-h-[68px] rounded-2xl border px-3.5 py-3 text-left transition ${
+              className={`min-h-[74px] rounded-2xl border px-4 py-3.5 text-left transition ${
                 active
-                  ? "border-[#8fc6aa] bg-white shadow-[0_10px_28px_rgba(43,85,66,.1)] ring-2 ring-[#d9f0e4]"
+                  ? "border-[#79b999] bg-white shadow-[0_12px_30px_rgba(43,85,66,.14)] ring-2 ring-[#bfe5d2]"
                   : "border-transparent text-[#65716b] hover:border-[#deddd7] hover:bg-white/80"
               }`}
             >
-              <span className="flex items-center gap-2 text-[13px] font-semibold text-ink">
+              <span className="flex items-center gap-2 text-[15px] font-semibold text-ink">
                 <area.icon className={`h-4 w-4 ${active ? "text-[#2f7659]" : "text-[#7d8882]"}`} />
                 {area.label}
               </span>
-              <span className="mt-1 hidden text-[11px] leading-4 text-[#65716b] lg:block">
+              <span className="mt-1 hidden text-[12px] leading-5 text-[#65716b] lg:block">
                 {area.shortDescription}
               </span>
             </button>

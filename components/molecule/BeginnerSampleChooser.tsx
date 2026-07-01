@@ -29,13 +29,13 @@ export function BeginnerSampleChooser({
     <section className="border-b border-[#d8d7d1] bg-[#fffdf8] px-4 py-5 md:px-6">
       <div className="mx-auto max-w-[1180px]">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
             Beginner Mode - choose a familiar molecule
           </p>
-          <h2 className="mt-1 text-[17px] font-semibold">
+          <h2 className="mt-2 text-[20px] font-semibold leading-snug">
             You do not need to draw anything for your first experiment.
           </h2>
-          <p className="mt-1 text-[10px] leading-5 text-[#65716b]">
+          <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#65716b]">
             Pick a sample, leave its atoms and bonds unchanged, then generate its 3D shape.
           </p>
         </div>
@@ -66,8 +66,8 @@ export function BeginnerSampleChooser({
                     </span>
                   )}
                 </div>
-                <p className="mt-3 text-[12px] font-semibold">{sample.name}</p>
-                <p className="mt-1 text-[9px] leading-4 text-[#65716b]">{copy.reason}</p>
+                <p className="mt-3 text-[15px] font-semibold">{sample.name}</p>
+                <p className="mt-2 text-[13px] leading-5 text-[#65716b]">{copy.reason}</p>
               </button>
             );
           })}

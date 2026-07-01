@@ -107,14 +107,14 @@ export function GuidedStart({
                           <Check className="h-3 w-3" />
                         </span>
                       ) : (
-                        <span className="text-[8px] font-bold uppercase tracking-wide text-[#929b96]">
+                        <span className="text-[11px] font-bold uppercase tracking-wide text-[#929b96]">
                           {sample.difficulty}
                         </span>
                       )}
                     </div>
                     <p className="mt-3 text-[14px] font-semibold">{sample.name}</p>
-                    <p className="mt-0.5 text-[11px] text-[#65716b]">{sample.commonUse}</p>
-                    <p className="mt-2 line-clamp-3 text-[11px] leading-5 text-[#52635a]">
+                    <p className="mt-1 text-[13px] text-[#65716b]">{sample.commonUse}</p>
+                    <p className="mt-2 line-clamp-3 text-[13px] leading-6 text-[#52635a]">
                       {sample.lesson}
                     </p>
                   </button>

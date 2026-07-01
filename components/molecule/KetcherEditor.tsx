@@ -144,17 +144,17 @@ export function KetcherEditor({
         <div>
           <div className="flex items-center gap-2">
             <Atom className="h-4 w-4 text-[#2f7c5e]" />
-            <h2 className="text-[12px] font-semibold">Molecule editor</h2>
+            <h2 className="text-[16px] font-semibold">Molecule editor</h2>
             <StatusBadge status="real">Real structure</StatusBadge>
             {beginnerMode && <StatusBadge status="neutral">Simplified tools</StatusBadge>}
           </div>
-          <p className="mt-1 text-[10px] text-[#7a858e]">
+          <p className="mt-1 max-w-[620px] text-[13px] leading-6 text-[#66736c]">
             {beginnerMode
             ? `${selectedSample.name} is ready. For your first experiment, leave it unchanged and generate 3D. Drawing tools are optional.`
               : `${selectedSample.name} is loaded for you. Keep it, or click atoms and bonds to make it your own.`}
           </p>
         </div>
-        <div className="flex items-center gap-1.5 rounded-lg bg-[#eef5f1] px-2.5 py-1.5 text-[9px] font-medium text-[#4f695d]">
+        <div className="flex items-center gap-1.5 rounded-lg bg-[#eef5f1] px-3 py-2 text-[12px] font-medium text-[#4f695d]">
           <Sparkles className="h-3 w-3" />
           Sample: {selectedSample.name}
         </div>
@@ -173,22 +173,22 @@ export function KetcherEditor({
           <div className="absolute inset-0 flex items-center justify-center bg-[#fbfaf6] p-8 text-center">
             <div>
               <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[#4f8f75]" />
-              <p className="mt-3 text-[11px] font-semibold">Preparing your molecule canvas</p>
-              <p className="mt-1 text-[9px] text-[#7b8781]">Loading atoms, bonds, and drawing tools...</p>
+              <p className="mt-3 text-[15px] font-semibold">Preparing your molecule canvas</p>
+              <p className="mt-1 text-[13px] leading-6 text-[#7b8781]">Loading atoms, bonds, and drawing tools...</p>
             </div>
           </div>
         )}
       </div>
 
       <div className="border-t border-[#dfded8] p-3">
-        <div className="mb-2 flex items-start gap-2 rounded-lg bg-[#f1f4f2] px-3 py-2 text-[9px] leading-4 text-[#64716a]">
+        <div className="mb-3 flex items-start gap-2 rounded-xl bg-[#f1f4f2] px-3 py-3 text-[13px] leading-6 text-[#64716a]">
           <CircleHelp className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           {beginnerMode
             ? `First try: leave ${selectedSample.name} unchanged. The editor shows atoms and bonds, but you do not need to use its drawing tools yet.`
             : `Leave ${selectedSample.name} unchanged and generate its 3D shape, or edit an atom or bond and compare.`}
         </div>
         {error && (
-          <p className="mb-2 rounded-lg border border-[#efc4ba] bg-[#fff1ed] px-3 py-2 text-[10px] text-[#944c3c]" role="alert">
+          <p className="mb-2 rounded-lg border border-[#efc4ba] bg-[#fff1ed] px-3 py-2 text-[13px] leading-6 text-[#944c3c]" role="alert">
             {error}
           </p>
         )}
@@ -202,12 +202,12 @@ export function KetcherEditor({
               : "Generate a calculated 3D molecule shape with RDKit"
           }
           aria-describedby="generate-3d-help"
-          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[12px] font-semibold text-white shadow-[0_8px_22px_rgba(23,40,59,.16)] transition hover:bg-[#21364e] disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-4 text-[15px] font-semibold text-white shadow-[0_10px_26px_rgba(23,40,59,.18)] transition hover:bg-[#21364e] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Box className="h-4 w-4" />}
           {busy ? "Checking chemistry and calculating 3D..." : "Generate calculated 3D shape"}
         </button>
-        <p id="generate-3d-help" className="mt-2 flex items-center justify-center gap-1 text-[9px] text-[#818a85]">
+        <p id="generate-3d-help" className="mt-2 flex items-center justify-center gap-1 text-center text-[12px] leading-5 text-[#65716b]">
           <RotateCcw className="h-3 w-3" />
           Editing the 2D molecule makes the current 3D result outdated.
         </p>

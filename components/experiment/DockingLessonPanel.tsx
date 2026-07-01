@@ -73,6 +73,10 @@ export function DockingLessonPanel({
               Docking produces an approximate pose and Vina model score. It does not
               prove binding, drug activity, safety, efficacy, or real affinity.
             </p>
+            <p className="mt-3 rounded-xl border border-[#d9d8d2] bg-[#fbfaf6] px-4 py-3 text-[13px] leading-6 text-[#65716b]">
+              If you started with caffeine, treat it as a familiar teaching molecule.
+              Compound Canvas is not claiming caffeine is an EGFR inhibitor.
+            </p>
           </div>
           <button
             type="button"
@@ -114,58 +118,64 @@ export function DockingLessonPanel({
 
         {result && (
           <div className="mt-5 space-y-4">
-            <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
+            <article className="rounded-3xl border border-[#cde2d6] bg-[#f5fbf7] p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge status="real">Your First Docking Experiment</StatusBadge>
                 <StatusBadge status="neutral">Curated EGFR lesson</StatusBadge>
               </div>
-              <h3 className="mt-3 text-[20px] font-semibold tracking-[-0.025em]">
+              <h3 className="mt-3 text-[24px] font-semibold tracking-[-0.035em]">
                 Molecule to docking result, without overclaiming it
               </h3>
-              <div className="mt-4 grid gap-2 md:grid-cols-4">
+              <p className="mt-2 max-w-3xl text-[15px] leading-7 text-[#52635a]">
+                This is the story of one controlled lesson: prepared ligand, prepared
+                receptor, five possible placements, and model scores that still need
+                scientific skepticism.
+              </p>
+              <div className="mt-5 grid gap-3 md:grid-cols-4">
                 {[
                   ["1", "Prepared ligand", `${experiment.ligand?.name ?? "Your molecule"} was converted into a docking-format input file.`],
                   ["2", "Prepared EGFR", "The curated 2ITY receptor was prepared as a Vina-readable input."],
                   ["3", "Sampled poses", "Vina tried possible placements inside one fixed teaching box."],
                   ["4", "Recorded estimates", "Compound Canvas saved scores and files, not experimental proof."],
                 ].map(([number, title, body]) => (
-                  <div key={title} className="rounded-xl border border-[#d9e8df] bg-white/80 p-3">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#dff2e7] text-[10px] font-bold text-[#2d7357]">
+                  <div key={title} className="rounded-2xl border border-[#d9e8df] bg-white/85 p-4">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#dff2e7] text-[13px] font-bold text-[#2d7357]">
                       {number}
                     </span>
-                    <p className="mt-2 text-[13px] font-semibold">{title}</p>
-                    <p className="mt-1 text-[12px] leading-5 text-[#64716a]">{body}</p>
+                    <p className="mt-3 text-[15px] font-semibold">{title}</p>
+                    <p className="mt-1 text-[13px] leading-6 text-[#64716a]">{body}</p>
                   </div>
                 ))}
               </div>
             </article>
 
             <div className="grid gap-3 lg:grid-cols-[.8fr_1.2fr]">
-              <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
-                <CheckCircle2 className="h-4 w-4 text-[#33785b]" />
-                <h3 className="mt-2 text-[15px] font-semibold">Top pose estimate</h3>
-                <p className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-[#2d6b51]">
+              <article className="rounded-3xl border border-[#cde2d6] bg-[#f5fbf7] p-5">
+                <CheckCircle2 className="h-5 w-5 text-[#33785b]" />
+                <h3 className="mt-2 text-[18px] font-semibold">Top pose estimate</h3>
+                <p className="mt-2 text-[36px] font-semibold tracking-[-0.05em] text-[#2d6b51]">
                   {topPose?.vina_score_kcal_mol.toFixed(2)} kcal/mol
                 </p>
-                <p className="mt-1 text-[13px] leading-6 text-[#65716b]">
-                  This is a Vina score for pose rank 1, not a measured binding affinity.
+                <p className="mt-2 rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-3 text-[14px] font-semibold leading-6 text-[#76591f]">
+                  This is a Vina model score for one pose. It is not measured
+                  binding affinity and not proof that the molecule binds EGFR.
                 </p>
               </article>
-              <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
+              <article className="rounded-3xl border border-[#d9d8d2] bg-[#fbfaf6] p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-[15px] font-semibold">Score table</h3>
-                  <span className="rounded-full bg-[#fff4de] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#77591f]">
+                  <h3 className="text-[18px] font-semibold">Five possible poses</h3>
+                  <span className="rounded-full bg-[#fff4de] px-3 py-1.5 text-[12px] font-bold uppercase tracking-wide text-[#77591f]">
                     Model estimate
                   </span>
                 </div>
-                <p className="mt-2 text-[13px] leading-6 text-[#65716b]">
-                  Vina reports several possible placements because flexible molecules can
-                  fit into the same box in more than one way. Within this one run, more
-                  negative scores are often more favorable model estimates, but they are
-                  not measured affinities.
+                <p className="mt-2 text-[15px] leading-7 text-[#65716b]">
+                  Vina does not return one final answer. It gives several candidate
+                  placements because a molecule can fit into the same box in different
+                  ways. More negative scores can look better inside this one model run,
+                  but they are still estimates, not lab measurements.
                 </p>
                 <div className="mt-3 overflow-x-auto">
-                  <table className="w-full min-w-[360px] text-left text-[12px]">
+                  <table className="w-full min-w-[360px] text-left text-[13px]">
                     <thead className="text-[#68756e]">
                       <tr>
                         <th className="py-2">Rank</th>
@@ -189,8 +199,8 @@ export function DockingLessonPanel({
               </article>
             </div>
 
-            <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-              <div className="flex items-center gap-2 text-[15px] font-semibold">
+            <article className="rounded-3xl border border-[#d9d8d2] bg-white p-5">
+              <div className="flex items-center gap-2 text-[18px] font-semibold">
                 <BookOpenCheck className="h-4 w-4 text-[#39765b]" />
                 How to read this docking lesson
               </div>
@@ -213,6 +223,10 @@ export function DockingLessonPanel({
                     "It is not a lab-measured affinity, not proof of binding, not an activity prediction, and not a drug ranking.",
                   ],
                   [
+                    "Why caffeine is here",
+                    "Caffeine is familiar and quick to calculate. In this lesson it is an example molecule, not an EGFR drug claim.",
+                  ],
+                  [
                     "Why docking is not proof",
                     "The model simplifies protein flexibility, water, protonation, and cell biology. Real science still needs experiments.",
                   ],
@@ -221,33 +235,36 @@ export function DockingLessonPanel({
                     "They would inspect the pose, check interactions carefully, compare controls, repeat with better assumptions, and validate in the lab.",
                   ],
                 ].map(([title, body]) => (
-                  <div key={title} className="rounded-xl border border-[#e4e2dc] bg-[#fbfaf7] p-3">
-                    <p className="text-[13px] font-semibold">{title}</p>
-                    <p className="mt-1 text-[12px] leading-5 text-[#65716b]">{body}</p>
+                  <div key={title} className="rounded-2xl border border-[#e4e2dc] bg-[#fbfaf7] p-4">
+                    <p className="text-[15px] font-semibold">{title}</p>
+                    <p className="mt-1 text-[13px] leading-6 text-[#65716b]">{body}</p>
                   </div>
                 ))}
               </div>
             </article>
 
             <div className="grid gap-3 lg:grid-cols-2">
-              <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-4">
-                <div className="flex items-center gap-2 text-[15px] font-semibold text-[#76591f]">
+              <article className="rounded-3xl border border-[#ead59d] bg-[#fff8e8] p-5">
+                <div className="flex items-center gap-2 text-[18px] font-semibold text-[#76591f]">
                   <ShieldAlert className="h-4 w-4" />
                   Scientific warnings
                 </div>
-                <ul className="mt-3 space-y-2 text-[12px] leading-5 text-[#725a2d]">
+                <ul className="mt-3 space-y-2 text-[14px] leading-6 text-[#725a2d]">
                   {result.warnings.map((warning) => <li key={warning}>- {warning}</li>)}
                 </ul>
               </article>
-              <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-                <h3 className="text-[15px] font-semibold">Downloads</h3>
-                <p className="mt-1 text-[12px] leading-5 text-[#65716b]">
+              <article className="rounded-3xl border border-[#d9d8d2] bg-white p-5">
+                <h3 className="text-[18px] font-semibold">Downloads</h3>
+                <p className="mt-1 text-[14px] leading-6 text-[#65716b]">
                   Start with the student report. Scientific and advanced files are
                   available for transparency, but they are not required to understand
                   the lesson.
                 </p>
-                <div className="mt-3 rounded-xl border border-[#cde2d6] bg-[#f5fbf7] p-3">
-                  <p className="text-[13px] font-semibold text-[#2d6b51]">Student Report</p>
+                <div className="mt-3 rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
+                  <p className="text-[15px] font-semibold text-[#2d6b51]">Student Report</p>
+                  <p className="mt-1 text-[13px] leading-6 text-[#52635a]">
+                    Best for teachers, friends, and first-time readers.
+                  </p>
                   <button
                     type="button"
                     onClick={() =>
@@ -301,7 +318,7 @@ export function DockingLessonPanel({
                   </button>
                   </div>
                 </details>
-                <p className="mt-3 break-all text-[8px] leading-4 text-[#7a8580]">
+                <p className="mt-3 break-all text-[11px] leading-5 text-[#7a8580]">
                   {result.artifact_id} - {result.engine} {result.engine_version ?? "unknown"}
                 </p>
               </article>

@@ -28,7 +28,7 @@ export function WorkflowGuide({
     <section className="border-b border-[#d8d7d1] bg-[#eef8f2] px-4 py-4 md:px-6">
       <div className="mx-auto max-w-[1180px]">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#34745a]">
+          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#34745a]">
             {stage === "complete"
               ? "Nice work: your real 3D result is ready"
               : stage === "outdated"
@@ -37,7 +37,7 @@ export function WorkflowGuide({
                   ? "RDKit is working through the calculation"
                   : "Your guided experiment"}
           </p>
-          <span className="text-[9px] font-semibold text-[#708078]">
+          <span className="text-[12px] font-semibold text-[#708078]">
             Step {activeStep + 1} of 3
           </span>
         </div>
@@ -69,8 +69,8 @@ export function WorkflowGuide({
                   )}
                 </span>
                 <div>
-                  <p className="text-[10px] font-semibold">{step.title}</p>
-                  <p className="mt-0.5 text-[9px] leading-4 text-[#64746b]">{step.body}</p>
+                  <p className="text-[13px] font-semibold">{step.title}</p>
+                  <p className="mt-1 text-[12px] leading-5 text-[#64746b]">{step.body}</p>
                 </div>
               </div>
               {index < steps.length - 1 && (

@@ -79,20 +79,20 @@ export function NextStepBanner({
   const complete = nextStep.eyebrow === "Workflow complete";
 
   return (
-    <section className="border-b border-[#cfe2d8] bg-[#edf7f1] px-3 py-3 sm:px-4 md:px-6">
-      <div className="mx-auto flex max-w-[1180px] flex-col gap-3 rounded-2xl border border-[#c7dfd2] bg-white/82 p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
-        <div className="flex min-w-0 gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#dff2e7] text-[#2d7357]">
-            {complete ? <CheckCircle2 className="h-5 w-5" /> : <Compass className="h-5 w-5" />}
+    <section className="border-b border-[#cfe2d8] bg-[#edf7f1] px-3 py-4 sm:px-4 md:px-6">
+      <div className="mx-auto flex max-w-[1180px] flex-col gap-4 rounded-3xl border border-[#b9d8c8] bg-white p-4 shadow-[0_12px_34px_rgba(36,72,56,.08)] sm:flex-row sm:items-center sm:justify-between md:p-5">
+        <div className="flex min-w-0 gap-3.5">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#dff2e7] text-[#2d7357]">
+            {complete ? <CheckCircle2 className="h-6 w-6" /> : <Compass className="h-6 w-6" />}
           </span>
           <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#39765b]">
+            <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#39765b]">
               {nextStep.eyebrow}
             </p>
-            <h2 className="mt-1 text-[17px] font-semibold leading-snug tracking-[-0.025em] text-ink sm:text-[19px]">
+            <h2 className="mt-1 text-[20px] font-semibold leading-snug tracking-[-0.03em] text-ink sm:text-[23px]">
               {nextStep.title}
             </h2>
-            <p className="mt-1 max-w-[760px] text-[13px] leading-6 text-[#52635a]">
+            <p className="mt-1 max-w-[760px] text-[15px] leading-7 text-[#52635a]">
               {nextStep.body}
             </p>
           </div>
@@ -100,7 +100,7 @@ export function NextStepBanner({
         <button
           type="button"
           onClick={() => onNavigate(nextStep.area)}
-          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[13px] font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#24394f] focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#9ec7ff]"
+          className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-3 text-[15px] font-semibold text-white shadow-[0_12px_26px_rgba(23,40,59,.16)] transition hover:-translate-y-0.5 hover:bg-[#24394f] focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#9ec7ff]"
         >
           {alreadyHere ? "Continue here" : `Go to ${nextStep.area === "molecule" ? "Molecule Lab" : nextStep.area === "protein" ? "Protein Lab" : "Experiment"}`}
           <ArrowRight className="h-4 w-4" />

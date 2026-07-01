@@ -33,7 +33,7 @@ const reflection = {
       label: "Because no docking or experiment has tested that claim here",
       correct: true,
       feedback:
-        "Correct. Compound Canvas can prepare a ligand artifact, but it has not docked the molecule or tested binding.",
+        "Correct. Later, Compound Canvas can run one curated docking estimate lesson, but that still is not experimental binding proof.",
     },
     {
       id: "gefitinib-only",
@@ -79,7 +79,7 @@ const lessons = [
     points: [
       "Preparation creates scientifically defined inputs.",
       "Docking samples possible poses and produces model-dependent scores.",
-      "Ligand preparation is available next; docking is still not implemented.",
+      "A curated docking estimate lesson becomes available later, but arbitrary docking is still not implemented.",
     ],
   },
 ];
@@ -96,20 +96,20 @@ export function MissionThreeWorkspace({ journeyState }: { journeyState: JourneyS
       <div className="mx-auto max-w-[1180px]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-2xl">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#806225]">
-              Mission 3 · Conceptual workflow
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#806225]">
+              Mission 3 - Conceptual workflow
             </p>
             <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.03em]">
               Molecule Meets Target
             </h2>
-            <p className="mt-2 text-[11px] leading-5 text-[#66726c]">
+            <p className="mt-3 text-[14px] leading-7 text-[#66726c]">
               {mission.learningGoal}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <ScientificEvidenceBadge kind="curated" />
-            <span className="rounded-full border border-[#d9d8d2] bg-[#efeee9] px-2.5 py-1 text-[9px] font-semibold text-[#777f85]">
-              Docking not implemented
+            <span className="rounded-full border border-[#d9d8d2] bg-[#efeee9] px-3 py-1.5 text-[12px] font-semibold text-[#777f85]">
+              Curated estimate later
             </span>
           </div>
         </div>
@@ -118,7 +118,7 @@ export function MissionThreeWorkspace({ journeyState }: { journeyState: JourneyS
           <div className="mt-5 rounded-2xl border border-dashed border-[#cccac3] bg-white/55 p-8 text-center">
             <LockKeyhole className="mx-auto h-6 w-6 text-[#89918c]" />
             <p className="mt-3 text-[12px] font-semibold">Complete Missions 1 and 2 first</p>
-            <p className="mt-2 text-[10px] text-[#747e78]">
+            <p className="mt-2 text-[13px] leading-5 text-[#747e78]">
               This comparison unlocks after you generate caffeine and inspect the real EGFR structure.
             </p>
           </div>
@@ -140,11 +140,11 @@ export function MissionThreeWorkspace({ journeyState }: { journeyState: JourneyS
                       </span>
                       {complete && <CheckCircle2 className="h-4 w-4 text-[#3d8062]" />}
                     </div>
-                    <h3 className="mt-4 text-[13px] font-semibold leading-5">{lesson.title}</h3>
-                    <p className="mt-2 text-[10px] leading-5 text-[#65716b]">{lesson.body}</p>
+                    <h3 className="mt-4 text-[15px] font-semibold leading-6">{lesson.title}</h3>
+                    <p className="mt-2 text-[13px] leading-6 text-[#65716b]">{lesson.body}</p>
                     <ul className="mt-3 space-y-2">
                       {lesson.points.map((point) => (
-                        <li key={point} className="flex gap-2 text-[9px] leading-4 text-[#748079]">
+                        <li key={point} className="flex gap-2 text-[12px] leading-5 text-[#748079]">
                           <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#91a39a]" />
                           {point}
                         </li>
@@ -158,7 +158,7 @@ export function MissionThreeWorkspace({ journeyState }: { journeyState: JourneyS
                             stepId: lesson.stepId,
                           })
                         }
-                        className="mt-auto flex items-center justify-center gap-1.5 rounded-xl border border-[#cfd8d3] bg-[#f6faf8] px-3 py-2.5 text-[10px] font-semibold text-[#38664f]"
+                        className="mt-auto flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-[#cfd8d3] bg-[#f6faf8] px-4 py-2.5 text-[13px] font-semibold text-[#38664f]"
                       >
                         I reviewed this
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -169,7 +169,7 @@ export function MissionThreeWorkspace({ journeyState }: { journeyState: JourneyS
               })}
             </div>
 
-            <div className="mt-4 rounded-2xl border border-[#e1c98f] bg-[#fff8e8] p-4 text-[10px] leading-5 text-[#725a2d]">
+            <div className="mt-4 rounded-2xl border border-[#e1c98f] bg-[#fff8e8] p-4 text-[13px] leading-6 text-[#725a2d]">
               <strong>Scientific boundary:</strong> Gefitinib is experimentally deposited
               in 2ITY. Caffeine has not been docked, scored, placed into EGFR, or
               predicted to bind EGFR by Compound Canvas.

@@ -30,7 +30,7 @@ export const beginnerTerms = [
   },
   {
     term: "Docking",
-    meaning: "A future computational step that tests possible ways a prepared molecule might fit into a prepared protein site. Compound Canvas does not dock yet.",
+    meaning: "A computational estimate of possible molecule placements. Compound Canvas only runs one curated EGFR docking lesson, not general docking.",
   },
   {
     term: "SDF",
@@ -53,13 +53,13 @@ export function BeginnerGlossaryGrid({
     <section className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
       <div className="flex items-center gap-2">
         <BookOpen className="h-4 w-4 text-[#39765b]" />
-        <h2 className="text-[12px] font-semibold">{title}</h2>
+        <h2 className="text-[16px] font-semibold">{title}</h2>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {terms.map((item) => (
           <div key={item.term} className="rounded-xl bg-[#f5f8f6] p-3">
-            <p className="text-[10px] font-semibold text-[#2f6f54]">{item.term}</p>
-            <p className="mt-1 text-[9px] leading-4 text-[#65716b]">{item.meaning}</p>
+            <p className="text-[13px] font-semibold text-[#2f6f54]">{item.term}</p>
+            <p className="mt-2 text-[12px] leading-5 text-[#65716b]">{item.meaning}</p>
           </div>
         ))}
       </div>
@@ -103,7 +103,7 @@ export function BeginnerGlossaryDialog({
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
               Beginner Mode
             </p>
             <h2 id="beginner-glossary-title" className="mt-1 text-[22px] font-semibold">
@@ -123,8 +123,8 @@ export function BeginnerGlossaryDialog({
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {beginnerTerms.map((item) => (
             <article key={item.term} className="rounded-2xl border border-[#deddd7] bg-white p-4">
-              <h3 className="text-[11px] font-semibold text-[#2f6f54]">{item.term}</h3>
-              <p className="mt-1 text-[10px] leading-5 text-[#65716b]">{item.meaning}</p>
+              <h3 className="text-[15px] font-semibold text-[#2f6f54]">{item.term}</h3>
+              <p className="mt-2 text-[13px] leading-6 text-[#65716b]">{item.meaning}</p>
             </article>
           ))}
         </div>

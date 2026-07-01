@@ -18,6 +18,7 @@ const groups = [
       "Ligand preparation with explicit hydrogens, charge/stereo reports, largest-fragment handling, prepared SDF, and Meeko PDBQT when available",
       "Curated 2ITY Chain A receptor cleanup with deterministic alternate-location handling and downloadable PDB/manifest artifacts",
       "Curated 2ITY docking-input receptor preparation with PDB2PQR/PROPKA hydrogens, documented pH assumption, prepared PDB, and receptor PDBQT",
+      "One curated EGFR AutoDock Vina docking estimate lesson with five poses and clear scientific warnings",
       "RCSB PDB ID import with mmCIF validation, provenance, Mol* rendering, and residue inspection",
     ],
   },
@@ -40,7 +41,7 @@ const groups = [
     items: [
       "Protein file upload, chain controls, biological assembly selection, and automated pocket detection",
       "Arbitrary protein preparation with atom repair, missing loops, custom protonation states, and minimization",
-      "Docking poses, scores, and interaction detection",
+      "Arbitrary docking, custom docking boxes, affinity prediction, activity prediction, and interaction detection",
       "Project saving, comparison, sharing, and reports",
     ],
   },
@@ -50,13 +51,13 @@ export function CapabilitiesPanel() {
   return (
     <section className="border-t border-[#d8d7d1] bg-[#f8f7f2] px-4 py-8 md:px-6">
       <div className="mx-auto max-w-[1180px]">
-        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#68756e]">
+        <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#68756e]">
           Current scientific capabilities
         </p>
         <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.03em]">
           What Compound Canvas can and cannot do today
         </h2>
-        <p className="mt-2 max-w-[720px] text-[11px] leading-5 text-[#6c7771]">
+        <p className="mt-3 max-w-[760px] text-[14px] leading-7 text-[#6c7771]">
           Green means software performed a calculation on your molecule. Amber means curated teaching content. Gray means the capability is not implemented.
         </p>
         <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -65,13 +66,13 @@ export function CapabilitiesPanel() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <group.icon className="h-4 w-4 text-[#53675e]" />
-                  <h3 className="text-[12px] font-semibold">{group.title}</h3>
+                  <h3 className="text-[15px] font-semibold">{group.title}</h3>
                 </div>
                 <StatusBadge status={group.status}>{group.badge}</StatusBadge>
               </div>
               <ul className="mt-4 space-y-2">
                 {group.items.map((item) => (
-                  <li key={item} className="flex gap-2 text-[10px] leading-4 text-[#68736d]">
+                  <li key={item} className="flex gap-2 text-[13px] leading-5 text-[#68736d]">
                     <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#95a49c]" />
                     {item}
                   </li>

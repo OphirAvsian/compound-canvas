@@ -72,11 +72,11 @@ export function ProteinWorkspace({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#358064]">
+              <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#358064]">
                 Real workflow 02
               </span>
               <span className="h-1 w-1 rounded-full bg-[#aeb4b8]" />
-              <span className="text-[10px] text-[#7e8891]">
+              <span className="text-[12px] text-[#7e8891]">
                 Inspect a deposited protein structure
               </span>
             </div>

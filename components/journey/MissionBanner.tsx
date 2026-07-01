@@ -23,15 +23,15 @@ export function MissionBanner({ state }: { state: JourneyState }) {
             <Route className="h-4 w-4" />
           </span>
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#47715d]">
-              Mission {mission.number} · {progress.completed} of {progress.total}
+            <p className="text-[12px] font-bold uppercase tracking-[0.13em] text-[#47715d]">
+              Mission {mission.number} - {progress.completed} of {progress.total}
             </p>
-            <h2 className="mt-1 text-[15px] font-semibold">
+            <h2 className="mt-2 text-[20px] font-semibold leading-snug">
               {journey.percent === 100 ? "Learning Journey complete" : mission.title}
             </h2>
-            <p className="mt-1 text-[10px] leading-4 text-[#607269]">
+            <p className="mt-2 text-[13px] leading-6 text-[#607269]">
               {journey.percent === 100
-                ? "You completed all five missions. Review any workspace whenever you like."
+                ? "You completed all guided missions. Review any workspace whenever you like."
                 : `Current checkpoint: ${step.instruction}`}
             </p>
           </div>
@@ -41,7 +41,7 @@ export function MissionBanner({ state }: { state: JourneyState }) {
           {journey.percent < 100 && step.targetId && (
             <a
               href={`#${step.targetId}`}
-              className="inline-flex items-center gap-1 rounded-xl bg-ink px-3 py-2 text-[9px] font-semibold text-white"
+              className="inline-flex min-h-11 items-center gap-1 rounded-xl bg-ink px-4 py-2 text-[13px] font-semibold text-white"
             >
               Go to checkpoint
               <ChevronRight className="h-3 w-3" />

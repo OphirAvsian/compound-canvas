@@ -50,8 +50,8 @@ function ProgressStep({
           {complete ? <CheckCircle2 className="h-4 w-4" /> : <ArrowRight className="h-3.5 w-3.5" />}
         </span>
         <div>
-          <h3 className="text-[12px] font-semibold">{label}</h3>
-          <p className="mt-1 text-[10px] leading-5 text-[#65716b]">{body}</p>
+          <h3 className="text-[15px] font-semibold">{label}</h3>
+          <p className="mt-2 text-[13px] leading-6 text-[#65716b]">{body}</p>
         </div>
       </div>
     </article>
@@ -84,12 +84,12 @@ export function ProteinPreparationPanel({
             <h2 className="mt-3 text-[22px] font-semibold tracking-[-0.035em]">
               Prepare EGFR as a docking-input receptor
             </h2>
-            <p className="mt-2 text-[11px] leading-5 text-[#65716b]">
+            <p className="mt-3 text-[14px] leading-7 text-[#65716b]">
               This step starts from the cleaned 2ITY Chain A receptor precursor, adds
               hydrogens under one documented pH assumption, and writes a receptor PDBQT
               file for future docking workflows.
             </p>
-            <p className="mt-3 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-3 py-2 text-[10px] font-semibold leading-5 text-[#76591f]">
+            <p className="mt-4 rounded-2xl border border-[#ead59d] bg-[#fff8e8] px-4 py-3 text-[13px] font-semibold leading-6 text-[#76591f]">
               Prepared as a docking input. No docking, scoring, affinity, interaction,
               or binding prediction performed.
             </p>
@@ -99,7 +99,7 @@ export function ProteinPreparationPanel({
             onClick={onPrepare}
             disabled={!canPrepare || busy}
             aria-label="Prepare cleaned EGFR 2ITY Chain A as a receptor docking input without docking"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[11px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-ink px-5 py-3 text-[14px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {busy ? "Preparing receptor..." : result ? "Prepare receptor again" : "Prepare receptor"}
@@ -107,19 +107,19 @@ export function ProteinPreparationPanel({
         </div>
 
         {!canPrepare && (
-          <p className="mt-4 rounded-xl border border-[#deddd7] bg-[#fbfaf6] p-3 text-[10px] leading-5 text-[#65716b]">
+          <p className="mt-4 rounded-2xl border border-[#deddd7] bg-[#fbfaf6] p-4 text-[13px] leading-6 text-[#65716b]">
             Clean EGFR Chain A first. Receptor preparation deliberately starts from
             the curated cleaned receptor precursor, not from an arbitrary protein.
           </p>
         )}
         {busy && (
-          <div role="status" className="mt-4 rounded-xl bg-[#eef7f2] p-3 text-[10px] leading-5 text-[#426f59]">
+          <div role="status" className="mt-4 rounded-2xl bg-[#eef7f2] p-4 text-[13px] leading-6 text-[#426f59]">
             Running PDB2PQR/PROPKA to add hydrogens and charges, then writing an
             AutoDock-style receptor PDBQT with Meeko.
           </div>
         )}
         {error && (
-          <div role="alert" className="mt-4 flex gap-2 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-3 text-[10px] text-[#944c3c]">
+          <div role="alert" className="mt-4 flex gap-2 rounded-2xl border border-[#efc4ba] bg-[#fff1ed] p-4 text-[13px] leading-6 text-[#944c3c]">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             {error}
           </div>
@@ -148,8 +148,8 @@ export function ProteinPreparationPanel({
             <div className="grid gap-3 lg:grid-cols-3">
               <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
                 <CheckCircle2 className="h-4 w-4 text-[#33785b]" />
-                <h3 className="mt-2 text-[12px] font-semibold">What changed?</h3>
-                <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+                <h3 className="mt-3 text-[15px] font-semibold">What changed?</h3>
+                <p className="mt-2 text-[13px] leading-6 text-[#65716b]">
                   Added {result.protonation_report.hydrogens_added} hydrogens and
                   assigned charges at pH {result.protonation_report.assumed_ph} using
                   {result.protonation_report.force_field}.
@@ -157,16 +157,16 @@ export function ProteinPreparationPanel({
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
                 <FileCode2 className="h-4 w-4 text-[#39765b]" />
-                <h3 className="mt-2 text-[12px] font-semibold">What files exist?</h3>
-                <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+                <h3 className="mt-3 text-[15px] font-semibold">What files exist?</h3>
+                <p className="mt-2 text-[13px] leading-6 text-[#65716b]">
                   A prepared receptor PDB, receptor PDBQT, and manifest JSON. These
                   are inputs for a future docking step, not results from docking.
                 </p>
               </article>
               <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-4">
                 <ShieldAlert className="h-4 w-4 text-[#87651f]" />
-                <h3 className="mt-2 text-[12px] font-semibold">What remains unresolved?</h3>
-                <p className="mt-2 text-[10px] leading-5 text-[#725a2d]">
+                <h3 className="mt-3 text-[15px] font-semibold">What remains unresolved?</h3>
+                <p className="mt-2 text-[13px] leading-6 text-[#725a2d]">
                   Missing loops/heavy atoms, protein minimization, binding-site
                   selection, docking, scores, and interactions remain unavailable.
                 </p>
@@ -175,40 +175,40 @@ export function ProteinPreparationPanel({
 
             <div className="grid gap-3 lg:grid-cols-[1fr_.8fr]">
               <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
-                <h3 className="text-[12px] font-semibold">Documented assumptions</h3>
-                <ul className="mt-3 space-y-2 text-[9px] leading-4 text-[#65716b]">
+                <h3 className="text-[15px] font-semibold">Documented assumptions</h3>
+                <ul className="mt-3 space-y-2 text-[13px] leading-6 text-[#65716b]">
                   {result.assumptions.map((assumption) => <li key={assumption}>- {assumption}</li>)}
                 </ul>
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
                 <div className="flex items-center gap-2">
                   <FileJson className="h-4 w-4 text-[#39765b]" />
-                  <h3 className="text-[12px] font-semibold">Download artifacts</h3>
+                  <h3 className="text-[15px] font-semibold">Download artifacts</h3>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-3">
                   <button
                     type="button"
                     onClick={() => downloadText(`${result.artifact_id}.pdb`, result.prepared_receptor_pdb, "chemical/x-pdb")}
-                    className="rounded-xl border border-[#d9d8d2] px-3 py-2.5 text-[10px] font-semibold"
+                    className="min-h-11 rounded-xl border border-[#d9d8d2] px-3 py-2.5 text-[13px] font-semibold"
                   >
                     <Download className="mr-1 inline h-3.5 w-3.5" /> PDB
                   </button>
                   <button
                     type="button"
                     onClick={() => downloadText(`${result.artifact_id}.pdbqt`, result.receptor_pdbqt, "chemical/x-pdbqt")}
-                    className="rounded-xl border border-[#d9d8d2] px-3 py-2.5 text-[10px] font-semibold"
+                    className="min-h-11 rounded-xl border border-[#d9d8d2] px-3 py-2.5 text-[13px] font-semibold"
                   >
                     <Download className="mr-1 inline h-3.5 w-3.5" /> PDBQT
                   </button>
                   <button
                     type="button"
                     onClick={() => downloadText(`${result.artifact_id}.json`, JSON.stringify(result.manifest, null, 2), "application/json")}
-                    className="rounded-xl border border-[#d9d8d2] px-3 py-2.5 text-[10px] font-semibold"
+                    className="min-h-11 rounded-xl border border-[#d9d8d2] px-3 py-2.5 text-[13px] font-semibold"
                   >
                     <Download className="mr-1 inline h-3.5 w-3.5" /> JSON
                   </button>
                 </div>
-                <p className="mt-3 break-all text-[8px] leading-4 text-[#7a8580]">
+                <p className="mt-3 break-all text-[11px] leading-5 text-[#7a8580]">
                   {result.artifact_id} - PDB2PQR {result.provenance.tool_pdb2pqr_version ?? "unknown"},
                   Meeko {result.provenance.tool_meeko_version ?? "unknown"}
                 </p>

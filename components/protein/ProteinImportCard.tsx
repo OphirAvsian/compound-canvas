@@ -37,11 +37,11 @@ export function ProteinImportCard({
               <StatusBadge status="future">Deposited coordinates, not prepared</StatusBadge>
             </div>
             <h2 className="mt-3 text-[21px] font-semibold tracking-[-0.035em]">Explore a protein by PDB ID</h2>
-            <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+            <p className="mt-3 text-[14px] leading-7 text-[#65716b]">
               Enter a four-character Protein Data Bank ID. Compound Canvas retrieves the official
               RCSB mmCIF, validates that it contains protein coordinates, and records its source.
             </p>
-            <p className="mt-3 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-3 py-2 text-[9px] leading-4 text-[#725a2d]">
+            <p className="mt-4 rounded-2xl border border-[#ead59d] bg-[#fff8e8] px-4 py-3 text-[13px] leading-6 text-[#725a2d]">
               Import does not choose an active site, prepare the protein, or test it against your ligand.
             </p>
           </div>
@@ -53,7 +53,7 @@ export function ProteinImportCard({
             }}
             className="rounded-2xl border border-[#deddd7] bg-[#fbfaf6] p-4"
           >
-            <label htmlFor="pdb-id" className="text-[10px] font-semibold">PDB ID</label>
+            <label htmlFor="pdb-id" className="text-[13px] font-semibold">PDB ID</label>
             <div className="mt-2 flex flex-col gap-2 sm:flex-row">
               <input
                 id="pdb-id"
@@ -62,18 +62,18 @@ export function ProteinImportCard({
                 placeholder="Example: 4HHB"
                 autoComplete="off"
                 aria-describedby="pdb-id-help"
-                className="min-h-11 flex-1 rounded-xl border border-[#cfd6d1] bg-white px-3 text-[12px] font-semibold uppercase outline-none focus:border-[#62a17f]"
+                className="min-h-12 flex-1 rounded-xl border border-[#cfd6d1] bg-white px-4 text-[15px] font-semibold uppercase outline-none focus:border-[#62a17f]"
               />
               <button
                 type="submit"
                 disabled={!valid || busy}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 text-[11px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ink px-5 text-[14px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 {busy ? "Loading protein..." : "Load Protein"}
               </button>
             </div>
-            <p id="pdb-id-help" className="mt-2 text-[9px] text-[#748079]">
+            <p id="pdb-id-help" className="mt-2 text-[12px] leading-5 text-[#748079]">
               Four characters, beginning with a number. The structure must contain protein polymer coordinates.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -82,17 +82,17 @@ export function ProteinImportCard({
                   key={example.id}
                   type="button"
                   onClick={() => setPdbId(example.id)}
-                  className="rounded-lg border border-[#d9d8d2] bg-white px-2.5 py-1.5 text-[9px] font-semibold"
+                  className="min-h-10 rounded-lg border border-[#d9d8d2] bg-white px-3 py-1.5 text-[12px] font-semibold"
                 >
                   {example.id} - {example.label}
                 </button>
               ))}
             </div>
-            {error && <p role="alert" className="mt-3 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-3 text-[10px] text-[#944c3c]">{error}</p>}
+            {error && <p role="alert" className="mt-3 rounded-xl border border-[#efc4ba] bg-[#fff1ed] p-3 text-[13px] leading-6 text-[#944c3c]">{error}</p>}
           </form>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#e4e2dc] pt-4 text-[9px] text-[#65716b]">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#e4e2dc] pt-4 text-[12px] leading-5 text-[#65716b]">
           <span className="inline-flex items-center gap-1.5">
             <Database className="h-3.5 w-3.5 text-[#39765b]" />
             Current target: {target.id} - {target.name}

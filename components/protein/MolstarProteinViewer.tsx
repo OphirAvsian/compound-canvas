@@ -146,7 +146,7 @@ export function MolstarProteinViewer({
           <div>
             <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-[#3f8265]" />
             <p className="mt-3 text-[13px] font-semibold">Loading real {target.id} coordinates</p>
-            <p className="mt-1 text-[10px] text-[#687870]">
+            <p className="mt-2 text-[13px] leading-5 text-[#687870]">
               {target.kind === "curated"
                 ? "Building the EGFR ribbon and deposited ligand from BinaryCIF data."
                 : "Building the deposited protein model from imported RCSB mmCIF data."}
@@ -155,7 +155,7 @@ export function MolstarProteinViewer({
         </div>
       )}
       {!loading && !viewerError && (
-        <div className="pointer-events-none absolute bottom-3 left-3 right-3 z-10 flex items-center gap-2 rounded-xl bg-white/90 px-3 py-2 text-[10px] text-[#53665d] shadow-sm backdrop-blur sm:right-auto">
+        <div className="pointer-events-none absolute bottom-3 left-3 right-3 z-10 flex items-center gap-2 rounded-xl bg-white/90 px-4 py-3 text-[13px] leading-5 text-[#53665d] shadow-sm backdrop-blur sm:right-auto">
           <MousePointer2 className="h-3.5 w-3.5 shrink-0 text-[#31765a]" />
           Click a protein residue to inspect its deposited coordinates. Click empty space to clear.
         </div>
@@ -164,8 +164,8 @@ export function MolstarProteinViewer({
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#fff4ef] p-6 text-center text-[#88483b]">
           <div className="max-w-sm">
             <AlertTriangle className="mx-auto h-7 w-7" />
-            <p className="mt-3 text-[12px] font-semibold">Coordinate viewer unavailable</p>
-            <p className="mt-2 text-[10px] leading-5">{viewerError}</p>
+            <p className="mt-3 text-[15px] font-semibold">Coordinate viewer unavailable</p>
+            <p className="mt-2 text-[13px] leading-6">{viewerError}</p>
           </div>
         </div>
       )}

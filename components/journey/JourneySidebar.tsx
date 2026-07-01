@@ -112,7 +112,7 @@ export function JourneySidebar({
                   {progress.complete ? (
                     <Check className="h-3.5 w-3.5" />
                   ) : unlocked ? (
-                    <span className="text-[10px] font-bold">{mission.number}</span>
+                    <span className="text-[12px] font-bold">{mission.number}</span>
                   ) : (
                     <LockKeyhole className="h-3 w-3" />
                   )}
@@ -131,7 +131,7 @@ export function JourneySidebar({
       </div>
 
       <div className="mt-5 rounded-2xl border border-[#deddd7] bg-white p-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#7c8781]">
+        <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#7c8781]">
           Current checkpoint
         </p>
         <p className="mt-2 text-[15px] font-semibold">
@@ -145,7 +145,7 @@ export function JourneySidebar({
         {journey.percent < 100 && (
           <div className="mt-3 space-y-2">
             <div className="rounded-lg bg-[#f4f8f5] p-2.5">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[#39765b]">
+              <p className="text-[12px] font-bold uppercase tracking-wide text-[#39765b]">
                 Why this matters
               </p>
               <p className="mt-1 text-[12px] leading-5 text-[#66736c]">
@@ -153,7 +153,7 @@ export function JourneySidebar({
               </p>
             </div>
             <div className="rounded-lg bg-[#fbfaf6] p-2.5">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-[#7a8580]">
+              <p className="text-[12px] font-bold uppercase tracking-wide text-[#7a8580]">
                 Completion means
               </p>
               <p className="mt-1 text-[12px] leading-5 text-[#66736c]">

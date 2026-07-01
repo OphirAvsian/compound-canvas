@@ -48,7 +48,7 @@ function StatusPill({
     >
       <div className="flex items-center gap-2">
         <span className="h-2 w-2 rounded-full bg-current" />
-      <p className="text-[11px] font-bold uppercase tracking-[0.12em]">{label}</p>
+      <p className="text-[12px] font-bold uppercase tracking-[0.12em]">{label}</p>
       </div>
       <p className="mt-1 text-[14px] font-semibold text-ink">{value}</p>
       <p className="mt-1 text-[12px] leading-5 opacity-80">{help}</p>
@@ -173,7 +173,7 @@ export function LigandPreparationPanel({
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
           <div className="max-w-[720px]">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#358064]">
+              <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#358064]">
                 Real workflow 02
               </span>
               <StatusBadge status={result ? "real" : canPrepare ? "neutral" : "future"}>
@@ -226,7 +226,7 @@ export function LigandPreparationPanel({
             )}
             {busy ? "Preparing ligand..." : "Prepare ligand"}
           </button>
-          <p id="prepare-ligand-help" className="text-[12px] leading-5 text-[#737e78] lg:max-w-[240px]">
+          <p id="prepare-ligand-help" className="text-[13px] leading-6 text-[#737e78] lg:max-w-[240px]">
             {canPrepare
               ? "Creates ligand-preparation artifacts only. It does not dock the molecule."
               : "Available after Generate 3D creates a current conformer."}
@@ -294,7 +294,7 @@ export function LigandPreparationPanel({
                 ].map((item) => (
                   <div key={item.label} className="rounded-xl border border-[#d9e8df] bg-white p-3">
                     <p className="text-[12px] font-semibold text-[#39765b]">{item.label}</p>
-                    <p className="mt-1 text-[11px] font-semibold text-ink">{item.value}</p>
+                    <p className="mt-1 text-[13px] font-semibold text-ink">{item.value}</p>
                     <p className="mt-1 text-[12px] leading-5 text-[#6d7872]">{item.body}</p>
                   </div>
                 ))}

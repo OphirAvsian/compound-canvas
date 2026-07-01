@@ -22,17 +22,17 @@ export function JourneyMobileBar({
     <>
       <button
         onClick={() => onOpenChange(true)}
-        className="sticky top-[58px] z-30 flex w-full items-center gap-3 border-b border-[#d8d7d1] bg-[#f8f7f2]/95 px-4 py-2.5 backdrop-blur md:hidden"
+        className="sticky top-[58px] z-30 flex min-h-14 w-full items-center gap-3 border-b border-[#d8d7d1] bg-[#f8f7f2]/95 px-4 py-3 backdrop-blur md:hidden"
       >
         <Route className="h-4 w-4 text-[#2e7357]" />
-        <span className="text-[10px] font-semibold">Learning Journey</span>
+        <span className="text-[13px] font-semibold">Learning Journey</span>
         <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#dfded9]">
           <span
             className="block h-full rounded-full bg-[#4f8d70]"
             style={{ width: `${progress.percent}%` }}
           />
         </span>
-        <span className="text-[9px] font-semibold text-[#65736b]">{progress.percent}%</span>
+        <span className="text-[12px] font-semibold text-[#65736b]">{progress.percent}%</span>
         <ChevronUp className="h-3.5 w-3.5" />
       </button>
       {open && (
@@ -46,7 +46,7 @@ export function JourneyMobileBar({
             <div className="mb-4 flex justify-end">
               <button
                 onClick={() => onOpenChange(false)}
-                className="rounded-lg p-2 hover:bg-white"
+                className="min-h-11 min-w-11 rounded-xl p-2 hover:bg-white"
                 aria-label="Close learning journey"
               >
                 <X className="h-4 w-4" />

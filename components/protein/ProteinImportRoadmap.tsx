@@ -35,7 +35,7 @@ export function ProteinImportRoadmap() {
             <h2 className="mt-3 text-[18px] font-semibold tracking-[-0.03em]">
               Explore your own protein
             </h2>
-            <p className="mt-2 text-[10px] leading-5 text-[#65716b]">
+            <p className="mt-3 text-[14px] leading-7 text-[#65716b]">
               User protein import is valuable, but a bare PDB upload would expose
               scientific complexity without helping students interpret it. Compound
               Canvas should first design a guided import flow with validation,
@@ -46,7 +46,7 @@ export function ProteinImportRoadmap() {
             type="button"
             disabled
             title="Arbitrary protein import is not implemented"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#d9d8d2] bg-[#f5f5f1] px-4 py-3 text-[11px] font-semibold text-[#929994]"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#d9d8d2] bg-[#f5f5f1] px-4 py-3 text-[14px] font-semibold text-[#929994]"
           >
             <FileUp className="h-4 w-4" />
             Import protein - planned
@@ -57,13 +57,13 @@ export function ProteinImportRoadmap() {
           {considerations.map((item) => (
             <article key={item.title} className="rounded-xl border border-[#e1e0da] bg-[#fbfaf7] p-4">
               <item.icon className="h-4 w-4 text-[#67776f]" />
-              <h3 className="mt-2 text-[11px] font-semibold">{item.title}</h3>
-              <p className="mt-1 text-[9px] leading-4 text-[#6d7872]">{item.body}</p>
+              <h3 className="mt-3 text-[15px] font-semibold">{item.title}</h3>
+              <p className="mt-2 text-[13px] leading-6 text-[#6d7872]">{item.body}</p>
             </article>
           ))}
         </div>
 
-        <p className="mt-4 rounded-xl bg-[#eef5f1] p-3 text-[10px] leading-5 text-[#52675c]">
+        <p className="mt-4 rounded-xl bg-[#eef5f1] p-4 text-[13px] leading-6 text-[#52675c]">
           <strong>Proposed future flow:</strong> enter a PDB ID or upload a supported
           coordinate file, validate size and format, preview chains and deposited
           ligands, choose a learning focus, then open a provenance-labeled workspace.

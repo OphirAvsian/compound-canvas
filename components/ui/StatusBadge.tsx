@@ -16,7 +16,7 @@ export function StatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold ${styles[status]}`}
+      className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-3 py-1 text-[12px] font-semibold ${styles[status]}`}
     >
       {children}
     </span>

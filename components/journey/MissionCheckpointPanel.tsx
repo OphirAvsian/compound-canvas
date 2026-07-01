@@ -72,10 +72,10 @@ export function MissionCheckpointPanel({
         <div className="mb-4 flex items-center gap-2">
           <BookOpenCheck className="h-4 w-4 text-[#806225]" />
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#806225]">
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#806225]">
               Mission checkpoint
             </p>
-            <p className="mt-1 text-[10px] text-[#747d78]">
+            <p className="mt-2 text-[13px] leading-5 text-[#747d78]">
               Use the evidence you just explored. This is teaching content, not a new calculation.
             </p>
           </div>

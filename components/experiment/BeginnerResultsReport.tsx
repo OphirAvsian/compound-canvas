@@ -307,7 +307,7 @@ export function BeginnerResultsReport({
                     key={title}
                     className="grid grid-cols-[26px_1fr] gap-2 rounded-xl border border-[#e4e2dc] bg-[#fbfaf7] p-3"
                   >
-                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#eef5f1] text-[10px] font-bold text-[#39765b]">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#eef5f1] text-[12px] font-bold text-[#39765b]">
                       {index + 1}
                     </span>
                     <div>

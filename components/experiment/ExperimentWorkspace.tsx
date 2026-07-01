@@ -139,7 +139,7 @@ export function ExperimentWorkspace({
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#358064]">
+              <span className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#358064]">
                 Experiment workspace
               </span>
               <StatusBadge status="neutral">Browser-local record</StatusBadge>
@@ -147,10 +147,10 @@ export function ExperimentWorkspace({
                 {experiment.target.dockingLesson ? "Docking estimate recorded" : "No docking data"}
               </StatusBadge>
             </div>
-            <h2 className="mt-2 text-[22px] font-semibold tracking-[-0.035em]">
+            <h2 className="mt-2 text-[30px] font-semibold tracking-[-0.045em]">
               Your scientific record
             </h2>
-            <p className="mt-1 max-w-[720px] text-[11px] leading-5 text-[#65716b]">
+            <p className="mt-2 max-w-[760px] text-[15px] leading-7 text-[#52635a]">
               Compound Canvas records verified actions, source information,
               assumptions, and limitations without turning learning progress into
               scientific results.
@@ -160,7 +160,7 @@ export function ExperimentWorkspace({
             type="button"
             onClick={() => downloadSummary(experiment)}
             aria-label="Download technical experiment summary JSON"
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#263b50]"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ink px-5 py-3 text-[14px] font-semibold text-white shadow-sm hover:bg-[#263b50]"
           >
             <Download className="h-4 w-4" />
             Download summary JSON
@@ -171,36 +171,36 @@ export function ExperimentWorkspace({
           <div className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-3">
               <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-                <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#7a8580]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#7a8580]">
                   Target
                 </p>
-                <p className="mt-2 text-[14px] font-semibold">
+                <p className="mt-2 text-[17px] font-semibold">
                   {experiment.target.pdbId} - {experiment.target.kind === "curated" ? "EGFR" : "RCSB import"}
                 </p>
-                <p className="mt-1 text-[9px] leading-4 text-[#6d7872]">
+                <p className="mt-1 text-[12px] leading-5 text-[#6d7872]">
                   {experiment.target.kind === "curated"
                     ? `Chain ${experiment.target.chain} - ${experiment.target.method} - ${experiment.target.resolutionAngstrom} angstroms`
                     : `${experiment.target.importSummary?.chainIds.length ?? 0} chain(s) - ${experiment.target.method ?? "method not reported"} - ${experiment.target.resolutionAngstrom ?? "resolution unavailable"}${experiment.target.resolutionAngstrom === null ? "" : " angstroms"}`}
                 </p>
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-                <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#7a8580]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#7a8580]">
                   Molecule
                 </p>
-                <p className="mt-2 text-[14px] font-semibold">
+                <p className="mt-2 text-[17px] font-semibold">
                   {experiment.ligand?.name ?? "Not selected"}
                 </p>
-                <p className="mt-1 truncate text-[9px] leading-4 text-[#6d7872]">
+                <p className="mt-1 truncate text-[12px] leading-5 text-[#6d7872]">
                   {experiment.ligand?.conformer
                     ? `${experiment.ligand.conformer.molecularFormula} - ${experiment.ligand.conformer.molecularWeight.toFixed(2)} g/mol`
                     : "No current conformer artifact"}
                 </p>
               </article>
               <article className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-                <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#7a8580]">
+                <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#7a8580]">
                   Scientific status
                 </p>
-                <p className="mt-2 text-[14px] font-semibold">
+                <p className="mt-2 text-[17px] font-semibold">
                   {completed} of {workflow.length} recorded
                 </p>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e6e9e6]">
@@ -215,19 +215,19 @@ export function ExperimentWorkspace({
             <div className="rounded-2xl border border-[#d9d8d2] bg-white p-4 sm:p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#68756e]">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#68756e]">
                     Chronological experiment story
                   </p>
-                  <h3 className="mt-1 text-[15px] font-semibold">
+                  <h3 className="mt-1 text-[20px] font-semibold">
                     From molecule idea to docking estimate
                   </h3>
-                  <p className="mt-1 text-[9px] leading-4 text-[#707a75]">
+                  <p className="mt-2 max-w-2xl text-[13px] leading-6 text-[#66736c]">
                     Each row is recorded only when the matching real action happens in
                     this browser. Reflection checkpoints can help learning, but they do
                     not create scientific provenance.
                   </p>
                 </div>
-                <span className="text-[10px] font-semibold text-[#527362]">
+                <span className="text-[13px] font-semibold text-[#527362]">
                   {Math.round((completed / workflow.length) * 100)}%
                 </span>
               </div>
@@ -251,8 +251,8 @@ export function ExperimentWorkspace({
                       )}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold">{item.label}</p>
-                      <p className="mt-0.5 text-[9px] leading-4 text-[#707a75]">
+                      <p className="text-[13px] font-semibold">{item.label}</p>
+                      <p className="mt-1 text-[12px] leading-5 text-[#707a75]">
                         {item.detail}
                       </p>
                     </div>
@@ -266,13 +266,13 @@ export function ExperimentWorkspace({
               <div className="rounded-2xl border border-[#cde2d6] bg-[#f7fbf8] p-4 sm:p-5">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
                       Ligand preparation artifact
                     </p>
-                    <h3 className="mt-1 text-[15px] font-semibold">
+                    <h3 className="mt-1 text-[18px] font-semibold">
                       Prepared for future docking input
                     </h3>
-                    <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+                    <p className="mt-2 text-[13px] leading-6 text-[#64716a]">
                       This artifact contains explicit hydrogens, charge/stereo
                       reports, a minimized prepared SDF, and a Meeko PDBQT when
                       available. It is not docked and is not a binding prediction.
@@ -307,10 +307,10 @@ export function ExperimentWorkspace({
                       key={item.label}
                       className="rounded-xl border border-[#d9e8df] bg-white px-3 py-2"
                     >
-                      <p className="text-[8px] uppercase tracking-wide text-[#7e8983]">
+                      <p className="text-[12px] uppercase tracking-wide text-[#7e8983]">
                         {item.label}
                       </p>
-                      <p className="mt-0.5 truncate text-[10px] font-semibold">
+                      <p className="mt-1 truncate text-[13px] font-semibold">
                         {item.value}
                       </p>
                     </div>
@@ -327,7 +327,7 @@ export function ExperimentWorkspace({
                       )
                     }
                     aria-label="Download ligand preparation JSON artifact"
-                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4]"
+                    className="min-h-11 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[12px] font-semibold hover:bg-[#f2f6f4]"
                   >
                     Download prep JSON
                   </button>
@@ -341,7 +341,7 @@ export function ExperimentWorkspace({
                       )
                     }
                     aria-label="Download prepared ligand SDF artifact"
-                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4]"
+                    className="min-h-11 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[12px] font-semibold hover:bg-[#f2f6f4]"
                   >
                     Download SDF
                   </button>
@@ -360,7 +360,7 @@ export function ExperimentWorkspace({
                         experiment.ligand.preparation.pdbqt,
                       )
                     }
-                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold hover:bg-[#f2f6f4] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="min-h-11 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[12px] font-semibold hover:bg-[#f2f6f4] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Download PDBQT
                   </button>
@@ -372,9 +372,9 @@ export function ExperimentWorkspace({
               <div className="rounded-2xl border border-[#a9c9e8] bg-[#f3f8fd] p-4 sm:p-5">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#315f86]">Protein cleanup artifact</p>
-                    <h3 className="mt-1 text-[15px] font-semibold">Cleaned 2ITY Chain A receptor precursor</h3>
-                    <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#315f86]">Protein cleanup artifact</p>
+                    <h3 className="mt-1 text-[18px] font-semibold">Cleaned 2ITY Chain A receptor precursor</h3>
+                    <p className="mt-2 text-[13px] leading-6 text-[#64716a]">
                       Deposited protein coordinates were retained while ligand, solvent, ions, and
                       heterogens were excluded. No hydrogens, charges, repair, or docking readiness were added.
                     </p>
@@ -388,8 +388,8 @@ export function ExperimentWorkspace({
                     ["Atoms excluded", experiment.target.preparation.removalReport.totalAtomsRemoved],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-xl border border-[#c9dceb] bg-white px-3 py-2">
-                      <p className="text-[8px] uppercase tracking-wide text-[#738493]">{label}</p>
-                      <p className="mt-0.5 text-[10px] font-semibold">{value}</p>
+                      <p className="text-[12px] uppercase tracking-wide text-[#738493]">{label}</p>
+                      <p className="mt-1 text-[13px] font-semibold">{value}</p>
                     </div>
                   ))}
                 </div>
@@ -398,7 +398,7 @@ export function ExperimentWorkspace({
                     type="button"
                     onClick={() => downloadArtifact(`${experiment.target.preparation?.artifactId}.pdb`, experiment.target.preparation?.cleanedPdb ?? "", "chemical/x-pdb")}
                     aria-label="Download cleaned EGFR Chain A PDB artifact"
-                    className="rounded-lg border border-[#c9dceb] bg-white px-3 py-2 text-[10px] font-semibold"
+                    className="min-h-11 rounded-lg border border-[#c9dceb] bg-white px-3 py-2 text-[12px] font-semibold"
                   >
                     Download cleaned PDB
                   </button>
@@ -406,7 +406,7 @@ export function ExperimentWorkspace({
                     type="button"
                     onClick={() => downloadArtifact(`${experiment.target.preparation?.artifactId}.json`, JSON.stringify(experiment.target.preparation?.manifest, null, 2), "application/json")}
                     aria-label="Download EGFR Chain A cleanup manifest JSON"
-                    className="rounded-lg border border-[#c9dceb] bg-white px-3 py-2 text-[10px] font-semibold"
+                    className="min-h-11 rounded-lg border border-[#c9dceb] bg-white px-3 py-2 text-[12px] font-semibold"
                   >
                     Download cleanup manifest
                   </button>
@@ -418,13 +418,13 @@ export function ExperimentWorkspace({
               <div className="rounded-2xl border border-[#b8d8c8] bg-[#f5fbf7] p-4 sm:p-5">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
                       Protein preparation artifact
                     </p>
-                    <h3 className="mt-1 text-[15px] font-semibold">
+                    <h3 className="mt-1 text-[18px] font-semibold">
                       Curated 2ITY docking-input receptor
                     </h3>
-                    <p className="mt-1 text-[9px] leading-4 text-[#64716a]">
+                    <p className="mt-2 text-[13px] leading-6 text-[#64716a]">
                       Hydrogens and charges were added under one pH assumption, and
                       Meeko produced a receptor PDBQT. This is still not docking,
                       scoring, binding, or interaction analysis.
@@ -440,8 +440,8 @@ export function ExperimentWorkspace({
                     ["PDBQT atoms", experiment.target.receptorPreparation.preparationReport.pdbqt_atom_records as number],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-xl border border-[#d9e8df] bg-white px-3 py-2">
-                      <p className="text-[8px] uppercase tracking-wide text-[#738493]">{label}</p>
-                      <p className="mt-0.5 text-[10px] font-semibold">{value}</p>
+                      <p className="text-[12px] uppercase tracking-wide text-[#738493]">{label}</p>
+                      <p className="mt-1 text-[13px] font-semibold">{value}</p>
                     </div>
                   ))}
                 </div>
@@ -450,7 +450,7 @@ export function ExperimentWorkspace({
                     type="button"
                     onClick={() => downloadArtifact(`${experiment.target.receptorPreparation?.artifactId}.pdb`, experiment.target.receptorPreparation?.preparedReceptorPdb ?? "", "chemical/x-pdb")}
                     aria-label="Download prepared EGFR receptor PDB artifact"
-                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                    className="min-h-11 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[12px] font-semibold"
                   >
                     Download prepared PDB
                   </button>
@@ -458,7 +458,7 @@ export function ExperimentWorkspace({
                     type="button"
                     onClick={() => downloadArtifact(`${experiment.target.receptorPreparation?.artifactId}.pdbqt`, experiment.target.receptorPreparation?.receptorPdbqt ?? "", "chemical/x-pdbqt")}
                     aria-label="Download prepared EGFR receptor PDBQT artifact"
-                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                    className="min-h-11 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[12px] font-semibold"
                   >
                     Download receptor PDBQT
                   </button>
@@ -466,7 +466,7 @@ export function ExperimentWorkspace({
                     type="button"
                     onClick={() => downloadArtifact(`${experiment.target.receptorPreparation?.artifactId}.json`, JSON.stringify(experiment.target.receptorPreparation?.manifest, null, 2), "application/json")}
                     aria-label="Download EGFR receptor preparation manifest JSON"
-                    className="rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                    className="min-h-11 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[12px] font-semibold"
                   >
                     Download prep manifest
                   </button>
@@ -478,13 +478,13 @@ export function ExperimentWorkspace({
               <div className="rounded-2xl border border-[#dfcfac] bg-[#fffaf0] p-4 sm:p-5">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#86651f]">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#86651f]">
                       Docking lesson artifact
                     </p>
-                    <h3 className="mt-1 text-[15px] font-semibold">
+                    <h3 className="mt-1 text-[18px] font-semibold">
                       Curated 2ITY AutoDock Vina estimate
                     </h3>
-                    <p className="mt-1 text-[9px] leading-4 text-[#725a2d]">
+                    <p className="mt-2 text-[13px] leading-6 text-[#725a2d]">
                       The ligand was docked only inside a fixed teaching box centered on
                       deposited gefitinib. This is not experimental evidence, measured
                       affinity, activity prediction, or drug ranking.
@@ -500,34 +500,34 @@ export function ExperimentWorkspace({
                     ["Poses", experiment.target.dockingLesson.provenance.numPoses],
                   ].map(([label, value]) => (
                     <div key={label} className="rounded-xl border border-[#ead9b5] bg-white px-3 py-2">
-                      <p className="text-[8px] uppercase tracking-wide text-[#8b7b58]">{label}</p>
-                      <p className="mt-0.5 text-[10px] font-semibold">{value}</p>
+                      <p className="text-[12px] uppercase tracking-wide text-[#8b7b58]">{label}</p>
+                      <p className="mt-1 text-[13px] font-semibold">{value}</p>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 grid gap-3">
                   <div className="rounded-xl border border-[#d9e8df] bg-[#f5fbf7] p-3">
-                    <p className="text-[10px] font-semibold text-[#2d6b51]">Student Report</p>
-                    <p className="mt-1 text-[9px] leading-4 text-[#65716b]">
+                    <p className="text-[14px] font-semibold text-[#2d6b51]">Student Report</p>
+                    <p className="mt-1 text-[13px] leading-6 text-[#65716b]">
                       Plain-language interpretation of what Vina did and what the score cannot prove.
                     </p>
                     <button
                       type="button"
                       onClick={() => downloadArtifact(dockingLessonReportFilename(experiment), serializeDockingLessonReport(experiment), "text/plain")}
                       aria-label="Download beginner docking lesson report"
-                      className="mt-2 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[10px] font-semibold"
+                      className="mt-2 min-h-11 rounded-lg border border-[#cfd9d3] bg-white px-3 py-2 text-[12px] font-semibold"
                     >
                       Download docking lesson report
                     </button>
                   </div>
                   <details className="rounded-xl border border-[#dfcfac] bg-white/70 p-3">
-                    <summary className="cursor-pointer text-[10px] font-semibold">Scientific Files</summary>
+                    <summary className="min-h-10 cursor-pointer text-[13px] font-semibold">Scientific Files</summary>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => downloadArtifact(`${experiment.target.dockingLesson?.artifactId}.pdbqt`, experiment.target.dockingLesson?.posePdbqt ?? "", "chemical/x-pdbqt")}
                         aria-label="Download curated docking pose PDBQT artifact"
-                        className="rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[10px] font-semibold"
+                        className="min-h-11 rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[12px] font-semibold"
                       >
                         Download poses PDBQT
                       </button>
@@ -535,19 +535,19 @@ export function ExperimentWorkspace({
                         type="button"
                         onClick={() => downloadArtifact(`${experiment.target.dockingLesson?.artifactId}.json`, JSON.stringify(experiment.target.dockingLesson?.manifest, null, 2), "application/json")}
                         aria-label="Download curated docking manifest JSON"
-                        className="rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[10px] font-semibold"
+                        className="min-h-11 rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[12px] font-semibold"
                       >
                         Download docking manifest
                       </button>
                     </div>
                   </details>
                   <details className="rounded-xl border border-[#dfcfac] bg-white/70 p-3">
-                    <summary className="cursor-pointer text-[10px] font-semibold">Advanced Files</summary>
+                    <summary className="min-h-10 cursor-pointer text-[13px] font-semibold">Advanced Files</summary>
                     <button
                       type="button"
                       onClick={() => downloadArtifact(`${experiment.target.dockingLesson?.artifactId}.log.txt`, experiment.target.dockingLesson?.dockingLog ?? "", "text/plain")}
                       aria-label="Download curated docking log"
-                      className="mt-3 rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[10px] font-semibold"
+                      className="mt-3 min-h-11 rounded-lg border border-[#dfcfac] bg-white px-3 py-2 text-[12px] font-semibold"
                     >
                       Download docking log
                     </button>
@@ -561,7 +561,7 @@ export function ExperimentWorkspace({
             <div className="rounded-2xl border border-[#d9d8d2] bg-white p-4 sm:p-5">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-[#9b6b1b]" />
-                <h3 className="text-[12px] font-semibold">
+                <h3 className="text-[16px] font-semibold">
                   Warnings and limitations
                 </h3>
               </div>
@@ -569,7 +569,7 @@ export function ExperimentWorkspace({
                 {experiment.warnings.map((warning) => (
                   <p
                     key={warning.id}
-                    className="rounded-lg bg-[#fff8e8] px-3 py-2 text-[9px] leading-4 text-[#77591f]"
+                    className="rounded-lg bg-[#fff8e8] px-3 py-2 text-[12px] leading-5 text-[#77591f]"
                   >
                     {warning.message}
                   </p>
@@ -580,11 +580,11 @@ export function ExperimentWorkspace({
             <div className="rounded-2xl border border-[#d9d8d2] bg-white p-4 sm:p-5">
               <div className="flex items-center gap-2">
                 <LockKeyhole className="h-4 w-4 text-[#7c8580]" />
-                <h3 className="text-[12px] font-semibold">
+                <h3 className="text-[16px] font-semibold">
                   Artifact slots
                 </h3>
               </div>
-              <p className="mt-1 text-[9px] leading-4 text-[#707a75]">
+              <p className="mt-2 text-[13px] leading-6 text-[#707a75]">
                 These show what has been prepared and what remains unavailable.
               </p>
               <div className="mt-3 grid gap-2">
@@ -629,12 +629,12 @@ export function ExperimentWorkspace({
                     className="rounded-xl border border-dashed border-[#d6d7d2] bg-[#f7f7f4] p-3"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-[10px] font-semibold">{item.label}</p>
-                      <span className={`text-[8px] font-bold uppercase tracking-wide ${item.status === "AVAILABLE" ? "text-[#39765b]" : "text-[#8a928d]"}`}>
+                      <p className="text-[13px] font-semibold">{item.label}</p>
+                      <span className={`text-[12px] font-bold uppercase tracking-wide ${item.status === "AVAILABLE" ? "text-[#39765b]" : "text-[#8a928d]"}`}>
                         {item.status}
                       </span>
                     </div>
-                    <p className="mt-1 text-[9px] leading-4 text-[#747d78]">
+                    <p className="mt-1 text-[12px] leading-5 text-[#747d78]">
                       {item.explanation}
                     </p>
                   </div>
@@ -645,10 +645,10 @@ export function ExperimentWorkspace({
             <div className="flex items-start gap-3 rounded-2xl border border-[#cfd9d3] bg-[#f7fbf8] p-4">
               <FileJson className="mt-0.5 h-4 w-4 shrink-0 text-[#39765b]" />
               <div>
-                <p className="text-[10px] font-semibold">
+                <p className="text-[14px] font-semibold">
                   Portable, inspectable summary
                 </p>
-                <p className="mt-1 text-[9px] leading-4 text-[#65716b]">
+                <p className="mt-1 text-[12px] leading-5 text-[#65716b]">
                   The JSON contains artifact metadata and available ligand and receptor-cleanup
                   files. It stays on this browser unless you download it.
                 </p>
@@ -662,7 +662,7 @@ export function ExperimentWorkspace({
           <ScientificManifest experiment={experiment} />
         </div>
 
-        <p className="mt-3 break-all text-[8px] text-[#89918d]">
+        <p className="mt-3 break-all text-[11px] leading-5 text-[#89918d]">
           Experiment ID: {experiment.id} - Updated {formatTime(experiment.updatedAt)}
         </p>
       </div>

@@ -28,7 +28,7 @@ export function ScientificEvidenceBadge({ kind }: { kind: EvidenceKind }) {
   const item = evidence[kind];
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-semibold ${item.className}`}
+      className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-3 py-1 text-[12px] font-semibold ${item.className}`}
     >
       <item.Icon className="h-3 w-3" />
       {item.label}
