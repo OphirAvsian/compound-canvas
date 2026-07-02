@@ -23,58 +23,61 @@ export function GuidedStart({
   onStart: () => void;
 }) {
   return (
-    <section id="guided-start" className="relative overflow-hidden border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-9 md:px-6 md:py-12">
+    <section id="guided-start" className="relative overflow-hidden border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-6 md:px-6 md:py-10">
       <div className="onboarding-orb onboarding-orb-one" />
       <div className="onboarding-orb onboarding-orb-two" />
       <div className="relative mx-auto max-w-[1180px]">
-        <div className="grid items-end gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(420px,.9fr)]">
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(390px,.82fr)]">
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status="real">
                 <FlaskConical className="h-3 w-3" />
                 Real molecule calculation
               </StatusBadge>
-              <span className="text-[12px] font-semibold text-[#52635a]">
+              <span className="text-sm font-semibold text-[#52635a]">
                 No chemistry experience needed
               </span>
             </div>
-            <h1 className="mt-4 max-w-[720px] text-[34px] font-semibold leading-[1.06] tracking-[-0.05em] text-ink md:text-[48px]">
-              Start with caffeine. Learn the drug-discovery workflow by doing it.
+            <h1 className="mt-4 max-w-[760px] text-[38px] font-semibold leading-[1.02] tracking-[-0.055em] text-ink md:text-[56px]">
+              Learn drug discovery by running one guided lesson.
             </h1>
-            <p className="mt-5 max-w-[650px] text-[15px] leading-7 text-[#52635a] md:text-[16px]">
-              Compound Canvas is a guided computational drug-discovery learning
-              workspace. Start with a familiar molecule, generate real coordinates
-              with RDKit, connect the molecule story to EGFR, and learn what each
-              scientific step can and cannot tell you.
+            <p className="mt-4 max-w-[660px] text-[17px] leading-8 text-[#52635a] md:text-[18px]">
+              Start with caffeine. Compound Canvas will calculate a real 3D
+              molecule, connect it to EGFR, prepare scientific files, and explain
+              what the docking lesson can and cannot prove.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
                 type="button"
                 onClick={onStart}
                 aria-label={`Start the beginner workflow with ${selectedSample.name}`}
-                className="group inline-flex min-h-12 items-center gap-2 rounded-xl bg-ink px-5 py-3 text-[14px] font-semibold text-white shadow-[0_10px_28px_rgba(23,40,59,.18)] transition hover:-translate-y-0.5 hover:bg-[#21364e]"
+                className="group inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-ink px-6 py-4 text-base font-semibold text-white shadow-[0_14px_34px_rgba(23,40,59,.22)] transition hover:-translate-y-0.5 hover:bg-[#21364e]"
               >
-                <Play className="h-3.5 w-3.5 fill-current" />
-                Start with {selectedSample.name}
-                <ArrowDown className="h-3.5 w-3.5 transition group-hover:translate-y-0.5" />
+                <Play className="h-4 w-4 fill-current" />
+                Start Lesson with {selectedSample.name}
+                <ArrowDown className="h-4 w-4 transition group-hover:translate-y-0.5" />
               </button>
-              <div className="flex items-center gap-2 px-1 text-[12px] leading-5 text-[#65716b]">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#dff3e8] text-[#2f7659]">
-                  <Check className="h-3.5 w-3.5" />
+              <div className="flex items-center gap-2 px-1 text-sm leading-6 text-[#65716b]">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#dff3e8] text-[#2f7659]">
+                  <Check className="h-4 w-4" />
                 </span>
-                About two minutes
+                Guided path, no install, no command line
               </div>
+            </div>
+            <div className="mt-4 rounded-2xl border border-[#d9d8d2] bg-white/70 p-4 text-sm leading-6 text-[#52635a] lg:hidden">
+              <strong className="text-ink">Caffeine is preselected.</strong> You
+              can choose aspirin or acetaminophen later in Molecule Lab.
             </div>
           </div>
 
-          <div>
+          <div className="hidden lg:block">
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#52635a]">
-                  Choose a starting molecule
+                  Starting molecule
                 </p>
-                <p className="mt-1 text-[12px] text-[#65716b]">
-                  You can edit it after it loads.
+                <p className="mt-1 text-sm text-[#65716b]">
+                  Caffeine is recommended. Switch only if you want a different example.
                 </p>
               </div>
               <GraduationCap className="h-5 w-5 text-[#5d766b]" />
@@ -89,7 +92,7 @@ export function GuidedStart({
                     onClick={() => onChooseSample(sample)}
                     aria-pressed={selected}
                     aria-label={`Select ${sample.name}. ${sample.commonUse}. ${selected ? "Currently selected." : ""}`}
-                    className={`sample-card min-h-[150px] rounded-2xl border p-4 text-left transition ${
+                    className={`sample-card min-h-[132px] rounded-2xl border p-4 text-left transition ${
                       selected
                         ? "border-[#79b999] bg-white shadow-[0_12px_35px_rgba(43,85,66,.12)] ring-2 ring-[#c9ead9]"
                         : "border-[#deddd7] bg-white/70 hover:-translate-y-0.5 hover:border-[#b9c8bf] hover:bg-white"
@@ -114,7 +117,7 @@ export function GuidedStart({
                     </div>
                     <p className="mt-3 text-[14px] font-semibold">{sample.name}</p>
                     <p className="mt-1 text-[13px] text-[#65716b]">{sample.commonUse}</p>
-                    <p className="mt-2 line-clamp-3 text-[13px] leading-6 text-[#52635a]">
+                    <p className="mt-2 line-clamp-2 text-[13px] leading-6 text-[#52635a]">
                       {sample.lesson}
                     </p>
                   </button>
@@ -124,7 +127,7 @@ export function GuidedStart({
           </div>
         </div>
 
-        <div className="mt-7 grid gap-2 border-t border-[#deddd7] pt-5 sm:grid-cols-3">
+        <div className="mt-6 hidden gap-2 border-t border-[#deddd7] pt-5 md:grid md:grid-cols-3">
           {[
             {
               icon: MousePointerClick,

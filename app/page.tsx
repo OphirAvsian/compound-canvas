@@ -801,7 +801,7 @@ export default function Home() {
           />
         )}
 
-      {beginnerMode.enabled && (
+      {beginnerMode.enabled && activeArea !== "home" && (
         <NextStepBanner
           activeArea={activeArea}
           experiment={experiment.experiment}
@@ -818,64 +818,80 @@ export default function Home() {
             onStart={startExperiment}
           />
             {beginnerMode.enabled && (
-              <section className="border-b border-[#d8d7d1] bg-white px-4 py-7 md:px-6">
-                <div className="mx-auto grid max-w-[1180px] gap-3 md:grid-cols-3">
-                  <article className="rounded-2xl border border-[#cde2d6] bg-[#f5fbf7] p-5">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
-                      First-time promise
-                    </p>
-                    <h2 className="mt-2 text-[19px] font-semibold leading-snug">You can finish without drawing.</h2>
-                    <p className="mt-2 text-[13px] leading-6 text-[#52635a]">
-                      Start with caffeine, press Generate 3D, explore EGFR, prepare
-                      the ligand, then read your results report.
-                    </p>
-                  </article>
-                  <article className="rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-5">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#65716b]">
-                      What counts as evidence
-                    </p>
-                    <h2 className="mt-2 text-[19px] font-semibold leading-snug">Actions unlock real records.</h2>
-                    <p className="mt-2 text-[13px] leading-6 text-[#52635a]">
-                      Calculations and coordinate-backed protein clicks update the
-                      Experiment page. Reflection questions teach concepts only.
-                    </p>
-                  </article>
-                  <article className="rounded-2xl border border-[#ead59d] bg-[#fff8e8] p-5">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#76591f]">
-                      Scientific boundary
-                    </p>
-                    <h2 className="mt-2 text-[19px] font-semibold leading-snug">A score is not proof.</h2>
-                    <p className="mt-2 text-[13px] leading-6 text-[#725a2d]">
-                      Docking lessons are model estimates. Compound Canvas does not
-                      prove binding or predict whether a molecule could work as a drug.
-                    </p>
-                  </article>
+              <section className="border-b border-[#d8d7d1] bg-white px-4 py-4 md:px-6">
+                <div className="mx-auto max-w-[1180px]">
+                  <details className="group rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-base font-semibold text-ink">
+                      <span>Before you start: what this lesson does</span>
+                      <span className="text-sm text-[#65716b] group-open:hidden">Show</span>
+                      <span className="hidden text-sm text-[#65716b] group-open:inline">Hide</span>
+                    </summary>
+                    <div className="mt-4 grid gap-3 text-sm leading-6 text-[#52635a] md:grid-cols-3">
+                      <p>
+                        <strong className="text-ink">Real:</strong> RDKit creates
+                        molecule coordinates and scientific files.
+                      </p>
+                      <p>
+                        <strong className="text-ink">Coordinate-backed:</strong> EGFR
+                        residues come from deposited protein data.
+                      </p>
+                      <p>
+                        <strong className="text-ink">Boundary:</strong> docking is an
+                        estimate, not proof of binding or drug activity.
+                      </p>
+                    </div>
+                  </details>
                 </div>
               </section>
             )}
             {beginnerMode.enabled && journey.hydrated && experiment.hydrated && (
-              <BeginnerExperimentGuide
-                experiment={experiment.experiment}
-                journeyState={journey.state}
-                selectedSampleId={selectedSample.id}
-                onNavigate={navigateToArea}
-                onSelectCaffeine={selectCaffeine}
-              />
+              <section className="border-b border-[#d8d7d1] bg-[#f8f7f2] px-4 py-4 md:px-6">
+                <details className="mx-auto max-w-[1180px] rounded-2xl border border-[#d9d8d2] bg-white p-4">
+                  <summary className="cursor-pointer list-none text-base font-semibold text-ink">
+                    See the full beginner lesson path
+                    <span className="ml-2 text-sm font-medium text-[#65716b]">
+                      Generate 3D, explore EGFR, prepare files, read results
+                    </span>
+                  </summary>
+                  <div className="mt-4 overflow-hidden rounded-2xl border border-[#e5e4de]">
+                    <BeginnerExperimentGuide
+                      experiment={experiment.experiment}
+                      journeyState={journey.state}
+                      selectedSampleId={selectedSample.id}
+                      onNavigate={navigateToArea}
+                      onSelectCaffeine={selectCaffeine}
+                    />
+                  </div>
+                </details>
+              </section>
             )}
-            <ProductIntroduction onNavigate={navigateToArea} />
-            {beginnerMode.enabled && (
-              <div className="border-b border-[#d8d7d1] bg-[#f8f7f2] px-4 py-7 md:px-6">
-                <div className="mx-auto max-w-[1180px]">
-                  <BeginnerGlossaryGrid
-                    title="Three words to know before you start"
-                    terms={beginnerTerms.filter((item) =>
-                      ["Molecule", "Protein", "Docking"].includes(item.term),
-                    )}
-                  />
-                </div>
-              </div>
+            {beginnerMode.enabled ? (
+              <section className="border-b border-[#d8d7d1] bg-[#fbfaf6] px-4 py-5 md:px-6">
+                <details className="mx-auto max-w-[1180px] rounded-2xl border border-[#d9d8d2] bg-white p-4">
+                  <summary className="cursor-pointer list-none text-base font-semibold text-ink">
+                    Learn more about the workspaces and science words
+                    <span className="ml-2 text-sm font-medium text-[#65716b]">
+                      Optional
+                    </span>
+                  </summary>
+                  <div className="mt-4 space-y-4">
+                    <ProductIntroduction onNavigate={navigateToArea} />
+                    <BeginnerGlossaryGrid
+                      title="Three words to know before you start"
+                      terms={beginnerTerms.filter((item) =>
+                        ["Molecule", "Protein", "Docking"].includes(item.term),
+                      )}
+                    />
+                    <CapabilitiesPanel />
+                  </div>
+                </details>
+              </section>
+            ) : (
+              <>
+                <ProductIntroduction onNavigate={navigateToArea} />
+                <CapabilitiesPanel />
+              </>
             )}
-            <CapabilitiesPanel />
           </>
         )}
 
