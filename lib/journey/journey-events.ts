@@ -7,6 +7,10 @@ export type JourneyEvent =
         canonicalSmiles: string;
         molecularFormula: string;
         molecularWeight: number;
+        logp: number;
+        hydrogenBondDonors: number;
+        hydrogenBondAcceptors: number;
+        rotatableBonds: number;
         atomCount: number;
         heavyAtomCount: number;
         conformerMethod: "ETKDGv3";

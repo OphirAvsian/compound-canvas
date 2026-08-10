@@ -40,6 +40,7 @@ import { MissionThreeWorkspace } from "@/components/journey/MissionThreeWorkspac
 import { WorkflowCompletionSummary } from "@/components/journey/WorkflowCompletionSummary";
 import { BeginnerResultsReport } from "@/components/experiment/BeginnerResultsReport";
 import { DockingLessonPanel } from "@/components/experiment/DockingLessonPanel";
+import { CompoundIterationPanel } from "@/components/experiment/CompoundIterationPanel";
 import { ExperimentWorkspace } from "@/components/experiment/ExperimentWorkspace";
 import {
   AppNavigation,
@@ -172,6 +173,10 @@ export default function Home() {
           canonicalSmiles: result.canonical_smiles,
           molecularFormula: result.molecular_formula,
           molecularWeight: result.molecular_weight,
+          logp: result.logp,
+          hydrogenBondDonors: result.hydrogen_bond_donors,
+          hydrogenBondAcceptors: result.hydrogen_bond_acceptors,
+          rotatableBonds: result.rotatable_bonds,
           atomCount: result.atom_count,
           heavyAtomCount: result.heavy_atom_count,
           conformerMethod: result.conformer_method,
@@ -1078,6 +1083,7 @@ export default function Home() {
                   beginnerMode={beginnerMode.enabled}
                 />
               )}
+              <CompoundIterationPanel experiment={experiment.experiment} />
               <ExperimentWorkspace experiment={experiment.experiment} />
             </>
           ) : (
