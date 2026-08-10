@@ -212,8 +212,8 @@ export function ExperimentWorkspace({
               </article>
             </div>
 
-            <div className="rounded-2xl border border-[#d9d8d2] bg-white p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-3">
+            <details className="rounded-2xl border border-[#d9d8d2] bg-white p-4 sm:p-5">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#68756e]">
                     Chronological experiment story
@@ -228,9 +228,9 @@ export function ExperimentWorkspace({
                   </p>
                 </div>
                 <span className="text-[13px] font-semibold text-[#527362]">
-                  {Math.round((completed / workflow.length) * 100)}%
+                  {Math.round((completed / workflow.length) * 100)}% - show record
                 </span>
-              </div>
+              </summary>
               <div className="mt-4 space-y-2">
                 {workflow.map((item) => (
                   <div
@@ -260,7 +260,7 @@ export function ExperimentWorkspace({
                   </div>
                 ))}
               </div>
-            </div>
+            </details>
 
             {experiment.ligand?.preparation && (
               <div className="rounded-2xl border border-[#cde2d6] bg-[#f7fbf8] p-4 sm:p-5">

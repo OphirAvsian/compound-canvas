@@ -113,16 +113,16 @@ export function ResidueInspector({
         </div>
       )}
 
-      <div className="mt-5 rounded-2xl bg-[#f1f0eb] p-4">
-        <div className="flex items-center gap-2 text-[13px] font-semibold">
+      <details className="mt-5 rounded-2xl bg-[#f1f0eb] p-4">
+        <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 text-[13px] font-semibold">
           <FlaskConical className="h-4 w-4 text-[#53675e]" />
           What this does not calculate
-        </div>
+        </summary>
         <p className="mt-2 text-[13px] leading-5 text-[#6d7973]">
           No pocket was automatically detected. General protein preparation, interaction
           detection, and binding proof are not performed by residue inspection.
         </p>
-      </div>
+      </details>
     </aside>
   );
 }

@@ -30,6 +30,63 @@ function downloadText(filename: string, text: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
+function DockingEducationBridge({
+  result,
+}: {
+  result: DockingLessonResult | null;
+}) {
+  const topScore = result?.score_table[0]?.vina_score_kcal_mol;
+
+  return (
+    <article className="mt-4 rounded-2xl border border-[#d9d8d2] bg-[#fbfaf6] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-[#806225]">
+            Docking bridge
+          </p>
+          <h3 className="mt-1 text-[18px] font-semibold">
+            From molecule to possible pose
+          </h3>
+        </div>
+        <StatusBadge status="simulated">Educational diagram</StatusBadge>
+      </div>
+      <div className="mt-4 grid gap-2 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
+        {[
+          ["Prepared ligand", "Your molecule has explicit hydrogens, charge, and docking-format atoms."],
+          ["EGFR teaching box", "The search region is fixed around deposited gefitinib, not automatically detected."],
+          [
+            result ? "Pose estimate recorded" : "Docking searches placements",
+            result
+              ? `Top Vina score: ${topScore?.toFixed(2) ?? "n/a"} kcal/mol, still not binding proof.`
+              : "Vina will try candidate placements and score them with an approximate model.",
+          ],
+        ].map(([title, body], index) => (
+          <div key={title} className="contents">
+            <div className="rounded-2xl border border-[#e2ded4] bg-white p-4">
+              <div className="flex items-center gap-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#eef7f2] text-[13px] font-bold text-[#39765b]">
+                  {index + 1}
+                </span>
+                <p className="text-[15px] font-semibold">{title}</p>
+              </div>
+              <p className="mt-2 text-[13px] leading-6 text-[#65716b]">{body}</p>
+            </div>
+            {index < 2 && (
+              <span className="hidden text-center text-[20px] font-semibold text-[#b08a37] md:block">
+                →
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 rounded-xl border border-[#ead59d] bg-[#fff8e8] px-3 py-2 text-[12px] font-semibold leading-5 text-[#76591f]">
+        The arrows explain the workflow order. They are not a molecular-dynamics
+        movie and do not show a real-time binding path.
+      </p>
+    </article>
+  );
+}
+
 export function DockingLessonPanel({
   experiment,
   busy,
@@ -91,6 +148,8 @@ export function DockingLessonPanel({
             {busy ? "Running docking..." : result ? "Run docking again" : "Run docking lesson"}
           </button>
         </div>
+
+        <DockingEducationBridge result={result} />
 
         {!canRun && (
           <div className="mt-4 grid gap-2 md:grid-cols-2">

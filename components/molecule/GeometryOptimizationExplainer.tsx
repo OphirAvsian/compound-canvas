@@ -7,6 +7,24 @@ export function GeometryOptimizationExplainer({
 }: {
   conformer: ConformerResult | null;
 }) {
+  if (!conformer) {
+    return (
+      <section className="border-b border-[#d8d7d1] bg-[#f8f7f2] px-4 py-4 md:px-6">
+        <details className="mx-auto max-w-[1180px] rounded-2xl border border-[#d9d8d2] bg-white p-4 shadow-sm">
+          <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-semibold text-ink">
+            <span>What does 3D cleanup mean?</span>
+            <StatusBadge status="neutral">Runs during Generate 3D</StatusBadge>
+          </summary>
+          <p className="mt-3 max-w-3xl text-[14px] leading-7 text-[#65716b]">
+            Your 2D drawing defines atoms and bonds. Generate 3D asks RDKit to add
+            coordinates, add hydrogens, and relax strained geometry. It still does
+            not place the molecule into EGFR.
+          </p>
+        </details>
+      </section>
+    );
+  }
+
   return (
     <section className="border-b border-[#d8d7d1] bg-[#f8f7f2] px-4 py-5 md:px-6">
       <div className="mx-auto max-w-[1180px] rounded-2xl border border-[#d9d8d2] bg-white p-4 shadow-sm">

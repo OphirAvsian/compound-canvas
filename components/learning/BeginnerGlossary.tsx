@@ -45,17 +45,14 @@ export const beginnerTerms = [
 export function BeginnerGlossaryGrid({
   terms = beginnerTerms,
   title = "Plain-language glossary",
+  collapsible = false,
 }: {
   terms?: typeof beginnerTerms;
   title?: string;
+  collapsible?: boolean;
 }) {
-  return (
-    <section className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
-      <div className="flex items-center gap-2">
-        <BookOpen className="h-4 w-4 text-[#39765b]" />
-        <h2 className="text-[16px] font-semibold">{title}</h2>
-      </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+  const termGrid = (
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {terms.map((item) => (
           <div key={item.term} className="rounded-xl bg-[#f5f8f6] p-3">
             <p className="text-[13px] font-semibold text-[#2f6f54]">{item.term}</p>
@@ -63,6 +60,30 @@ export function BeginnerGlossaryGrid({
           </div>
         ))}
       </div>
+  );
+
+  if (collapsible) {
+    return (
+      <details className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
+        <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-semibold text-ink">
+          <span className="inline-flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-[#39765b]" />
+            {title}
+          </span>
+          <span className="text-[12px] font-semibold text-[#65716b]">Open if a word feels new</span>
+        </summary>
+        <div className="mt-4">{termGrid}</div>
+      </details>
+    );
+  }
+
+  return (
+    <section className="rounded-2xl border border-[#d9d8d2] bg-white p-4">
+      <div className="flex items-center gap-2">
+        <BookOpen className="h-4 w-4 text-[#39765b]" />
+        <h2 className="text-[16px] font-semibold">{title}</h2>
+      </div>
+      <div className="mt-3">{termGrid}</div>
     </section>
   );
 }

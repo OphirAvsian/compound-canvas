@@ -936,6 +936,7 @@ export default function Home() {
                 <div className="mx-auto max-w-[1180px]">
                   <BeginnerGlossaryGrid
                     title="Words used in Molecule Lab"
+                    collapsible
                     terms={beginnerTerms.filter((item) =>
                       ["Molecule", "Conformer", "Ligand", "SDF", "PDBQT"].includes(item.term),
                     )}
@@ -1014,6 +1015,7 @@ export default function Home() {
                 <div className="mx-auto max-w-[1180px]">
                   <BeginnerGlossaryGrid
                     title="Words used in Protein Lab"
+                    collapsible
                     terms={beginnerTerms.filter((item) =>
                       ["Protein", "Residue", "EGFR", "Docking"].includes(item.term),
                     )}
