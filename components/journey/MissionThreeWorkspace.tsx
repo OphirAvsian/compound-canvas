@@ -14,6 +14,8 @@ import {
   type JourneyState,
 } from "@/lib/journey/journey-state";
 import { emitJourneyEvent } from "@/lib/journey/journey-events";
+import { LessonDecision } from "@/components/learning/LessonDecision";
+import { caffeineLessonInteractions } from "@/lib/lesson-interactions";
 import { ReflectionQuestion } from "./ReflectionQuestion";
 import { ScientificEvidenceBadge } from "./ScientificEvidenceBadge";
 
@@ -124,6 +126,12 @@ export function MissionThreeWorkspace({ journeyState }: { journeyState: JourneyS
           </div>
         ) : (
           <>
+            <div className="mt-5">
+              <LessonDecision
+                {...caffeineLessonInteractions.egfrEvidenceChoice}
+              />
+            </div>
+
             <div className="mt-5 grid gap-3 lg:grid-cols-3">
               {lessons.map((lesson) => {
                 const complete =

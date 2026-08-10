@@ -18,6 +18,8 @@ import {
   serializeDockingLessonReport,
 } from "@/lib/experiments/experiment-export";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { LessonDecision } from "@/components/learning/LessonDecision";
+import { caffeineLessonInteractions } from "@/lib/lesson-interactions";
 
 function downloadText(filename: string, text: string, type: string) {
   const url = URL.createObjectURL(new Blob([text], { type }));
@@ -198,6 +200,10 @@ export function DockingLessonPanel({
                 </div>
               </article>
             </div>
+
+            <LessonDecision
+              {...caffeineLessonInteractions.dockingScoreInterpretation}
+            />
 
             <article className="rounded-3xl border border-[#d9d8d2] bg-white p-5">
               <div className="flex items-center gap-2 text-[18px] font-semibold">

@@ -1,4 +1,6 @@
 import { ArrowRight, Atom, Box, Check, MousePointer2 } from "lucide-react";
+import { LessonDecision } from "@/components/learning/LessonDecision";
+import { caffeineLessonInteractions } from "@/lib/lesson-interactions";
 
 export function WorkflowGuide({
   stage,
@@ -78,6 +80,11 @@ export function WorkflowGuide({
               )}
             </div>
           ))}
+        </div>
+        <div className="mt-3">
+          <LessonDecision
+            {...caffeineLessonInteractions.conformerPrediction}
+          />
         </div>
       </div>
     </section>

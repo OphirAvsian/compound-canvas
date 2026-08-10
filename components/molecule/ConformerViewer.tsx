@@ -4,6 +4,8 @@ import { AlertTriangle, CheckCircle2, LoaderCircle, Rotate3D } from "lucide-reac
 import { useEffect, useRef, useState } from "react";
 import type { ConformerResult } from "@/lib/molecules";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { LessonDecision } from "@/components/learning/LessonDecision";
+import { caffeineLessonInteractions } from "@/lib/lesson-interactions";
 
 type MolstarViewer = {
   loadStructureFromData(data: string, format: "sdf"): Promise<void>;
@@ -230,6 +232,13 @@ export function ConformerViewer({
         <div className="flex items-center gap-2 border-t border-[#d9ddd9] bg-[#eaf7ef] px-4 py-3 text-[12px] leading-5 text-[#376b54]">
           <CheckCircle2 className="h-3.5 w-3.5" />
           Coordinates shown in Mol* came directly from this RDKit result.
+        </div>
+      )}
+      {conformer && !stale && (
+        <div className="border-t border-[#d9ddd9] bg-[#fbfaf7] p-4">
+          <LessonDecision
+            {...caffeineLessonInteractions.conformerInterpretation}
+          />
         </div>
       )}
     </section>

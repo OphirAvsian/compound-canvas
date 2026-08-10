@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import type { LigandPreparationResult } from "@/lib/molecules";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { LessonDecision } from "@/components/learning/LessonDecision";
+import { caffeineLessonInteractions } from "@/lib/lesson-interactions";
 
 type Tone = "green" | "yellow" | "red";
 
@@ -299,6 +301,12 @@ export function LigandPreparationPanel({
                   </div>
                 ))}
               </div>
+            </article>
+
+            <article className="lg:col-span-2">
+              <LessonDecision
+                {...caffeineLessonInteractions.ligandTradeoff}
+              />
             </article>
 
             <article className="rounded-xl border border-[#cde2d6] bg-[#f5fbf7] p-4">
