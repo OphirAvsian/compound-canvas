@@ -193,18 +193,25 @@ export async function prepareEgfrDockingInputReceptor(
   signal?: AbortSignal,
 ): Promise<ProteinReceptorPreparationResult> {
   const timeoutController = new AbortController();
-  const timeout = globalThis.setTimeout(() => timeoutController.abort(), 90_000);
+  const timeout = globalThis.setTimeout(() => timeoutController.abort(), 240_000);
   const combinedSignal = signal
     ? AbortSignal.any([signal, timeoutController.signal])
     : timeoutController.signal;
 
-  let response: Response;
+  let response: Response | null = null;
   try {
-    response = await fetch(`${API_URL}/api/proteins/2ity/prepare-receptor`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal: combinedSignal,
-    });
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      response = await fetch(`${API_URL}/api/proteins/2ity/prepare-receptor`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: combinedSignal,
+      });
+      if (response.status !== 503 || attempt === 2) break;
+      const retryAfter = Number(response.headers.get("Retry-After") ?? "3");
+      await new Promise((resolve) =>
+        globalThis.setTimeout(resolve, Math.max(2, retryAfter) * 1000),
+      );
+    }
   } catch {
     if (timeoutController.signal.aborted) {
       throw new Error("EGFR receptor preparation took longer than expected. Please retry.");
@@ -212,6 +219,10 @@ export async function prepareEgfrDockingInputReceptor(
     throw new Error("The calculation service is unavailable. Please wait a moment and retry.");
   } finally {
     globalThis.clearTimeout(timeout);
+  }
+
+  if (!response) {
+    throw new Error("EGFR receptor could not be prepared.");
   }
 
   if (!response.ok) {

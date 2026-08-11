@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     protein_import_max_bytes: int = 10 * 1024 * 1024
     protein_import_atom_limit: int = 100_000
     protein_import_timeout_seconds: float = 20.0
-    protein_preparation_timeout_seconds: float = 60.0
+    protein_preparation_timeout_seconds: float = 180.0
     docking_timeout_seconds: float = 120.0
     trust_proxy_headers: bool = True
 
