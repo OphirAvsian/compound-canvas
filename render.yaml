@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: compound-canvas-api
+    runtime: docker
+    plan: free
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: CC_CORS_ORIGINS
+        value: '["https://compound-canvas.vercel.app","https://compoundcanvas.com","https://www.compoundcanvas.com"]'
+      - key: CC_MAX_REQUEST_BYTES
+        value: "131072"
+      - key: CC_RATE_LIMIT_REQUESTS
+        value: "20"
+      - key: CC_RATE_LIMIT_WINDOW_SECONDS
+        value: "60"
+      - key: CC_CONFORMER_TIMEOUT_SECONDS
+        value: "20"
+      - key: CC_CONFORMER_MAX_CONCURRENCY
+        value: "2"
+      - key: CC_TRUST_PROXY_HEADERS
+        value: "true"

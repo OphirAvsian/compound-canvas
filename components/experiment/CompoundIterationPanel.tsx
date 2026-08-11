@@ -11,6 +11,7 @@ import {
   loadCompoundLibrary,
   saveCompoundLibrary,
   summarizeComparison,
+  upsertCompoundCandidate,
   type CompoundCandidate,
   type DrugLikenessDescriptor,
 } from "@/lib/compound-library";
@@ -108,6 +109,7 @@ function CandidateSummary({
 export function CompoundIterationPanel({ experiment }: { experiment: Experiment }) {
   const [library, setLibrary] = useState<CompoundCandidate[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const descriptors = getDrugLikenessDescriptors(experiment);
   const lipinski = evaluateLipinski(descriptors);
   const currentCandidate = useMemo(
@@ -130,8 +132,16 @@ export function CompoundIterationPanel({ experiment }: { experiment: Experiment 
   const saveCurrent = () => {
     const candidate = createCandidateFromExperiment(experiment);
     if (!candidate) return;
-    persist([candidate, ...library].slice(0, 12));
+    const replaced = library.some(
+      (item) => item.sampleId === candidate.sampleId && item.smiles === candidate.smiles,
+    );
+    persist(upsertCompoundCandidate(library, candidate));
     setSelectedIds((ids) => [candidate.id, ...ids].slice(0, 2));
+    setSaveMessage(
+      replaced
+        ? "Updated the existing saved copy for this same molecule."
+        : "Saved this candidate in this browser.",
+    );
   };
 
   const toggleSelected = (id: string) => {
@@ -168,6 +178,11 @@ export function CompoundIterationPanel({ experiment }: { experiment: Experiment 
             <Save className="h-4 w-4" />
             Save candidate
           </button>
+          {saveMessage && (
+            <p className="text-[12px] font-semibold leading-5 text-[#39765b] lg:max-w-[210px]">
+              {saveMessage}
+            </p>
+          )}
         </div>
 
         {!descriptors.length ? (

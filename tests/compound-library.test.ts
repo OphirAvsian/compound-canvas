@@ -6,6 +6,8 @@ import {
   loadCompoundLibrary,
   saveCompoundLibrary,
   summarizeComparison,
+  upsertCompoundCandidate,
+  type CompoundCandidate,
 } from "../lib/compound-library";
 import { createInitialExperiment, type Experiment } from "../lib/experiments/experiment-model";
 
@@ -81,6 +83,22 @@ describe("compound library and drug-likeness education", () => {
 
     expect(loadCompoundLibrary(mockStorage)).toHaveLength(1);
     expect(loadCompoundLibrary(mockStorage)[0].name).toBe("Caffeine");
+  });
+
+  it("filters malformed stored candidates and replaces accidental duplicate saves", () => {
+    const storage = new Map<string, string>();
+    const mockStorage = {
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => storage.set(key, value),
+    } as unknown as Storage;
+    const first = createCandidateFromExperiment(experimentWithConformer(), "2026-08-10T12:02:00.000Z")!;
+    const duplicate = createCandidateFromExperiment(experimentWithConformer(), "2026-08-10T12:03:00.000Z")!;
+
+    saveCompoundLibrary(mockStorage, [{ bad: true }, first] as unknown as CompoundCandidate[]);
+
+    expect(loadCompoundLibrary(mockStorage)).toEqual([first]);
+    expect(upsertCompoundCandidate([first], duplicate)).toHaveLength(1);
+    expect(upsertCompoundCandidate([first], duplicate)[0].id).toBe(duplicate.id);
   });
 
   it("compares candidates using supported descriptor tradeoffs only", () => {

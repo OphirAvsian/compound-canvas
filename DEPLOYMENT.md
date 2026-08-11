@@ -1,36 +1,53 @@
-# Deploy Compound Canvas to Vercel and Railway
+# Deploy Compound Canvas to Vercel and Render
 
 ## Architecture
 
 ```text
 Browser
   -> Vercel: Next.js, Ketcher, Mol*
-  -> Railway: FastAPI and RDKit Docker container
+  -> Render: FastAPI and RDKit Docker container
 ```
 
 PostgreSQL, Redis, Celery, docking, and project persistence are not part of this
 deployment.
 
-## 1. Deploy the Railway backend
+## 1. Deploy the Render backend
 
-1. Create a Railway project from `OphirAvsian/compound-canvas`.
-2. Create one service with root directory `/api`.
-3. Railway detects `api/Dockerfile`.
-4. Set health-check path `/health`.
-5. Generate a public Railway domain.
-6. Set the production variables shown in `README.md`.
-7. Confirm both `/health` and `/ready` return HTTP 200.
+Use the root `render.yaml` blueprint, or create the service manually with the
+same settings:
 
-The container starts Uvicorn on Railway's provided `PORT`. Do not deploy the
-PostgreSQL, Redis, or worker services from `docker-compose.yml`.
+1. Create a new Render Web Service from `OphirAvsian/compound-canvas`.
+2. Select Docker runtime.
+3. Set root directory to `api`.
+4. Set Dockerfile path to `./Dockerfile`.
+5. Set health-check path to `/health`.
+6. Use the free instance type for testing.
+7. Set the production variables shown below.
+8. Confirm both `/health` and `/ready` return HTTP 200.
+
+The container starts Uvicorn on Render's provided `PORT`. Do not set `PORT`
+manually and do not deploy the PostgreSQL, Redis, or worker services from
+`docker-compose.yml`.
+
+Required Render variables:
+
+```text
+CC_CORS_ORIGINS=["https://compound-canvas.vercel.app","https://compoundcanvas.com","https://www.compoundcanvas.com"]
+CC_MAX_REQUEST_BYTES=131072
+CC_RATE_LIMIT_REQUESTS=20
+CC_RATE_LIMIT_WINDOW_SECONDS=60
+CC_CONFORMER_TIMEOUT_SECONDS=20
+CC_CONFORMER_MAX_CONCURRENCY=2
+CC_TRUST_PROXY_HEADERS=true
+```
 
 ## 2. Connect the Vercel frontend
 
 1. Open the existing Compound Canvas project in Vercel.
-2. Set `NEXT_PUBLIC_API_URL` to the Railway HTTPS domain.
+2. Set `NEXT_PUBLIC_API_URL` to the verified Render HTTPS domain.
 3. Redeploy production.
 4. If using a custom domain, add it to Vercel and add the matching exact origin
-   to `CC_CORS_ORIGINS` on Railway.
+   to `CC_CORS_ORIGINS` on Render.
 
 ## Post-deployment smoke test
 
@@ -45,9 +62,11 @@ PostgreSQL, Redis, or worker services from `docker-compose.yml`.
 
 ## Operational notes
 
-- Use one Railway replica for the current process-local rate and concurrency
+- Use one Render instance for the current process-local rate and concurrency
   controls.
 - Monitor `/health`; use `/ready` when checking application readiness.
-- Set Railway spending alerts.
+- Free Render services can sleep after inactivity. The first request after
+  sleeping may be slow.
 - Request IDs are returned in `X-Request-ID` and included in JSON logs.
-- Do not add docking to the synchronous conformer process.
+- Docking can be slower than conformer generation. Keep one web service for
+  limited testing and monitor timeouts before broader sharing.

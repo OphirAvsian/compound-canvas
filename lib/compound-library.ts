@@ -183,13 +183,42 @@ export function summarizeComparison(a: CompoundCandidate, b: CompoundCandidate):
   return messages;
 }
 
+function isCompoundCandidate(value: unknown): value is CompoundCandidate {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<CompoundCandidate>;
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.name === "string" &&
+    typeof candidate.sampleId === "string" &&
+    typeof candidate.smiles === "string" &&
+    typeof candidate.savedAt === "string" &&
+    Array.isArray(candidate.descriptors) &&
+    typeof candidate.lipinski?.passedRules === "number" &&
+    candidate.lipinski.totalRules === 4
+  );
+}
+
+export function upsertCompoundCandidate(
+  library: CompoundCandidate[],
+  candidate: CompoundCandidate,
+  limit = 12,
+) {
+  const duplicateKey = (item: CompoundCandidate) =>
+    `${item.sampleId}::${item.smiles}`;
+  const candidateKey = duplicateKey(candidate);
+  return [
+    candidate,
+    ...library.filter((item) => duplicateKey(item) !== candidateKey),
+  ].slice(0, limit);
+}
+
 export function loadCompoundLibrary(storage: Storage | undefined): CompoundCandidate[] {
   if (!storage) return [];
   try {
     const raw = storage.getItem(COMPOUND_LIBRARY_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as CompoundCandidate[];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.filter(isCompoundCandidate) : [];
   } catch {
     return [];
   }
