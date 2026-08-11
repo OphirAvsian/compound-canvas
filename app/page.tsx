@@ -4,13 +4,13 @@ import dynamic from "next/dynamic";
 import {
   BookOpen,
   GraduationCap,
-  Hexagon,
   Save,
   Server,
   Share2,
   Sparkles,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CompoundCanvasMark } from "@/components/brand/CompoundCanvasMark";
 import { CapabilitiesPanel } from "@/components/capabilities/CapabilitiesPanel";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
 import { BeginnerSampleChooser } from "@/components/molecule/BeginnerSampleChooser";
@@ -94,9 +94,8 @@ const KetcherEditor = dynamic(
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="relative flex h-8 w-8 items-center justify-center rounded-[10px] bg-ink text-white shadow-sm">
-        <Hexagon className="h-4 w-4" strokeWidth={1.8} />
-        <span className="absolute h-1.5 w-1.5 rounded-full bg-mint ring-2 ring-ink" />
+      <div className="flex h-8 w-8 items-center justify-center text-[#06265f]">
+        <CompoundCanvasMark className="h-8 w-8" />
       </div>
       <span className="text-[15px] font-semibold tracking-[-0.025em]">Compound Canvas</span>
     </div>
