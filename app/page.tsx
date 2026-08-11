@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CompoundCanvasMark } from "@/components/brand/CompoundCanvasMark";
+import { DrugDesign101Course } from "@/components/drug-design-101/DrugDesign101Course";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
 import { BeginnerSampleChooser } from "@/components/molecule/BeginnerSampleChooser";
 import { GeometryOptimizationExplainer } from "@/components/molecule/GeometryOptimizationExplainer";
@@ -59,6 +60,7 @@ import type { MoleculeExport } from "@/components/molecule/KetcherEditor";
 import { useLearningJourney } from "@/hooks/useLearningJourney";
 import { useExperiment } from "@/hooks/useExperiment";
 import { useBeginnerMode } from "@/hooks/useBeginnerMode";
+import { useDrugDesign101Progress } from "@/hooks/useDrugDesign101Progress";
 import { emitJourneyEvent } from "@/lib/journey/journey-events";
 import {
   cleanEgfrChainA,
@@ -128,6 +130,7 @@ export default function Home() {
   const journey = useLearningJourney();
   const experiment = useExperiment();
   const beginnerMode = useBeginnerMode();
+  const drugDesign101 = useDrugDesign101Progress();
 
   const checkService = useCallback(async () => {
     setServiceStatus("checking");
@@ -608,6 +611,13 @@ export default function Home() {
   const startDrugDesign101 = useCallback(() => {
     setProductMode("drug-design-101");
     chooseSample(sampleMolecules[0]);
+    setActiveArea("home");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [chooseSample]);
+
+  const continueToModule2 = useCallback(() => {
+    chooseSample(sampleMolecules[0]);
+    setProductMode("drug-design-101");
     setActiveArea("molecule");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [chooseSample]);
@@ -632,6 +642,7 @@ export default function Home() {
 
   const resetDemo = useCallback(() => {
     journey.resetJourney();
+    drugDesign101.resetDrugDesign101();
     experiment.resetExperiment();
     setSelectedSample(sampleMolecules[0]);
     setConformer(null);
@@ -655,7 +666,7 @@ export default function Home() {
     setProductMode("landing");
     setActiveArea("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [experiment, journey]);
+  }, [drugDesign101, experiment, journey]);
 
   const workflowStage = generating
     ? "calculating"
@@ -689,6 +700,8 @@ export default function Home() {
             {activeArea === "home"
               ? productMode === "landing"
                 ? "Choose your path"
+                : productMode === "drug-design-101"
+                  ? "Drug Design 101"
                 : "Scientific learning workspace"
               : activeArea === "molecule"
                 ? "Molecule Lab"
@@ -796,11 +809,23 @@ export default function Home() {
 
       <section id="main-content" tabIndex={-1} className="min-w-0 flex-1">
         {activeArea === "home" && (
-          <GuidedStart
-            onStartDrugDesign101={startDrugDesign101}
-            onOpenSandbox={openSandbox}
-            onSeeHowItWorks={seeHowItWorks}
-          />
+          productMode === "drug-design-101" ? (
+            <DrugDesign101Course
+              progress={drugDesign101.progress}
+              hydrated={drugDesign101.hydrated}
+              onAnswerModuleOne={drugDesign101.answerModuleOneQuestion}
+              onCompleteModuleOne={() =>
+                drugDesign101.completeDrugDesign101Module("what-is-a-drug")
+              }
+              onContinueToModule2={continueToModule2}
+            />
+          ) : (
+            <GuidedStart
+              onStartDrugDesign101={startDrugDesign101}
+              onOpenSandbox={openSandbox}
+              onSeeHowItWorks={seeHowItWorks}
+            />
+          )
         )}
 
         {activeArea === "molecule" && (
