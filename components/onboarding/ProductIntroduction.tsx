@@ -3,7 +3,6 @@
 import {
   ArrowRight,
   Atom,
-  BookOpenCheck,
   FlaskConical,
   NotebookTabs,
 } from "lucide-react";
@@ -32,12 +31,6 @@ const workspaces: Array<{
     title: "Experiment",
     body: "See what evidence was recorded, what remains unavailable, and download learning reports.",
     icon: NotebookTabs,
-  },
-  {
-    area: "journey",
-    title: "Learning Journey",
-    body: "Follow the recommended path and understand why each scientific step matters.",
-    icon: BookOpenCheck,
   },
 ];
 

@@ -2,29 +2,21 @@
 
 import {
   Atom,
-  BookOpenCheck,
   ChevronDown,
   FlaskConical,
-  Home,
   Menu,
   NotebookTabs,
 } from "lucide-react";
 import { useState } from "react";
 
-export type AppArea = "home" | "molecule" | "protein" | "experiment" | "journey";
+export type AppArea = "home" | "molecule" | "protein" | "experiment";
 
 const areas: Array<{
   id: AppArea;
   label: string;
   shortDescription: string;
-  icon: typeof Home;
+  icon: typeof FlaskConical;
 }> = [
-  {
-    id: "home",
-    label: "Home",
-    shortDescription: "Start and understand the workflow",
-    icon: Home,
-  },
   {
     id: "molecule",
     label: "Molecule Lab",
@@ -42,12 +34,6 @@ const areas: Array<{
     label: "Experiment",
     shortDescription: "Review evidence and reports",
     icon: NotebookTabs,
-  },
-  {
-    id: "journey",
-    label: "Learning Journey",
-    shortDescription: "Follow the guided science story",
-    icon: BookOpenCheck,
   },
 ];
 
@@ -120,7 +106,7 @@ export function AppNavigation({
         )}
       </div>
 
-      <div className="mx-auto hidden max-w-[1180px] gap-2 sm:grid sm:grid-cols-5">
+      <div className="mx-auto hidden max-w-[1180px] gap-2 sm:grid sm:grid-cols-3">
         {areas.map((area) => {
           const active = area.id === activeArea;
           return (
