@@ -9,6 +9,8 @@ import {
   answerModuleOne,
   completeModule,
   createInitialDrugDesign101Progress,
+  updateModuleLearning,
+  type ModuleLearningProgress,
   type DrugDesign101Progress,
 } from "@/lib/drug-design-101/progress";
 import {
@@ -53,6 +55,13 @@ export function useDrugDesign101Progress() {
     setProgress((current) => answerModuleTwoAssessment(current, answerId));
   }, []);
 
+  const updateDrugDesign101Module = useCallback(
+    (moduleId: DrugDesign101ModuleId, update: Partial<ModuleLearningProgress>) => {
+      setProgress((current) => updateModuleLearning(current, moduleId, update));
+    },
+    [],
+  );
+
   const resetDrugDesign101 = useCallback(() => {
     clearDrugDesign101Progress(window.localStorage);
     setProgress(createInitialDrugDesign101Progress());
@@ -65,6 +74,7 @@ export function useDrugDesign101Progress() {
     advanceModuleTwoDemoStep,
     answerModuleTwoPredictionQuestion,
     answerModuleTwoAssessmentQuestion,
+    updateDrugDesign101Module,
     completeDrugDesign101Module,
     resetDrugDesign101,
   };

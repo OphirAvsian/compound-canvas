@@ -21,7 +21,15 @@ export type DrugDesign101Progress = {
   moduleTwoDemoStep: number;
   moduleTwoPredictionAnswerId?: string;
   moduleTwoAssessmentAnswerId?: string;
+  moduleLearning: Partial<Record<DrugDesign101ModuleId, ModuleLearningProgress>>;
   updatedAt: string;
+};
+
+export type ModuleLearningProgress = {
+  demoStep: number;
+  predictionAnswerId?: string;
+  assessmentAnswerId?: string;
+  selectedCandidateId?: string;
 };
 
 const moduleIds = drugDesign101Modules.map((module) => module.id);
@@ -42,6 +50,7 @@ export function createInitialDrugDesign101Progress(
     ) as Record<DrugDesign101ModuleId, ModuleProgress>,
     moduleOneFeedbackSeen: false,
     moduleTwoDemoStep: 0,
+    moduleLearning: {},
     updatedAt: now,
   };
 }
@@ -69,14 +78,30 @@ export function normalizeDrugDesign101Progress(
       };
     }
   }
+  let sequenceOpen = true;
+  for (const moduleId of moduleIds) {
+    if (!sequenceOpen) {
+      modules[moduleId] = { status: "locked" };
+      continue;
+    }
+    if (modules[moduleId].status === "complete") continue;
+    modules[moduleId] = { status: "available" };
+    sequenceOpen = false;
+  }
+
+  const requestedActiveModuleId =
+    parsed.activeModuleId && moduleIds.includes(parsed.activeModuleId)
+      ? parsed.activeModuleId
+      : initial.activeModuleId;
+  const activeModuleId =
+    modules[requestedActiveModuleId]?.status === "locked"
+      ? moduleIds.find((moduleId) => modules[moduleId].status === "available") ?? initial.activeModuleId
+      : requestedActiveModuleId;
 
   return {
     ...initial,
     ...parsed,
-    activeModuleId:
-      parsed.activeModuleId && moduleIds.includes(parsed.activeModuleId)
-        ? parsed.activeModuleId
-        : initial.activeModuleId,
+    activeModuleId,
     modules,
     moduleOneFeedbackSeen: Boolean(parsed.moduleOneFeedbackSeen),
     moduleTwoDemoStep:
@@ -85,7 +110,47 @@ export function normalizeDrugDesign101Progress(
         : initial.moduleTwoDemoStep,
     moduleTwoPredictionAnswerId: parsed.moduleTwoPredictionAnswerId,
     moduleTwoAssessmentAnswerId: parsed.moduleTwoAssessmentAnswerId,
+    moduleLearning: normalizeModuleLearning(parsed.moduleLearning),
     updatedAt: parsed.updatedAt ?? now,
+  };
+}
+
+function normalizeModuleLearning(
+  value: DrugDesign101Progress["moduleLearning"] | undefined,
+): DrugDesign101Progress["moduleLearning"] {
+  if (!value || typeof value !== "object") return {};
+  return Object.fromEntries(
+    moduleIds.flatMap((moduleId) => {
+      const entry = value[moduleId];
+      if (!entry || typeof entry !== "object") return [];
+      return [[moduleId, {
+        demoStep: typeof entry.demoStep === "number" ? Math.max(0, Math.min(4, entry.demoStep)) : 0,
+        predictionAnswerId: typeof entry.predictionAnswerId === "string" ? entry.predictionAnswerId : undefined,
+        assessmentAnswerId: typeof entry.assessmentAnswerId === "string" ? entry.assessmentAnswerId : undefined,
+        selectedCandidateId: typeof entry.selectedCandidateId === "string" ? entry.selectedCandidateId : undefined,
+      }]];
+    }),
+  );
+}
+
+export function updateModuleLearning(
+  progress: DrugDesign101Progress,
+  moduleId: DrugDesign101ModuleId,
+  update: Partial<ModuleLearningProgress>,
+  now = new Date().toISOString(),
+): DrugDesign101Progress {
+  const current = progress.moduleLearning[moduleId] ?? { demoStep: 0 };
+  return {
+    ...progress,
+    moduleLearning: {
+      ...progress.moduleLearning,
+      [moduleId]: {
+        ...current,
+        ...update,
+        demoStep: Math.max(0, Math.min(4, update.demoStep ?? current.demoStep)),
+      },
+    },
+    updatedAt: now,
   };
 }
 
@@ -107,6 +172,7 @@ export function completeModule(
   moduleId: DrugDesign101ModuleId,
   now = new Date().toISOString(),
 ): DrugDesign101Progress {
+  if (progress.modules[moduleId]?.status === "locked") return progress;
   const nextModule = drugDesign101Modules.find(
     (module) => module.number === (drugDesign101Modules.find((candidate) => candidate.id === moduleId)?.number ?? 0) + 1,
   );

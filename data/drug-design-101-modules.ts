@@ -51,7 +51,7 @@ export const drugDesign101Modules: DrugDesign101Module[] = [
     title: "Proteins & Drug Targets",
     shortTitle: "Protein targets",
     promise: "Meet EGFR and inspect real protein residues.",
-    statusLabel: "Coming next",
+    statusLabel: "Real EGFR activity",
     iconKey: "atom",
   },
   {
@@ -60,7 +60,7 @@ export const drugDesign101Modules: DrugDesign101Module[] = [
     title: "Binding & Binding Pockets",
     shortTitle: "Binding pockets",
     promise: "Understand where a molecule may sit on a protein.",
-    statusLabel: "Coming next",
+    statusLabel: "Curated pocket lesson",
     iconKey: "target",
   },
   {
@@ -69,7 +69,7 @@ export const drugDesign101Modules: DrugDesign101Module[] = [
     title: "How Drugs Are Designed",
     shortTitle: "Design cycle",
     promise: "Follow the design, test, compare, and improve loop.",
-    statusLabel: "Coming next",
+    statusLabel: "Candidate tradeoffs",
     iconKey: "click",
   },
   {
@@ -78,7 +78,7 @@ export const drugDesign101Modules: DrugDesign101Module[] = [
     title: "Molecular Docking",
     shortTitle: "Docking",
     promise: "Learn what docking estimates and what it does not prove.",
-    statusLabel: "Coming next",
+    statusLabel: "Real curated Vina activity",
     iconKey: "search",
   },
   {
@@ -87,7 +87,7 @@ export const drugDesign101Modules: DrugDesign101Module[] = [
     title: "Evaluating Candidates",
     shortTitle: "Evaluate",
     promise: "Use descriptors and reports without pretending one score decides everything.",
-    statusLabel: "Coming next",
+    statusLabel: "Real calculated descriptors",
     iconKey: "shield",
   },
   {
@@ -96,7 +96,7 @@ export const drugDesign101Modules: DrugDesign101Module[] = [
     title: "Design Challenge",
     shortTitle: "Challenge",
     promise: "Apply the full workflow to improve a candidate.",
-    statusLabel: "Future module",
+    statusLabel: "Final evidence challenge",
     iconKey: "trophy",
   },
 ];

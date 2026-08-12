@@ -20,6 +20,11 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { LessonDecision } from "@/components/learning/LessonDecision";
 import { caffeineLessonInteractions } from "@/lib/lesson-interactions";
 import type { ConformerResult } from "@/lib/molecules";
+import { DrugDesign101AdvancedModule } from "@/components/drug-design-101/DrugDesign101AdvancedModules";
+import type { Experiment } from "@/lib/experiments/experiment-model";
+import type { CompoundCandidate } from "@/lib/compound-library";
+import type { DrugDesign101ModuleId } from "@/data/drug-design-101-modules";
+import type { ModuleLearningProgress } from "@/lib/drug-design-101/progress";
 
 const moduleIcons = {
   lightbulb: Lightbulb,
@@ -137,6 +142,11 @@ export function DrugDesign101Course({
   onCompleteModuleOne,
   onCompleteModuleTwo,
   onContinueToModule2,
+  experiment,
+  candidates,
+  onUpdateModule,
+  onCompleteAdvancedModule,
+  onNavigate,
 }: {
   progress: DrugDesign101Progress;
   hydrated: boolean;
@@ -147,6 +157,11 @@ export function DrugDesign101Course({
   onCompleteModuleOne: () => void;
   onCompleteModuleTwo: () => void;
   onContinueToModule2: () => void;
+  experiment: Experiment;
+  candidates: CompoundCandidate[];
+  onUpdateModule: (moduleId: DrugDesign101ModuleId, update: Partial<ModuleLearningProgress>) => void;
+  onCompleteAdvancedModule: (moduleId: DrugDesign101ModuleId) => void;
+  onNavigate: (area: "molecule" | "protein" | "experiment") => void;
 }) {
   const summary = getDrugDesign101ProgressSummary(progress);
   const selectedAnswer = moduleOneAnswers.find(
@@ -242,24 +257,16 @@ export function DrugDesign101Course({
         </aside>
 
         <div className="space-y-5">
-          {activeModuleId === "proteins-drug-targets" ? (
-            <div className="rounded-[2rem] border border-[#b7d9c7] bg-[#f0faf4] p-5 shadow-sm md:p-7">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge status="real">Module 2 complete</StatusBadge>
-                <StatusBadge status="neutral">Module 3 unlocked</StatusBadge>
-              </div>
-              <h2 className="mt-4 text-[34px] font-semibold leading-tight tracking-[-0.055em] text-ink md:text-[48px]">
-                Proteins & Drug Targets
-              </h2>
-              <p className="mt-3 max-w-2xl text-[18px] leading-8 text-[#52635a]">
-                You unlocked the next module. In the next phase, this lesson will
-                connect molecular shape to real protein targets like EGFR.
-              </p>
-              <div className="mt-5 rounded-2xl border border-[#cde2d6] bg-white p-4 text-[14px] leading-7 text-[#52635a]">
-                For now, Sandbox and the existing Protein Lab remain available
-                directly. No new protein claims or calculations were added here.
-              </div>
-            </div>
+          {activeModuleId !== "what-is-a-drug" && activeModuleId !== "molecules-3d-shape" ? (
+            <DrugDesign101AdvancedModule
+              moduleId={activeModuleId}
+              progress={progress}
+              experiment={experiment}
+              candidates={candidates}
+              onUpdate={(update) => onUpdateModule(activeModuleId, update)}
+              onComplete={() => onCompleteAdvancedModule(activeModuleId)}
+              onNavigate={onNavigate}
+            />
           ) : activeModuleId === "molecules-3d-shape" && moduleTwoAvailable ? (
             <>
               <div className="rounded-[2rem] border border-[#d9d8d2] bg-white p-5 shadow-sm md:p-7">

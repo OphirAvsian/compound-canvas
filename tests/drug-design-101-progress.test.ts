@@ -7,6 +7,7 @@ import {
   completeModule,
   createInitialDrugDesign101Progress,
   normalizeDrugDesign101Progress,
+  updateModuleLearning,
 } from "../lib/drug-design-101/progress";
 import {
   DRUG_DESIGN_101_STORAGE_KEY,
@@ -85,5 +86,45 @@ describe("Drug Design 101 progress", () => {
     expect(normalizeDrugDesign101Progress({ version: 999 } as never).modules["what-is-a-drug"].status).toBe(
       "available",
     );
+  });
+
+  it("stores advanced module interactions and unlocks modules sequentially", () => {
+    let progress = createInitialDrugDesign101Progress("2026-08-12T00:00:00.000Z");
+    progress = completeModule(progress, "design-challenge", "2026-08-12T00:01:00.000Z");
+    expect(progress.modules["design-challenge"].status).toBe("locked");
+
+    progress = completeModule(progress, "what-is-a-drug");
+    progress = completeModule(progress, "molecules-3d-shape");
+    progress = updateModuleLearning(progress, "proteins-drug-targets", {
+      demoStep: 2,
+      predictionAnswerId: "shape-sites",
+      assessmentAnswerId: "coordinate-fact",
+    });
+    progress = completeModule(progress, "proteins-drug-targets");
+
+    expect(progress.moduleLearning["proteins-drug-targets"]).toMatchObject({
+      demoStep: 2,
+      predictionAnswerId: "shape-sites",
+      assessmentAnswerId: "coordinate-fact",
+    });
+    expect(progress.modules["binding-pockets"].status).toBe("available");
+    expect(progress.modules["how-drugs-are-designed"].status).toBe("locked");
+  });
+
+  it("repairs impossible future unlocks from corrupted storage", () => {
+    const initial = createInitialDrugDesign101Progress();
+    const repaired = normalizeDrugDesign101Progress({
+      ...initial,
+      activeModuleId: "design-challenge",
+      modules: {
+        ...initial.modules,
+        "molecular-docking": { status: "available" },
+        "design-challenge": { status: "complete" },
+      },
+    });
+    expect(repaired.modules["what-is-a-drug"].status).toBe("available");
+    expect(repaired.modules["molecular-docking"].status).toBe("locked");
+    expect(repaired.modules["design-challenge"].status).toBe("locked");
+    expect(repaired.activeModuleId).toBe("what-is-a-drug");
   });
 });

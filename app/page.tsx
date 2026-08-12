@@ -15,6 +15,7 @@ import {
   DrugDesign101Course,
   DrugDesign101MoleculeCoach,
 } from "@/components/drug-design-101/DrugDesign101Course";
+import { DrugDesign101WorkspaceCoach } from "@/components/drug-design-101/DrugDesign101AdvancedModules";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
 import { BeginnerSampleChooser } from "@/components/molecule/BeginnerSampleChooser";
 import { GeometryOptimizationExplainer } from "@/components/molecule/GeometryOptimizationExplainer";
@@ -65,6 +66,7 @@ import { useExperiment } from "@/hooks/useExperiment";
 import { useBeginnerMode } from "@/hooks/useBeginnerMode";
 import { useDrugDesign101Progress } from "@/hooks/useDrugDesign101Progress";
 import { emitJourneyEvent } from "@/lib/journey/journey-events";
+import { loadCompoundLibrary } from "@/lib/compound-library";
 import {
   cleanEgfrChainA,
   importRcsbProtein,
@@ -692,6 +694,9 @@ export default function Home() {
   const guidedMode = productMode === "drug-design-101";
   const sandboxMode = productMode === "sandbox";
   const beginnerWorkspaceMode = beginnerMode.enabled && !sandboxMode;
+  const compoundCandidates = loadCompoundLibrary(
+    typeof window === "undefined" ? undefined : window.localStorage,
+  );
 
   return (
     <main className="flex min-h-screen flex-col overflow-x-clip">
@@ -833,6 +838,11 @@ export default function Home() {
                 drugDesign101.completeDrugDesign101Module("molecules-3d-shape")
               }
               onContinueToModule2={continueToModule2}
+              experiment={experiment.experiment}
+              candidates={compoundCandidates}
+              onUpdateModule={drugDesign101.updateDrugDesign101Module}
+              onCompleteAdvancedModule={drugDesign101.completeDrugDesign101Module}
+              onNavigate={navigateToArea}
             />
           ) : (
             <GuidedStart
@@ -952,6 +962,15 @@ export default function Home() {
 
         {activeArea === "protein" && (
           <>
+            {guidedMode && (
+              <DrugDesign101WorkspaceCoach
+                progress={drugDesign101.progress}
+                experiment={experiment.experiment}
+                candidates={compoundCandidates}
+                area="protein"
+                onReturn={returnToDrugDesign101}
+              />
+            )}
             <div className="border-b border-[#d8d7d1] bg-[#f7f5ef] px-4 py-8 md:px-6">
               <div className="mx-auto max-w-[1180px]">
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#39765b]">
@@ -1022,6 +1041,15 @@ export default function Home() {
 
         {activeArea === "experiment" && (
           <>
+          {guidedMode && (
+            <DrugDesign101WorkspaceCoach
+              progress={drugDesign101.progress}
+              experiment={experiment.experiment}
+              candidates={compoundCandidates}
+              area="experiment"
+              onReturn={returnToDrugDesign101}
+            />
+          )}
           {experiment.hydrated ? (
             <>
               {experiment.experiment.target.kind === "curated" && (
