@@ -11,14 +11,23 @@ export function LessonDecision({
   prompt,
   options,
   boundary,
+  selectedId: controlledSelectedId,
+  onSelect,
 }: {
   eyebrow?: string;
   title: string;
   prompt: string;
   options: LessonDecisionOption[];
   boundary?: string;
+  selectedId?: string | null;
+  onSelect?: (optionId: string | null) => void;
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [internalSelectedId, setInternalSelectedId] = useState<string | null>(null);
+  const selectedId = controlledSelectedId === undefined ? internalSelectedId : controlledSelectedId;
+  const setSelectedId = (optionId: string | null) => {
+    if (controlledSelectedId === undefined) setInternalSelectedId(optionId);
+    onSelect?.(optionId);
+  };
   const selected = options.find((option) => option.id === selectedId);
 
   return (

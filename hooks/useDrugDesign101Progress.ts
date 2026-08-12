@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import type { DrugDesign101ModuleId } from "@/data/drug-design-101-modules";
 import {
+  advanceModuleTwoDemo,
+  answerModuleTwoAssessment,
+  answerModuleTwoPrediction,
   answerModuleOne,
   completeModule,
   createInitialDrugDesign101Progress,
@@ -38,6 +41,18 @@ export function useDrugDesign101Progress() {
     setProgress((current) => completeModule(current, moduleId));
   }, []);
 
+  const advanceModuleTwoDemoStep = useCallback(() => {
+    setProgress((current) => advanceModuleTwoDemo(current));
+  }, []);
+
+  const answerModuleTwoPredictionQuestion = useCallback((answerId: string | null) => {
+    setProgress((current) => answerModuleTwoPrediction(current, answerId));
+  }, []);
+
+  const answerModuleTwoAssessmentQuestion = useCallback((answerId: string | null) => {
+    setProgress((current) => answerModuleTwoAssessment(current, answerId));
+  }, []);
+
   const resetDrugDesign101 = useCallback(() => {
     clearDrugDesign101Progress(window.localStorage);
     setProgress(createInitialDrugDesign101Progress());
@@ -47,6 +62,9 @@ export function useDrugDesign101Progress() {
     progress,
     hydrated,
     answerModuleOneQuestion,
+    advanceModuleTwoDemoStep,
+    answerModuleTwoPredictionQuestion,
+    answerModuleTwoAssessmentQuestion,
     completeDrugDesign101Module,
     resetDrugDesign101,
   };

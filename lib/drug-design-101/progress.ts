@@ -18,6 +18,9 @@ export type DrugDesign101Progress = {
   modules: Record<DrugDesign101ModuleId, ModuleProgress>;
   moduleOneAnswerId?: string;
   moduleOneFeedbackSeen: boolean;
+  moduleTwoDemoStep: number;
+  moduleTwoPredictionAnswerId?: string;
+  moduleTwoAssessmentAnswerId?: string;
   updatedAt: string;
 };
 
@@ -38,6 +41,7 @@ export function createInitialDrugDesign101Progress(
       ]),
     ) as Record<DrugDesign101ModuleId, ModuleProgress>,
     moduleOneFeedbackSeen: false,
+    moduleTwoDemoStep: 0,
     updatedAt: now,
   };
 }
@@ -75,6 +79,12 @@ export function normalizeDrugDesign101Progress(
         : initial.activeModuleId,
     modules,
     moduleOneFeedbackSeen: Boolean(parsed.moduleOneFeedbackSeen),
+    moduleTwoDemoStep:
+      typeof parsed.moduleTwoDemoStep === "number"
+        ? Math.max(0, Math.min(2, parsed.moduleTwoDemoStep))
+        : initial.moduleTwoDemoStep,
+    moduleTwoPredictionAnswerId: parsed.moduleTwoPredictionAnswerId,
+    moduleTwoAssessmentAnswerId: parsed.moduleTwoAssessmentAnswerId,
     updatedAt: parsed.updatedAt ?? now,
   };
 }
@@ -109,6 +119,41 @@ export function completeModule(
       [moduleId]: { status: "complete", completedAt: now },
       ...(nextModule ? { [nextModule.id]: { status: "available" as const } } : {}),
     },
+    updatedAt: now,
+  };
+}
+
+export function advanceModuleTwoDemo(
+  progress: DrugDesign101Progress,
+  now = new Date().toISOString(),
+): DrugDesign101Progress {
+  return {
+    ...progress,
+    moduleTwoDemoStep: Math.min(2, progress.moduleTwoDemoStep + 1),
+    updatedAt: now,
+  };
+}
+
+export function answerModuleTwoPrediction(
+  progress: DrugDesign101Progress,
+  answerId: string | null,
+  now = new Date().toISOString(),
+): DrugDesign101Progress {
+  return {
+    ...progress,
+    moduleTwoPredictionAnswerId: answerId ?? undefined,
+    updatedAt: now,
+  };
+}
+
+export function answerModuleTwoAssessment(
+  progress: DrugDesign101Progress,
+  answerId: string | null,
+  now = new Date().toISOString(),
+): DrugDesign101Progress {
+  return {
+    ...progress,
+    moduleTwoAssessmentAnswerId: answerId ?? undefined,
     updatedAt: now,
   };
 }

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  advanceModuleTwoDemo,
   answerModuleOne,
+  answerModuleTwoAssessment,
+  answerModuleTwoPrediction,
   completeModule,
   createInitialDrugDesign101Progress,
   normalizeDrugDesign101Progress,
@@ -50,6 +53,32 @@ describe("Drug Design 101 progress", () => {
 
     expect(storage.getItem(DRUG_DESIGN_101_STORAGE_KEY)).toContain("molecule-target");
     expect(loadDrugDesign101Progress(storage).modules["what-is-a-drug"].status).toBe("complete");
+  });
+
+  it("records Module 2 demo, prediction, assessment, and unlocks Module 3", () => {
+    let progress = completeModule(
+      answerModuleOne(
+        createInitialDrugDesign101Progress("2026-08-11T00:00:00.000Z"),
+        "molecule-target",
+        "2026-08-11T00:01:00.000Z",
+      ),
+      "what-is-a-drug",
+      "2026-08-11T00:02:00.000Z",
+    );
+
+    progress = advanceModuleTwoDemo(progress, "2026-08-11T00:03:00.000Z");
+    progress = advanceModuleTwoDemo(progress, "2026-08-11T00:04:00.000Z");
+    expect(progress.moduleTwoDemoStep).toBe(2);
+
+    progress = answerModuleTwoPrediction(progress, "coordinates", "2026-08-11T00:05:00.000Z");
+    expect(progress.moduleTwoPredictionAnswerId).toBe("coordinates");
+
+    progress = answerModuleTwoAssessment(progress, "plausible-geometry", "2026-08-11T00:06:00.000Z");
+    progress = completeModule(progress, "molecules-3d-shape", "2026-08-11T00:07:00.000Z");
+
+    expect(progress.modules["molecules-3d-shape"].status).toBe("complete");
+    expect(progress.modules["proteins-drug-targets"].status).toBe("available");
+    expect(progress.activeModuleId).toBe("proteins-drug-targets");
   });
 
   it("normalizes malformed or old storage", () => {

@@ -11,7 +11,10 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CompoundCanvasMark } from "@/components/brand/CompoundCanvasMark";
-import { DrugDesign101Course } from "@/components/drug-design-101/DrugDesign101Course";
+import {
+  DrugDesign101Course,
+  DrugDesign101MoleculeCoach,
+} from "@/components/drug-design-101/DrugDesign101Course";
 import { ConformerViewer } from "@/components/molecule/ConformerViewer";
 import { BeginnerSampleChooser } from "@/components/molecule/BeginnerSampleChooser";
 import { GeometryOptimizationExplainer } from "@/components/molecule/GeometryOptimizationExplainer";
@@ -622,6 +625,12 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [chooseSample]);
 
+  const returnToDrugDesign101 = useCallback(() => {
+    setProductMode("drug-design-101");
+    setActiveArea("home");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   const openSandbox = useCallback(() => {
     setProductMode("sandbox");
     setActiveArea("molecule");
@@ -814,8 +823,14 @@ export default function Home() {
               progress={drugDesign101.progress}
               hydrated={drugDesign101.hydrated}
               onAnswerModuleOne={drugDesign101.answerModuleOneQuestion}
+              onAdvanceModuleTwoDemo={drugDesign101.advanceModuleTwoDemoStep}
+              onAnswerModuleTwoPrediction={drugDesign101.answerModuleTwoPredictionQuestion}
+              onAnswerModuleTwoAssessment={drugDesign101.answerModuleTwoAssessmentQuestion}
               onCompleteModuleOne={() =>
                 drugDesign101.completeDrugDesign101Module("what-is-a-drug")
+              }
+              onCompleteModuleTwo={() =>
+                drugDesign101.completeDrugDesign101Module("molecules-3d-shape")
               }
               onContinueToModule2={continueToModule2}
             />
@@ -830,6 +845,17 @@ export default function Home() {
 
         {activeArea === "molecule" && (
           <>
+          {guidedMode && (
+            <DrugDesign101MoleculeCoach
+              progress={drugDesign101.progress}
+              conformer={conformerCurrent ? conformer : null}
+              onAnswerModuleTwoAssessment={drugDesign101.answerModuleTwoAssessmentQuestion}
+              onCompleteModuleTwo={() =>
+                drugDesign101.completeDrugDesign101Module("molecules-3d-shape")
+              }
+              onReturnToCourse={returnToDrugDesign101}
+            />
+          )}
           <div className="border-b border-[#d8d7d1] bg-[#fbfaf6] px-4 py-7 md:px-6">
             <div className="mx-auto flex max-w-[1180px] flex-wrap items-start justify-between gap-3">
               <div>
