@@ -305,45 +305,64 @@ export function ProductDemo({
         className={`product-tour-scene product-tour-scene-${scene.id} ${reducedMotion ? "product-demo-reduced" : ""}`}
       >
         <ProductTourFrame scene={scene.id} focus={scene.focus} />
-        <div className="product-tour-caption">
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#39765b]">{scene.kicker}</p>
-          <h2 className="mt-2 text-[28px] font-semibold leading-tight tracking-[-0.045em] text-ink md:text-[44px]">
-            {scene.title}
-          </h2>
-          <p className="mt-3 max-w-xl text-base leading-7 text-[#52635a]">{scene.subtitle}</p>
-          <p className="mt-4 inline-flex max-w-full rounded-full border border-[#d8d7d1] bg-white/86 px-3 py-1.5 text-xs font-semibold text-[#52635a] shadow-sm">
-            {scene.label}
-          </p>
-          {scene.id === "final" && (
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onStartDrugDesign101();
-                }}
-                className="min-h-12 rounded-2xl bg-ink px-5 text-base font-semibold text-white transition hover:bg-[#22384f]"
-              >
-                Start Drug Design 101
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenSandbox();
-                }}
-                className="min-h-12 rounded-2xl border border-[#d4d2ca] bg-white px-5 text-base font-semibold text-ink transition hover:bg-[#f8faf7]"
-              >
-                Open Sandbox
-              </button>
-            </div>
-          )}
-        </div>
+        <NarrationRail
+          scene={scene}
+          onClose={onClose}
+          onStartDrugDesign101={onStartDrugDesign101}
+          onOpenSandbox={onOpenSandbox}
+        />
       </div>
 
       <div className="absolute bottom-3 left-3 right-3 z-30 flex items-center justify-between gap-4 rounded-full border border-[#d8d7d1] bg-[#fbfaf6]/90 px-4 py-2 text-xs font-medium text-[#65716b] shadow-sm backdrop-blur md:left-6 md:right-6">
         <span>{scene.focus}</span>
         <span>Silent demo - precomputed examples only</span>
+      </div>
+    </div>
+  );
+}
+
+function NarrationRail({
+  scene,
+  onClose,
+  onStartDrugDesign101,
+  onOpenSandbox,
+}: {
+  scene: DemoScene;
+  onClose: () => void;
+  onStartDrugDesign101: () => void;
+  onOpenSandbox: () => void;
+}) {
+  return (
+    <div className={`product-tour-caption product-tour-caption-${scene.id}`}>
+      <div className="min-w-0">
+        <p className="product-tour-caption-kicker">{scene.kicker}</p>
+        <h2>{scene.title}</h2>
+        <p>{scene.subtitle}</p>
+      </div>
+      <div className="product-tour-caption-side">
+        <span>{scene.label}</span>
+        {scene.id === "final" && (
+          <div className="product-tour-final-actions">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onStartDrugDesign101();
+              }}
+            >
+              Start Drug Design 101
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenSandbox();
+              }}
+            >
+              Open Sandbox
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

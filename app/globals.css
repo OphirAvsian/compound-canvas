@@ -557,7 +557,7 @@ textarea:focus-visible {
 
 .product-tour-stage {
   position: absolute;
-  inset: 78px 18px 58px;
+  inset: 78px 18px 150px;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -566,7 +566,8 @@ textarea:focus-visible {
 .product-tour-browser {
   position: relative;
   width: min(1180px, 88vw);
-  height: min(690px, 72vh);
+  height: min(690px, calc(100svh - 250px));
+  min-height: 440px;
   overflow: hidden;
   border: 1px solid #d8d7d1;
   border-radius: 26px;
@@ -595,16 +596,90 @@ textarea:focus-visible {
 
 .product-tour-caption {
   position: absolute;
-  left: clamp(1rem, 5vw, 4.5rem);
-  bottom: clamp(4.8rem, 8vh, 6.5rem);
+  left: 50%;
+  bottom: 50px;
   z-index: 10;
-  max-width: min(620px, calc(100vw - 2rem));
+  display: grid;
+  width: min(1180px, calc(100vw - 36px));
+  min-height: 84px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  transform: translateX(-50%);
   border: 1px solid rgba(216, 215, 209, 0.92);
-  border-radius: 22px;
-  background: rgba(251, 250, 246, 0.9);
-  padding: clamp(1rem, 2.2vw, 1.45rem);
+  border-radius: 20px;
+  background: rgba(251, 250, 246, 0.94);
+  padding: 0.9rem 1rem;
   box-shadow: 0 18px 54px rgba(23, 40, 59, 0.14);
   backdrop-filter: blur(18px);
+}
+
+.product-tour-caption-kicker {
+  color: #39765b;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.product-tour-caption h2 {
+  margin-top: 0.2rem;
+  color: #17283b;
+  font-size: clamp(1.15rem, 2.2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+}
+
+.product-tour-caption p:not(.product-tour-caption-kicker) {
+  margin-top: 0.25rem;
+  max-width: 720px;
+  color: #52635a;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.product-tour-caption-side {
+  display: flex;
+  max-width: 390px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.product-tour-caption-side > span {
+  display: inline-flex;
+  max-width: 100%;
+  border-radius: 999px;
+  border: 1px solid #d8d7d1;
+  background: white;
+  padding: 0.45rem 0.7rem;
+  color: #52635a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.product-tour-final-actions {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.product-tour-final-actions button {
+  min-height: 40px;
+  border-radius: 14px;
+  border: 1px solid #d4d2ca;
+  background: white;
+  padding: 0 0.85rem;
+  color: #17283b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.product-tour-final-actions button:first-child {
+  border-color: transparent;
+  background: #17283b;
+  color: white;
 }
 
 .product-tour-spotlight {
@@ -1194,14 +1269,15 @@ textarea:focus-visible {
   }
 
   .product-tour-stage {
-    inset: 72px 10px 54px;
+    inset: 72px 10px 190px;
     align-items: start;
     padding-top: 0.5rem;
   }
 
   .product-tour-browser {
     width: min(100%, 390px);
-    height: min(58vh, 500px);
+    height: min(50vh, 430px);
+    min-height: 330px;
     border-radius: 20px;
   }
 
@@ -1213,18 +1289,40 @@ textarea:focus-visible {
   .product-tour-caption {
     left: 0.75rem;
     right: 0.75rem;
-    bottom: 3.4rem;
-    max-width: none;
+    bottom: 3.25rem;
+    width: auto;
+    min-height: 128px;
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+    transform: none;
     border-radius: 18px;
+    padding: 0.85rem;
   }
 
   .product-tour-caption h2 {
-    font-size: 1.55rem;
+    font-size: 1.2rem;
   }
 
-  .product-tour-caption p {
-    font-size: 0.9rem;
-    line-height: 1.5rem;
+  .product-tour-caption p:not(.product-tour-caption-kicker) {
+    font-size: 0.82rem;
+    line-height: 1.32rem;
+  }
+
+  .product-tour-caption-side {
+    max-width: none;
+    align-items: flex-start;
+  }
+
+  .product-tour-caption-side > span {
+    text-align: left;
+  }
+
+  .product-tour-final-actions {
+    width: 100%;
+  }
+
+  .product-tour-final-actions button {
+    flex: 1;
   }
 
   .product-tour-grid,
