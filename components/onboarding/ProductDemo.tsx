@@ -1,19 +1,36 @@
 "use client";
 
-import { Pause, Play, RotateCcw, X } from "lucide-react";
-import type { CSSProperties } from "react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  FlaskConical,
+  GraduationCap,
+  MousePointer2,
+  Pause,
+  Play,
+  RotateCcw,
+  Sparkles,
+  X,
+} from "lucide-react";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { CompoundCanvasMark } from "@/components/brand/CompoundCanvasMark";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 type DemoSceneId =
-  | "hook"
+  | "landing"
+  | "course"
   | "molecule"
+  | "feedback"
   | "protein"
   | "pocket"
+  | "preparation"
   | "docking"
+  | "interpretation"
   | "evaluate"
   | "compare"
-  | "learn"
+  | "challenge"
+  | "sandbox"
   | "final";
 
 type DemoScene = {
@@ -23,80 +40,135 @@ type DemoScene = {
   subtitle: string;
   label: string;
   durationMs: number;
+  focus: string;
 };
 
 const demoScenes: DemoScene[] = [
   {
-    id: "hook",
-    kicker: "Compound Canvas",
-    title: "What if you could learn drug design by actually doing it?",
-    subtitle: "A guided scientific workspace for molecules, proteins, docking lessons, and evidence.",
-    label: "Product trailer",
+    id: "landing",
+    kicker: "Start here",
+    title: "Learn drug design by doing it.",
+    subtitle: "Choose a guided course or open the scientific tools directly.",
+    label: "Real homepage tour",
     durationMs: 7000,
+    focus: "Start Drug Design 101",
+  },
+  {
+    id: "course",
+    kicker: "Drug Design 101",
+    title: "Learn, interact, use tools, get feedback.",
+    subtitle: "The course moves from foundations to a final Design Challenge.",
+    label: "Guided learning path",
+    durationMs: 8500,
+    focus: "Module 2",
   },
   {
     id: "molecule",
-    kicker: "Start with a molecule",
-    title: "2D structure becomes a 3D conformer.",
-    subtitle: "Example caffeine conformer shown as a precomputed demo result.",
-    label: "Example/precomputed conformer",
-    durationMs: 9000,
+    kicker: "Molecule Lab",
+    title: "Turn a structure into a computational 3D model.",
+    subtitle: "Caffeine is shown with a precomputed example result for this demo.",
+    label: "Example result shown for demo",
+    durationMs: 10000,
+    focus: "Generate 3D",
+  },
+  {
+    id: "feedback",
+    kicker: "Contextual learning",
+    title: "Compound Canvas explains what just happened.",
+    subtitle: "Feedback connects the real calculation to the science idea.",
+    label: "Teaching feedback, not a new calculation",
+    durationMs: 8000,
+    focus: "Feedback",
   },
   {
     id: "protein",
-    kicker: "Meet the protein",
+    kicker: "Protein Lab",
     title: "Explore real protein structures.",
-    subtitle: "EGFR · PDB 2ITY · deposited coordinate data.",
-    label: "Coordinate-backed structure",
-    durationMs: 9000,
+    subtitle: "EGFR PDB 2ITY provides coordinate-backed target context.",
+    label: "Deposited coordinates",
+    durationMs: 9500,
+    focus: "Lys745",
   },
   {
     id: "pocket",
-    kicker: "Binding pocket",
-    title: "Find where molecules may interact.",
-    subtitle: "This region is curated teaching context, not automated pocket detection.",
+    kicker: "Binding context",
+    title: "Learn where molecules may interact.",
+    subtitle: "The pocket region is curated teaching context, not automatic detection.",
     label: "Curated teaching region",
-    durationMs: 8000,
+    durationMs: 8500,
+    focus: "Curated residues",
+  },
+  {
+    id: "preparation",
+    kicker: "Preparation",
+    title: "Prepare inputs before docking.",
+    subtitle: "Ligand and receptor preparation are documented as separate artifacts.",
+    label: "Prepared for future/curated docking",
+    durationMs: 9000,
+    focus: "Ready to dock",
   },
   {
     id: "docking",
     kicker: "Docking lesson",
     title: "Docking searches possible poses.",
-    subtitle: "It estimates how a molecule could fit inside a binding site.",
-    label: "Vina estimate: -5.37 kcal/mol · not measured affinity",
-    durationMs: 14000,
+    subtitle: "The demo shows an example Vina result in the real result style.",
+    label: "Docking estimate - not measured binding affinity",
+    durationMs: 12000,
+    focus: "Vina score",
+  },
+  {
+    id: "interpretation",
+    kicker: "Interpretation",
+    title: "Numbers are not the end of the lesson.",
+    subtitle: "Students practice what the score means, and what it does not mean.",
+    label: "Misconception-aware feedback",
+    durationMs: 8500,
+    focus: "Not proof",
   },
   {
     id: "evaluate",
-    kicker: "Evaluate the candidate",
-    title: "A promising candidate is more than one score.",
-    subtitle: "Drug design is about tradeoffs across calculated molecular properties.",
-    label: "Descriptor evidence, not ADMET or toxicity prediction",
-    durationMs: 9000,
+    kicker: "Candidate evidence",
+    title: "Drug design is about balancing tradeoffs.",
+    subtitle: "Descriptors help compare molecules without predicting viability.",
+    label: "Calculated descriptors only",
+    durationMs: 8500,
+    focus: "Properties",
   },
   {
     id: "compare",
-    kicker: "Compare and iterate",
-    title: "Design. Test. Compare. Iterate.",
-    subtitle: "Compare candidates without declaring a universal winner.",
-    label: "Evidence-guided comparison",
+    kicker: "Library",
+    title: "Save, compare, iterate.",
+    subtitle: "Candidate differences are evidence for the next experiment, not a universal ranking.",
+    label: "Comparison without a winner claim",
     durationMs: 9000,
+    focus: "Compare",
   },
   {
-    id: "learn",
-    kicker: "Learn while doing",
-    title: "Use the tools and learn the science at the same time.",
-    subtitle: "Start guided. Explore freely.",
-    label: "Drug Design 101 + Sandbox",
-    durationMs: 9000,
+    id: "challenge",
+    kicker: "Design Challenge",
+    title: "Learn the workflow. Then make the decisions yourself.",
+    subtitle: "The final module asks learners to reason from evidence and limitations.",
+    label: "Guided independence",
+    durationMs: 8000,
+    focus: "Design Challenge",
+  },
+  {
+    id: "sandbox",
+    kicker: "Sandbox",
+    title: "Already know the basics? Use the tools directly.",
+    subtitle: "Molecule, Protein, and Experiment workspaces remain open for exploration.",
+    label: "Ungated scientific tools",
+    durationMs: 7500,
+    focus: "Molecule Lab",
   },
   {
     id: "final",
     kicker: "Compound Canvas",
     title: "Learn drug design by doing it.",
-    subtitle: "Begin with Drug Design 101 or open the scientific Sandbox.",
-    label: "Ready to start",
-    durationMs: 7000,
+    subtitle: "Start guided, or open the scientific sandbox.",
+    label: "Ready to begin",
+    durationMs: 6500,
+    focus: "Start",
   },
 ];
 
@@ -183,27 +255,28 @@ export function ProductDemo({
 
   return (
     <div
-      className="fixed inset-0 z-[90] overflow-hidden bg-[#071522] text-white"
+      className="fixed inset-0 z-[90] overflow-hidden bg-[#f7f5ef] text-ink"
       role="dialog"
       aria-modal="true"
       aria-label="Compound Canvas product demo"
       data-testid="product-demo"
     >
-      <div className="absolute inset-x-0 top-0 z-20 h-1 bg-white/12">
-        <div className="h-full bg-[#b9f1d6] transition-[width] duration-300" style={{ width: `${progressPercent}%` }} />
+      <div className="absolute inset-x-0 top-0 z-30 h-1 bg-[#d8d7d1]">
+        <div className="h-full bg-[#39765b] transition-[width] duration-300" style={{ width: `${progressPercent}%` }} />
       </div>
 
-      <div className="absolute left-4 right-4 top-4 z-30 flex items-center justify-between gap-3 sm:left-6 sm:right-6">
-        <div className="flex items-center gap-2 text-white/82">
-          <CompoundCanvasMark className="h-8 w-8 text-[#b9f1d6]" />
-          <span className="text-sm font-semibold">Compound Canvas</span>
+      <div className="absolute left-3 right-3 top-4 z-30 flex items-center justify-between gap-3 rounded-2xl border border-[#d8d7d1] bg-[#fbfaf6]/92 px-3 py-2 shadow-[0_12px_34px_rgba(23,40,59,.1)] backdrop-blur md:left-6 md:right-6">
+        <div className="flex min-w-0 items-center gap-2">
+          <CompoundCanvasMark className="h-8 w-8 shrink-0 text-[#06265f]" />
+          <span className="truncate text-sm font-semibold">Compound Canvas walkthrough</span>
+          <span className="hidden text-xs text-[#65716b] sm:inline">Scene {sceneIndex + 1} / {demoScenes.length}</span>
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setPlaying((value) => !value)}
             aria-label={playing ? "Pause product demo" : "Play product demo"}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/16 bg-white/10 px-4 text-sm font-semibold backdrop-blur transition hover:bg-white/16"
+            className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#d8d7d1] bg-white px-3 text-sm font-semibold text-ink transition hover:bg-[#f2f5f0]"
           >
             {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
             <span className="hidden sm:inline">{playing ? "Pause" : "Play"}</span>
@@ -212,7 +285,7 @@ export function ProductDemo({
             type="button"
             onClick={restart}
             aria-label="Restart product demo"
-            className="inline-flex min-h-11 w-11 items-center justify-center rounded-full border border-white/16 bg-white/10 backdrop-blur transition hover:bg-white/16"
+            className="inline-flex min-h-10 w-10 items-center justify-center rounded-xl border border-[#d8d7d1] bg-white text-ink transition hover:bg-[#f2f5f0]"
           >
             <RotateCcw className="h-4 w-4" />
           </button>
@@ -220,7 +293,7 @@ export function ProductDemo({
             type="button"
             onClick={onClose}
             aria-label="Exit product demo"
-            className="inline-flex min-h-11 w-11 items-center justify-center rounded-full border border-white/16 bg-white/10 backdrop-blur transition hover:bg-white/16"
+            className="inline-flex min-h-10 w-10 items-center justify-center rounded-xl border border-[#d8d7d1] bg-white text-ink transition hover:bg-[#f2f5f0]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -229,30 +302,27 @@ export function ProductDemo({
 
       <div
         key={scene.id}
-        className={`product-demo-scene product-demo-scene-${scene.id} ${reducedMotion ? "product-demo-reduced" : ""}`}
+        className={`product-tour-scene product-tour-scene-${scene.id} ${reducedMotion ? "product-demo-reduced" : ""}`}
       >
-        <DemoVisual scene={scene.id} />
-        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-end px-5 pb-24 pt-24 sm:px-8 md:pb-28">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#b9f1d6]">{scene.kicker}</p>
-            <h2 className="mt-4 text-[38px] font-semibold leading-[0.98] tracking-[-0.055em] sm:text-[58px] md:text-[78px]">
-              {scene.title}
-            </h2>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-white/76 md:text-xl">{scene.subtitle}</p>
-            <p className="mt-5 inline-flex max-w-full rounded-full border border-white/14 bg-white/10 px-4 py-2 text-sm font-semibold text-white/80 backdrop-blur">
-              {scene.label}
-            </p>
-          </div>
-
+        <ProductTourFrame scene={scene.id} focus={scene.focus} />
+        <div className="product-tour-caption">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#39765b]">{scene.kicker}</p>
+          <h2 className="mt-2 text-[28px] font-semibold leading-tight tracking-[-0.045em] text-ink md:text-[44px]">
+            {scene.title}
+          </h2>
+          <p className="mt-3 max-w-xl text-base leading-7 text-[#52635a]">{scene.subtitle}</p>
+          <p className="mt-4 inline-flex max-w-full rounded-full border border-[#d8d7d1] bg-white/86 px-3 py-1.5 text-xs font-semibold text-[#52635a] shadow-sm">
+            {scene.label}
+          </p>
           {scene.id === "final" && (
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={() => {
                   onClose();
                   onStartDrugDesign101();
                 }}
-                className="min-h-12 rounded-2xl bg-[#b9f1d6] px-5 text-base font-semibold text-[#092134] transition hover:bg-[#d3ffe8]"
+                className="min-h-12 rounded-2xl bg-ink px-5 text-base font-semibold text-white transition hover:bg-[#22384f]"
               >
                 Start Drug Design 101
               </button>
@@ -262,7 +332,7 @@ export function ProductDemo({
                   onClose();
                   onOpenSandbox();
                 }}
-                className="min-h-12 rounded-2xl border border-white/18 bg-white/10 px-5 text-base font-semibold text-white transition hover:bg-white/16"
+                className="min-h-12 rounded-2xl border border-[#d4d2ca] bg-white px-5 text-base font-semibold text-ink transition hover:bg-[#f8faf7]"
               >
                 Open Sandbox
               </button>
@@ -271,120 +341,449 @@ export function ProductDemo({
         </div>
       </div>
 
-      <div className="absolute bottom-4 left-4 right-4 z-30 flex items-center justify-between gap-4 text-xs text-white/58 sm:left-6 sm:right-6">
-        <span>
-          Scene {sceneIndex + 1} / {demoScenes.length}
-        </span>
-        <span>Silent demo · no calculations run</span>
+      <div className="absolute bottom-3 left-3 right-3 z-30 flex items-center justify-between gap-4 rounded-full border border-[#d8d7d1] bg-[#fbfaf6]/90 px-4 py-2 text-xs font-medium text-[#65716b] shadow-sm backdrop-blur md:left-6 md:right-6">
+        <span>{scene.focus}</span>
+        <span>Silent demo - precomputed examples only</span>
       </div>
     </div>
   );
 }
 
-function DemoVisual({ scene }: { scene: DemoSceneId }) {
+function ProductTourFrame({ scene, focus }: { scene: DemoSceneId; focus: string }) {
   return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(185,241,214,0.18),transparent_26rem),linear-gradient(145deg,#071522_0%,#11263a_55%,#091726_100%)]" />
-      <div className="product-demo-grid" />
-      {(scene === "hook" || scene === "molecule" || scene === "evaluate") && <MoleculeCinema />}
-      {(scene === "protein" || scene === "pocket" || scene === "docking") && <ProteinCinema scene={scene} />}
-      {scene === "compare" && <ComparisonCinema />}
-      {scene === "learn" && <LearningCinema />}
-      {scene === "final" && (
-        <div className="absolute inset-0 flex items-center justify-center opacity-20">
-          <CompoundCanvasMark className="h-[44vmin] w-[44vmin] text-[#b9f1d6]" />
+    <div className="product-tour-stage" aria-hidden="true">
+      <div className="product-tour-browser">
+        <DemoChrome focus={focus} />
+        <div className="product-tour-content">
+          {scene === "landing" && <LandingFrame />}
+          {scene === "course" && <CourseFrame />}
+          {(scene === "molecule" || scene === "feedback") && <MoleculeFrame feedback={scene === "feedback"} />}
+          {(scene === "protein" || scene === "pocket") && <ProteinFrame pocket={scene === "pocket"} />}
+          {scene === "preparation" && <PreparationFrame />}
+          {(scene === "docking" || scene === "interpretation") && <DockingFrame interpretation={scene === "interpretation"} />}
+          {scene === "evaluate" && <EvaluationFrame />}
+          {scene === "compare" && <CompareFrame />}
+          {scene === "challenge" && <ChallengeFrame />}
+          {scene === "sandbox" && <SandboxFrame />}
+          {scene === "final" && <FinalFrame />}
         </div>
-      )}
+        <div className="product-tour-cursor">
+          <MousePointer2 className="h-5 w-5" />
+        </div>
+      </div>
+      <div className="product-tour-spotlight" />
     </div>
   );
 }
 
-function MoleculeCinema() {
-  const atoms = [
-    ["C", "left-[22%] top-[40%]"],
-    ["N", "left-[34%] top-[30%]"],
-    ["O", "left-[48%] top-[39%]"],
-    ["C", "left-[38%] top-[54%]"],
-    ["N", "left-[56%] top-[55%]"],
+function DemoChrome({ focus }: { focus: string }) {
+  return (
+    <div className="product-tour-chrome">
+      <div className="flex min-w-0 items-center gap-2">
+        <CompoundCanvasMark className="h-7 w-7 shrink-0 text-[#06265f]" />
+        <span className="truncate text-sm font-semibold">Compound Canvas</span>
+      </div>
+      <div className="hidden items-center gap-2 md:flex">
+        <StatusBadge status="real">Guided beta</StatusBadge>
+        <StatusBadge status="real">RDKit online</StatusBadge>
+      </div>
+      <span className="rounded-full bg-[#edf7f1] px-3 py-1 text-xs font-bold text-[#39765b]">{focus}</span>
+    </div>
+  );
+}
+
+function LandingFrame() {
+  return (
+    <div className="product-tour-landing">
+      <CompoundCanvasMark className="h-20 w-20 text-[#06265f]" />
+      <h3>Compound Canvas</h3>
+      <p>Learn drug design by doing it.</p>
+      <div className="grid gap-3 md:grid-cols-2">
+        <DemoButton dark icon={<GraduationCap className="h-5 w-5" />} title="Start Drug Design 101" text="Structured learning path" />
+        <DemoButton icon={<FlaskConical className="h-5 w-5" />} title="Open Sandbox" text="Use the tools directly" />
+      </div>
+      <button className="product-tour-demo-button">Watch Demo</button>
+    </div>
+  );
+}
+
+function CourseFrame() {
+  const modules = [
+    ["1", "What Is a Drug?", "complete"],
+    ["2", "Molecules & 3D Shape", "active"],
+    ["3", "Proteins & Drug Targets", "ready"],
+    ["6", "Molecular Docking", "ready"],
+    ["8", "Design Challenge", "locked"],
   ];
   return (
-    <div className="product-demo-molecule">
-      <svg viewBox="0 0 520 360" className="absolute inset-0 h-full w-full opacity-70">
-        <path d="M130 160 L210 112 L290 158 L240 238 L150 228 Z" stroke="rgba(255,255,255,.52)" strokeWidth="7" fill="none" strokeLinecap="round" />
-        <path d="M290 158 L390 212" stroke="rgba(185,241,214,.62)" strokeWidth="7" fill="none" strokeLinecap="round" />
-      </svg>
-      {atoms.map(([atom, position], index) => (
-        <span key={`${atom}-${index}`} className={`product-demo-atom ${position}`}>{atom}</span>
-      ))}
-      <div className="product-demo-depth-card">
-        <span>2D</span>
-        <strong>→</strong>
-        <span>3D</span>
-      </div>
-    </div>
-  );
-}
-
-function ProteinCinema({ scene }: { scene: "protein" | "pocket" | "docking" }) {
-  return (
-    <div className="absolute inset-0">
-      <div className={`product-demo-protein ${scene !== "protein" ? "product-demo-protein-focused" : ""}`}>
-        {Array.from({ length: 10 }).map((_, index) => (
-          <span key={index} style={{ "--i": index } as CSSProperties} />
-        ))}
-      </div>
-      <div className="product-demo-pocket">
-        <span>Lys745</span>
-        <span>Leu788</span>
-        <span>Met793</span>
-      </div>
-      {scene === "docking" && (
-        <>
-          <div className="product-demo-ghost-pose pose-one" />
-          <div className="product-demo-ghost-pose pose-two" />
-          <div className="product-demo-ghost-pose pose-three" />
-          <div className="product-demo-ligand-pose" />
-        </>
-      )}
-    </div>
-  );
-}
-
-function ComparisonCinema() {
-  return (
-    <div className="product-demo-comparison">
-      {["Candidate A", "Candidate B"].map((name, index) => (
-        <div key={name} className="product-demo-candidate-card">
-          <p>{name}</p>
-          <div className="h-2 rounded-full bg-[#b9f1d6]" style={{ width: index === 0 ? "72%" : "58%" }} />
-          <div className="h-2 rounded-full bg-[#f0c96f]" style={{ width: index === 0 ? "42%" : "76%" }} />
-          <div className="h-2 rounded-full bg-white/45" style={{ width: index === 0 ? "64%" : "51%" }} />
-          <span>{index === 0 ? "Lower flexibility" : "Different tradeoff"}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function LearningCinema() {
-  return (
-    <div className="product-demo-learning">
-      <div>
+    <div className="product-tour-grid">
+      <aside className="product-tour-sidebar">
         <p>Drug Design 101</p>
-        <strong>6 / 8 modules</strong>
+        <strong>2 / 8</strong>
+        {modules.map(([number, title, state]) => (
+          <div key={title} className={`product-tour-module module-${state}`}>
+            <span>{number}</span>
+            <p>{title}</p>
+          </div>
+        ))}
+      </aside>
+      <section className="product-tour-panel large">
+        <p className="eyebrow">Module 2</p>
+        <h3>Molecules & 3D Shape</h3>
+        <div className="product-tour-demo-strip">
+          <span>Learn</span>
+          <ArrowRight className="h-4 w-4" />
+          <span>Predict</span>
+          <ArrowRight className="h-4 w-4" />
+          <span>Run real tool</span>
+          <ArrowRight className="h-4 w-4" />
+          <span>Feedback</span>
+        </div>
+        <div className="product-tour-question">
+          <p>What will Generate 3D change?</p>
+          <strong>It gives the same atoms x, y, and z positions in space.</strong>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function MoleculeFrame({ feedback }: { feedback: boolean }) {
+  return (
+    <div className="product-tour-lab">
+      <div className="product-tour-lab-header">
+        <div>
+          <p className="eyebrow">Molecule Lab - real workflow</p>
+          <h3>Draw, calculate, optimize, and prepare a molecule</h3>
+        </div>
+        <StatusBadge status="real">Ketcher + RDKit + Mol*</StatusBadge>
       </div>
-      <div>
-        <p>Prediction</p>
-        <strong>What does the score mean?</strong>
+      <div className="product-tour-lab-grid">
+        <div className="product-tour-card">
+          <p className="eyebrow">2D caffeine</p>
+          <MoleculeSketch />
+          <button className="product-tour-primary">Generate 3D</button>
+        </div>
+        <div className="product-tour-card">
+          <p className="eyebrow">3D conformer</p>
+          <MoleculeModel />
+          <div className="product-tour-properties">
+            <Metric label="Formula" value="C8H10N4O2" />
+            <Metric label="MW" value="194.19" />
+            <Metric label="cLogP" value="-1.03" />
+            <Metric label="HBD / HBA" value="0 / 3" />
+          </div>
+        </div>
+        <div className="product-tour-card product-tour-feedback-card">
+          {feedback ? (
+            <>
+              <p className="eyebrow">Contextual feedback</p>
+              <h4>Your caffeine molecule now has 3D coordinates.</h4>
+              <p>The calculation produced one plausible shape, not the only shape caffeine can adopt.</p>
+            </>
+          ) : (
+            <>
+              <p className="eyebrow">Example result</p>
+              <h4>Precomputed demo result</h4>
+              <p>No backend calculation is run inside this product tour.</p>
+            </>
+          )}
+        </div>
       </div>
-      <div>
-        <p>Feedback</p>
-        <strong>Estimate, not proof of binding.</strong>
+    </div>
+  );
+}
+
+function ProteinFrame({ pocket }: { pocket: boolean }) {
+  return (
+    <div className="product-tour-lab">
+      <div className="product-tour-lab-header">
+        <div>
+          <p className="eyebrow">Protein Lab - coordinate-backed exploration</p>
+          <h3>EGFR provides the biological context.</h3>
+        </div>
+        <StatusBadge status="real">PDB 2ITY</StatusBadge>
       </div>
-      <div>
-        <p>Next</p>
-        <strong>Open Sandbox</strong>
+      <div className="product-tour-protein-layout">
+        <div className={`product-tour-protein-viewer ${pocket ? "pocket-mode" : ""}`}>
+          <ProteinRibbon />
+          <div className="product-tour-pocket-label">Curated teaching region</div>
+        </div>
+        <div className="product-tour-card">
+          <p className="eyebrow">Residue inspector</p>
+          <h4>{pocket ? "Met793" : "Lys745"}</h4>
+          <Metric label="Chain" value="A" />
+          <Metric label="Observed atoms" value={pocket ? "8" : "9"} />
+          <p className="mt-3 text-sm leading-6 text-[#52635a]">
+            Coordinate-derived identity is separated from curated beginner explanation.
+          </p>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function PreparationFrame() {
+  return (
+    <div className="product-tour-lab">
+      <div className="product-tour-lab-header">
+        <div>
+          <p className="eyebrow">Experiment workspace</p>
+          <h3>Preparation creates documented artifacts.</h3>
+        </div>
+        <StatusBadge status="future">Not docked yet</StatusBadge>
+      </div>
+      <div className="product-tour-step-row">
+        <PrepStep title="Ligand prepared" detail="Hydrogens, charge, conformer ensemble" />
+        <PrepStep title="Receptor prepared" detail="Curated EGFR docking input" />
+        <PrepStep title="Ready for docking lesson" detail="Inputs documented with provenance" />
+      </div>
+      <div className="product-tour-manifest">
+        <span>Calculated</span>
+        <span>Coordinate-derived</span>
+        <span>Curated</span>
+        <span>Experimental</span>
+      </div>
+    </div>
+  );
+}
+
+function DockingFrame({ interpretation }: { interpretation: boolean }) {
+  return (
+    <div className="product-tour-lab">
+      <div className="product-tour-lab-header">
+        <div>
+          <p className="eyebrow">Your first docking experiment</p>
+          <h3>AutoDock Vina returns possible poses.</h3>
+        </div>
+        <StatusBadge status="real">Curated Vina run</StatusBadge>
+      </div>
+      <div className="product-tour-docking-grid">
+        <div className="product-tour-docking-visual">
+          <ProteinRibbon compact />
+          <div className="product-tour-pose pose-a" />
+          <div className="product-tour-pose pose-b" />
+          <div className="product-tour-pose pose-final" />
+          <span>Fixed box from deposited gefitinib context</span>
+        </div>
+        <div className="product-tour-card">
+          <p className="eyebrow">Vina score table</p>
+          <Metric label="Top pose" value="-5.37 kcal/mol" />
+          <Metric label="Returned poses" value="5" />
+          <p className="mt-3 rounded-xl bg-[#fff8e8] p-3 text-sm font-semibold text-[#7a5a1f]">
+            Docking estimate - not measured binding affinity.
+          </p>
+        </div>
+        {interpretation && (
+          <div className="product-tour-card product-tour-feedback-card">
+            <p className="eyebrow">Interpretation question</p>
+            <h4>What does the score mean?</h4>
+            <p>It ranks modeled poses inside this run. It does not prove binding or activity.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EvaluationFrame() {
+  return (
+    <div className="product-tour-lab">
+      <div className="product-tour-lab-header">
+        <div>
+          <p className="eyebrow">Property evaluation</p>
+          <h3>Evaluate evidence without overclaiming.</h3>
+        </div>
+        <StatusBadge status="real">RDKit descriptors</StatusBadge>
+      </div>
+      <div className="product-tour-property-grid">
+        <PropertyBar label="Molecular weight" value="194.19" width="55%" />
+        <PropertyBar label="cLogP" value="-1.03" width="35%" />
+        <PropertyBar label="H-bond acceptors" value="3" width="48%" />
+        <PropertyBar label="Flexibility" value="0 rotatable bonds" width="18%" />
+      </div>
+    </div>
+  );
+}
+
+function CompareFrame() {
+  return (
+    <div className="product-tour-lab">
+      <div className="product-tour-lab-header">
+        <div>
+          <p className="eyebrow">Compound Library</p>
+          <h3>Save candidates and compare tradeoffs.</h3>
+        </div>
+        <StatusBadge status="real">Browser-local library</StatusBadge>
+      </div>
+      <div className="product-tour-compare-grid">
+        <CandidateCard name="Candidate A" formula="C8H10N4O2" score="-5.37" note="Familiar example" />
+        <CandidateCard name="Candidate B" formula="C9H12N4O2" score="-5.11" note="Different tradeoff" />
+        <div className="product-tour-card">
+          <p className="eyebrow">Comparison</p>
+          <h4>No universal winner</h4>
+          <p>Compare evidence, limits, and next experiments before deciding what to try.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChallengeFrame() {
+  return (
+    <div className="product-tour-grid">
+      <aside className="product-tour-sidebar">
+        <p>Drug Design 101</p>
+        <strong>8 / 8</strong>
+        <div className="product-tour-module module-complete"><span>6</span><p>Molecular Docking</p></div>
+        <div className="product-tour-module module-complete"><span>7</span><p>Evaluating Candidates</p></div>
+        <div className="product-tour-module module-active"><span>8</span><p>Design Challenge</p></div>
+      </aside>
+      <section className="product-tour-panel large">
+        <p className="eyebrow">Final module</p>
+        <h3>Choose a candidate worth investigating further.</h3>
+        <div className="product-tour-question">
+          <p>Use descriptors, docking estimate, and limitations.</p>
+          <strong>Worth testing next, not "best drug."</strong>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SandboxFrame() {
+  return (
+    <div className="product-tour-lab">
+      <div className="product-tour-lab-header">
+        <div>
+          <p className="eyebrow">Sandbox</p>
+          <h3>Open the tools directly.</h3>
+        </div>
+        <StatusBadge status="neutral">Ungated mode</StatusBadge>
+      </div>
+      <div className="product-tour-tabs">
+        <span className="active">Molecule Lab</span>
+        <span>Protein Lab</span>
+        <span>Experiment</span>
+      </div>
+      <div className="product-tour-step-row">
+        <PrepStep title="Molecule" detail="Draw and generate 3D" />
+        <PrepStep title="Protein" detail="Inspect coordinates" />
+        <PrepStep title="Experiment" detail="Prepare, dock, interpret" />
+      </div>
+    </div>
+  );
+}
+
+function FinalFrame() {
+  return (
+    <div className="product-tour-landing final">
+      <CompoundCanvasMark className="h-24 w-24 text-[#06265f]" />
+      <h3>Compound Canvas</h3>
+      <p>Learn drug design by doing it.</p>
+      <div className="grid gap-3 md:grid-cols-2">
+        <DemoButton dark icon={<GraduationCap className="h-5 w-5" />} title="Start Drug Design 101" text="Beginner course" />
+        <DemoButton icon={<FlaskConical className="h-5 w-5" />} title="Open Sandbox" text="Scientific tools" />
+      </div>
+    </div>
+  );
+}
+
+function DemoButton({ dark, icon, title, text }: { dark?: boolean; icon: ReactNode; title: string; text: string }) {
+  return (
+    <div className={`product-tour-choice ${dark ? "dark" : ""}`}>
+      <div className="flex items-center gap-2">
+        {icon}
+        <strong>{title}</strong>
+      </div>
+      <p>{text}</p>
+    </div>
+  );
+}
+
+function MoleculeSketch() {
+  return (
+    <svg viewBox="0 0 260 160" className="h-36 w-full">
+      <g fill="none" stroke="#17283b" strokeWidth="5" strokeLinecap="round">
+        <path d="M74 72 116 44 162 70 146 119 91 118Z" />
+        <path d="M162 70 210 98" />
+        <path d="M116 44 116 16" />
+      </g>
+      {[
+        [74, 72, "C"],
+        [116, 44, "N"],
+        [162, 70, "O"],
+        [146, 119, "N"],
+        [91, 118, "C"],
+        [210, 98, "C"],
+      ].map(([x, y, atom]) => (
+        <g key={`${x}-${y}`}>
+          <circle cx={x} cy={y} r="17" fill="#fbfaf6" stroke="#39765b" strokeWidth="3" />
+          <text x={x} y={Number(y) + 5} textAnchor="middle" fill="#17283b" fontSize="16" fontWeight="800">{atom}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function MoleculeModel() {
+  return (
+    <div className="product-tour-model">
+      {["C", "N", "O", "C", "N", "C"].map((atom, index) => (
+        <span key={`${atom}-${index}`}>{atom}</span>
+      ))}
+    </div>
+  );
+}
+
+function ProteinRibbon({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={`product-tour-ribbon ${compact ? "compact" : ""}`}>
+      {Array.from({ length: compact ? 7 : 12 }).map((_, index) => (
+        <span key={index} />
+      ))}
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="product-tour-metric">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function PrepStep({ title, detail }: { title: string; detail: string }) {
+  return (
+    <div className="product-tour-prep-step">
+      <CheckCircle2 className="h-5 w-5 text-[#39765b]" />
+      <strong>{title}</strong>
+      <p>{detail}</p>
+    </div>
+  );
+}
+
+function PropertyBar({ label, value, width }: { label: string; value: string; width: string }) {
+  return (
+    <div className="product-tour-property">
+      <div className="flex items-center justify-between gap-3">
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>
+      <div><span style={{ width }} /></div>
+    </div>
+  );
+}
+
+function CandidateCard({ name, formula, score, note }: { name: string; formula: string; score: string; note: string }) {
+  return (
+    <div className="product-tour-card">
+      <p className="eyebrow">{name}</p>
+      <h4>{formula}</h4>
+      <Metric label="Vina estimate" value={`${score} kcal/mol`} />
+      <p className="mt-3 text-sm leading-6 text-[#52635a]">{note}</p>
     </div>
   );
 }
