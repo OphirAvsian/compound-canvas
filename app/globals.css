@@ -93,6 +93,45 @@ textarea:focus-visible {
   100% { transform: translate3d(34px, -4px, 0) rotate(0deg); }
 }
 
+@keyframes product-scene-in {
+  from { opacity: 0; transform: scale(1.015); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes product-camera-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-1.5%, -1%, 0) scale(1.04); }
+}
+
+@keyframes product-molecule-depth {
+  0% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+  45% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+  100% { transform: translate3d(8%, -6%, 0) rotateX(58deg) rotateY(-23deg) rotateZ(8deg); }
+}
+
+@keyframes product-atom-rise {
+  from { opacity: 0; transform: translate3d(0, 26px, 0) scale(0.8); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes product-protein-turn {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg) scale(1); }
+  50% { transform: translate3d(-1%, 1%, 0) rotate(4deg) scale(1.025); }
+}
+
+@keyframes product-docking-land {
+  0% { transform: translate3d(-46vw, 18vh, 0) rotate(-28deg); opacity: 0; }
+  18% { opacity: 1; }
+  42% { transform: translate3d(-16vw, -8vh, 0) rotate(18deg); }
+  70% { transform: translate3d(4vw, 6vh, 0) rotate(-8deg); }
+  100% { transform: translate3d(14vw, -4vh, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes product-slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .protein-ribbon {
   filter: drop-shadow(0 14px 20px rgba(11, 32, 54, 0.15));
 }
@@ -317,6 +356,197 @@ textarea:focus-visible {
   background: #f5fbf7;
 }
 
+.product-demo-scene {
+  min-height: 100svh;
+  animation: product-scene-in 520ms ease both;
+}
+
+.product-demo-scene:not(.product-demo-reduced) .product-demo-grid {
+  animation: product-camera-drift 16s ease-in-out infinite;
+}
+
+.product-demo-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(circle at 62% 45%, black 0%, transparent 62%);
+}
+
+.product-demo-molecule {
+  position: absolute;
+  right: max(2rem, 8vw);
+  top: 14vh;
+  width: min(54vw, 620px);
+  height: min(48vh, 460px);
+  transform-style: preserve-3d;
+  animation: product-molecule-depth 8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  filter: drop-shadow(0 36px 42px rgba(0, 0, 0, 0.22));
+}
+
+.product-demo-atom {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: clamp(42px, 6vw, 74px);
+  height: clamp(42px, 6vw, 74px);
+  border-radius: 999px;
+  border: 3px solid rgba(185, 241, 214, 0.74);
+  background: rgba(255, 255, 255, 0.92);
+  color: #06265f;
+  font-weight: 800;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  animation: product-atom-rise 900ms ease both;
+}
+
+.product-demo-atom:nth-of-type(2) { animation-delay: 160ms; }
+.product-demo-atom:nth-of-type(3) { animation-delay: 320ms; }
+.product-demo-atom:nth-of-type(4) { animation-delay: 480ms; }
+.product-demo-atom:nth-of-type(5) { animation-delay: 640ms; }
+
+.product-demo-depth-card {
+  position: absolute;
+  right: 7%;
+  bottom: 10%;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(7, 21, 34, 0.64);
+  padding: 0.7rem 1rem;
+  color: white;
+  font-weight: 800;
+  backdrop-filter: blur(16px);
+}
+
+.product-demo-protein {
+  position: absolute;
+  right: -8vw;
+  top: 9vh;
+  width: min(62vw, 720px);
+  height: min(66vh, 620px);
+  border-radius: 48% 52% 44% 56%;
+  background:
+    radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.42), transparent 9rem),
+    linear-gradient(145deg, rgba(143, 191, 168, 0.85), rgba(57, 118, 91, 0.72));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13), 0 36px 74px rgba(0, 0, 0, 0.28);
+  animation: product-protein-turn 10s ease-in-out infinite;
+}
+
+.product-demo-protein-focused {
+  filter: brightness(0.78) saturate(0.86);
+}
+
+.product-demo-protein span {
+  position: absolute;
+  left: calc(12% + var(--i) * 7%);
+  top: calc(18% + (var(--i) % 4) * 14%);
+  width: 28%;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.34);
+  transform: rotate(calc(-28deg + var(--i) * 11deg));
+}
+
+.product-demo-pocket {
+  position: absolute;
+  right: min(24vw, 300px);
+  top: 35vh;
+  display: grid;
+  gap: 0.45rem;
+  border-radius: 28px;
+  border: 1px solid rgba(240, 201, 111, 0.45);
+  background: rgba(255, 248, 232, 0.13);
+  padding: 1rem;
+  box-shadow: 0 0 0 12px rgba(240, 201, 111, 0.08), 0 24px 46px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(14px);
+}
+
+.product-demo-pocket span {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 0.45rem 0.7rem;
+  color: #365a49;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.product-demo-ghost-pose,
+.product-demo-ligand-pose {
+  position: absolute;
+  right: min(25vw, 315px);
+  top: 42vh;
+  width: 86px;
+  height: 54px;
+  border: 4px solid rgba(185, 241, 214, 0.85);
+  border-radius: 999px 999px 999px 28px;
+}
+
+.product-demo-ghost-pose {
+  opacity: 0.32;
+}
+
+.pose-one { transform: translate(-72px, 30px) rotate(-24deg); }
+.pose-two { transform: translate(-26px, -34px) rotate(19deg); }
+.pose-three { transform: translate(52px, 22px) rotate(-10deg); }
+
+.product-demo-ligand-pose {
+  background: rgba(185, 241, 214, 0.16);
+  animation: product-docking-land 7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.product-demo-comparison,
+.product-demo-learning {
+  position: absolute;
+  right: max(1rem, 7vw);
+  top: 18vh;
+  display: grid;
+  width: min(58vw, 620px);
+  gap: 1rem;
+}
+
+.product-demo-comparison {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.product-demo-candidate-card,
+.product-demo-learning > div {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.1rem;
+  backdrop-filter: blur(18px);
+  animation: product-slide-up 700ms ease both;
+}
+
+.product-demo-candidate-card:nth-child(2),
+.product-demo-learning > div:nth-child(2) { animation-delay: 160ms; }
+.product-demo-learning > div:nth-child(3) { animation-delay: 320ms; }
+.product-demo-learning > div:nth-child(4) { animation-delay: 480ms; }
+
+.product-demo-candidate-card p,
+.product-demo-learning p {
+  margin: 0 0 0.8rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.product-demo-candidate-card span,
+.product-demo-learning strong {
+  display: block;
+  margin-top: 1rem;
+  color: white;
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  line-height: 1.25;
+}
+
 @media (min-width: 640px) {
   .workspace-card {
     border: 1px solid rgba(214, 214, 207, 0.9);
@@ -349,12 +579,52 @@ textarea:focus-visible {
   .float-slow,
   .interaction-line,
   .calculation-progress,
-  .docking-concept-stage[data-stage="2"] .docking-concept-ligand {
+  .docking-concept-stage[data-stage="2"] .docking-concept-ligand,
+  .product-demo-scene,
+  .product-demo-grid,
+  .product-demo-molecule,
+  .product-demo-atom,
+  .product-demo-protein,
+  .product-demo-ligand-pose,
+  .product-demo-candidate-card,
+  .product-demo-learning > div {
     animation: none;
   }
 
   .docking-concept-ligand {
     transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .product-demo-molecule,
+  .product-demo-comparison,
+  .product-demo-learning {
+    left: 1rem;
+    right: 1rem;
+    top: 12vh;
+    width: auto;
+    opacity: 0.62;
+  }
+
+  .product-demo-protein {
+    left: 18vw;
+    right: auto;
+    top: 10vh;
+    width: 88vw;
+    height: 52vh;
+    opacity: 0.7;
+  }
+
+  .product-demo-pocket {
+    right: 1rem;
+    top: 24vh;
+    transform: scale(0.86);
+    transform-origin: top right;
+  }
+
+  .product-demo-comparison {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -22,6 +22,7 @@ import { GeometryOptimizationExplainer } from "@/components/molecule/GeometryOpt
 import { LigandPreparationPanel } from "@/components/molecule/LigandPreparationPanel";
 import { WorkflowGuide } from "@/components/onboarding/WorkflowGuide";
 import { GuidedStart } from "@/components/onboarding/GuidedStart";
+import { ProductDemo } from "@/components/onboarding/ProductDemo";
 import { BeginnerExperimentGuide } from "@/components/onboarding/BeginnerExperimentGuide";
 import { ProteinWorkspace } from "@/components/protein/ProteinWorkspace";
 import { ProteinCleanupPanel } from "@/components/protein/ProteinCleanupPanel";
@@ -107,6 +108,7 @@ function Logo() {
 export default function Home() {
   const [activeArea, setActiveArea] = useState<AppArea>("home");
   const [productMode, setProductMode] = useState<ProductMode>("landing");
+  const [productDemoOpen, setProductDemoOpen] = useState(false);
   const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [selectedSample, setSelectedSample] = useState<SampleMolecule>(sampleMolecules[0]);
   const [conformer, setConformer] = useState<ConformerResult | null>(null);
@@ -849,6 +851,7 @@ export default function Home() {
               onStartDrugDesign101={startDrugDesign101}
               onOpenSandbox={openSandbox}
               onSeeHowItWorks={seeHowItWorks}
+              onWatchDemo={() => setProductDemoOpen(true)}
             />
           )
         )}
@@ -1080,6 +1083,12 @@ export default function Home() {
       <BeginnerGlossaryDialog
         open={glossaryOpen}
         onClose={() => setGlossaryOpen(false)}
+      />
+      <ProductDemo
+        open={productDemoOpen}
+        onClose={() => setProductDemoOpen(false)}
+        onStartDrugDesign101={startDrugDesign101}
+        onOpenSandbox={openSandbox}
       />
     </main>
   );
